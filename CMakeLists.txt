@@ -3,4 +3,4 @@ project(filter_finder)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(filter_finder main.cpp Model.cpp Model.h)
+add_executable(filter_finder main.cpp Model.cpp Model.h Arrays.h Arrays.cpp)
