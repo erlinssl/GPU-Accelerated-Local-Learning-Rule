@@ -27,5 +27,5 @@ double CubeArray::calc(std::vector<std::vector<double>> x, size_t outer) {
             sum += std::pow(value, 2);
         }
     }
-    return sum;
+    return -sum;
 }

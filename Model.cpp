@@ -4,9 +4,11 @@
 
 #include "Model.h"
 
+#include <utility>
+
 
 double Model::f(int i, std::vector<std::vector<double>> x) {
-    return std::exp(this->w.calc(x)/this->sigma);
+    return std::exp(this->w.calc(std::move(x), i)/this->sigma);
 }
 
 std::vector<std::vector<double>> operator-(std::vector<std::vector<double>> x, std::vector<std::vector<double>> y) {

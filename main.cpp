@@ -2,6 +2,7 @@
 #include "Arrays.h"
 #include "Model.h"
 
+#include "dependencies/matplotlibcpp.h"
 
 double figsize_scale = 0.2;
 
