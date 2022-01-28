@@ -30,6 +30,49 @@ double CubeArray::calc(SquareArray x, size_t outer) {
     return -sum;
 }
 
+SquareArray CubeArray::operator[](size_t i) {
+    return SquareArray(w[i]);
+}
+
+CubeArray operator*(double y,CubeArray x) {
+    for (int i = 0; i < x.size(); ++i) {
+        for (int j = 0; j < x[i].size(); ++j) {
+            for (int k = 0; k < x[i][j].size(); ++k) {
+                x[i][j][k] *= y;
+            }
+        }
+    }
+    return x;
+}
+
+
+size_t CubeArray::size() {
+    return w.size();
+}
+
+CubeArray CubeArray::operator/(double y) {
+    auto x = *this;
+    for (int i = 0; i < x.size(); ++i) {
+        for (int j = 0; j < x[i].size(); ++j) {
+            for (int k = 0; k < x[i][j].size(); ++k) {
+                x[i][j][k] /= y;
+            }
+        }
+    }
+    return x;
+}
+
+CubeArray CubeArray::operator+=(CubeArray y) {
+    for (int i = 0; i < this->size(); ++i) {
+        for (int j = 0; j < (*this)[i].size(); ++j) {
+            for (int k = 0; k < (*this)[i][j].size(); ++k) {
+                (*this)[i][j][k] += y[i][j][k];
+            }
+        }
+    }
+    return *this;
+}
+
 SquareArray::SquareArray(std::vector<std::vector<double>> x) {
     arr = x;
 }
@@ -67,4 +110,24 @@ SquareArray operator+=(std::vector<std::vector<double>> x, SquareArray y) {
         }
     }
     return SquareArray(x);
+}
+
+SquareArray SquareArray::operator-(SquareArray y) {
+    auto x = *this;
+    for (int i = 0; i < x.size(); ++i) {
+        for (int j = 0; j < x[i].size(); ++j) {
+            x[i][j] -= y[i][j];
+        }
+    }
+    return x;
+}
+
+SquareArray SquareArray::operator*(double y) {
+    auto x = *this;
+    for (int i = 0; i < x.size(); ++i) {
+        for (int j = 0; j < x[i].size(); ++j) {
+            x[i][j] *= y;
+        }
+    }
+    return x;
 }
