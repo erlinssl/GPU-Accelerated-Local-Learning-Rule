@@ -1,3 +1,5 @@
+#define WITHOUT_NUMPY
+
 #include <iostream>
 #include "Arrays.h"
 #include "Model.h"
