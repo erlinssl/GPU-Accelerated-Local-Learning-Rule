@@ -15,10 +15,10 @@ public:
     double sigma;
     double lambda;
     explicit Model(double sigma_, double lambda_) : sigma(sigma_), lambda(lambda_), w(false, 16, 5, 5) {};
-    void update(std::vector<std::vector<double>> x);
+    void update(SquareArray x);
 
 private:
-    double f(int i, std::vector<std::vector<double>> x);
+    double f(int i, SquareArray x);
 };
 
 
