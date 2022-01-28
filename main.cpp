@@ -1,5 +1,3 @@
-#define WITHOUT_NUMPY
-
 #include <iostream>
 #include "Arrays.h"
 #include "Model.h"
@@ -35,8 +33,14 @@ void experiment(const char* subfigure, double sigma, double lambda_, size_t batc
 
 plt::Plot figure(const CubeArray& images){  // TODO Change return type -> return (fig, axes)
     const int nrows = (int) std::sqrt(images.w.size()), ncols = (int) std::sqrt(images.w.size());
+    int imsize = images.w[0].size();
+    std::vector<float> z(imsize * imsize);
+    const int colors = 1;
+
     for(size_t i = 0; i < images.w.size(); i++){
-        plt::imshow(images[i], 5, 5);
+        images[i].flat(z);
+        const float* zptr = &(z[0]);
+        plt::imshow(zptr, imsize, imsize, colors);  // array, nrows, ncols, color space
     }
     return plt::Plot();
 }

@@ -30,7 +30,7 @@ double CubeArray::calc(SquareArray x, size_t outer) {
     return -sum;
 }
 
-SquareArray CubeArray::operator[](size_t i) {
+SquareArray CubeArray::operator[](size_t i) const {
     return SquareArray(w[i]);
 }
 
@@ -130,4 +130,13 @@ SquareArray SquareArray::operator*(double y) {
         }
     }
     return x;
+}
+
+std::vector<float> SquareArray::flat(std::vector<float> out) {
+    for (size_t i = 0; i < this->size(); i++){
+        for (size_t j = 0; j < this->size(); j++){
+            out.at(this->size() * i + j) = this->arr[i][j];
+        }
+    }
+    return out;
 }
