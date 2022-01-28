@@ -40,7 +40,11 @@ plt::Plot figure(const CubeArray& images){  // TODO Change return type -> return
     for(size_t i = 0; i < images.w.size(); i++){
         images[i].flat(z);
         const float* zptr = &(z[0]);
+        for(auto value : z){
+            std::cout << value << std::endl;
+        }
         plt::imshow(zptr, imsize, imsize, colors);  // array, nrows, ncols, color space
+        plt::show();
     }
     return plt::Plot();
 }
@@ -49,7 +53,7 @@ void save_all(){
     std::vector<char> subfigures;
     subfigures = {'a', 'b', 'c', 'd'};
     for (char fig : subfigures){
-        CubeArray testArray(true, 16, 5, 5);
+        CubeArray testArray(false, 16, 5, 5);
         figure(testArray);
     }
 }

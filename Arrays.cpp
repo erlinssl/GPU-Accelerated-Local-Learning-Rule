@@ -3,6 +3,7 @@
 //
 
 #include "Arrays.h"
+#include <iostream>
 
 CubeArray::CubeArray(bool zero, int outer, int middle, int inner) {
     for (int i = 0; i < outer; ++i) {
@@ -132,11 +133,11 @@ SquareArray SquareArray::operator*(double y) {
     return x;
 }
 
-std::vector<float> SquareArray::flat(std::vector<float> out) {
+void SquareArray::flat(std::vector<float> &out) {
     for (size_t i = 0; i < this->size(); i++){
         for (size_t j = 0; j < this->size(); j++){
             out.at(this->size() * i + j) = this->arr[i][j];
         }
     }
-    return out;
+    // return out;
 }

@@ -17,7 +17,7 @@ public:
     SquareArray(std::vector<std::vector<double>> x);
     std::vector<std::vector<double>> arr;
     size_t size();
-    std::vector<float> flat(std::vector<float> out);
+    void flat(std::vector<float> &out);
     std::vector<double> operator[](size_t i);
     SquareArray operator-(std::vector<std::vector<double>> y);
     friend SquareArray operator*(double x, SquareArray y);
