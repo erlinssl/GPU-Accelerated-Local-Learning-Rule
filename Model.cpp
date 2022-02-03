@@ -61,15 +61,25 @@ void Model::update(SquareArray x) {
 */
 
 void Model::save(char subfigure) {
-    std::vector<double> example = {2.0, 3.0, 4.0};
-
     std::string path = "../saved/figure2";
     path.push_back(subfigure);
     path.append(".fig");
-
     std::ofstream output_file(path);
-    std::ostream_iterator<double> output_iterator(output_file, " ");
-    std::copy(example.begin(), example.end(), output_iterator);
+
+    for (const auto& square : w.cube) {
+        for (const auto& inner : square) {
+            std::ostream_iterator<double> output_iterator(output_file, " ");
+            std::copy(inner.begin(), inner.end(), output_iterator);
+            output_file << "\n";
+        }
+        output_file << "\n";
+    }
+}
+
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
 }
 
 void Model::load(char subfigure) {
@@ -84,6 +94,7 @@ void Model::load(char subfigure) {
     std::vector<double> inner = {};
 
     while (std::getline(file, line)) {
+        rtrim(line);
         size_t last = 0, next = 0;
         if (line == ""){
             cube.push_back(square);

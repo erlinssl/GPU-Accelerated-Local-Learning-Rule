@@ -61,10 +61,9 @@ CubeArray get_batch(size_t batch_size){
 }
 
 void experiment(const char* subfigure, double sigma, double lambda_, size_t nbatches){
-    // TODO Random - set seed
+    // TODO Set random seed for consistent experiments
     Model model(sigma, lambda_);
 
-    /*
     size_t batch_size = 1000;
 
     for (size_t i = 0; i < nbatches; i++){
@@ -73,12 +72,9 @@ void experiment(const char* subfigure, double sigma, double lambda_, size_t nbat
             model.update(batch[j]);
         }
         std::cout << "Completed batch " << i+1  << std::endl;
-    }*/
+    }
 
-    // TODO Implement Save & Load functionality for a model's W
-    // np.save(f"figure2{subfigure}.npy", model.W) // python version
-    // model.save('a');
-    model.load('a');
+    model.save(subfigure);
 }
 
 plt::Plot figure(const CubeArray& images){
@@ -123,7 +119,7 @@ int main() {
     // experiment("c", 0.5, 0.5, 1000);  // experiment(subfigure="c", sigma=0.5, lambda_=0.5, batches=1000)
     // experiment("d", 1.0, 1.0/9.0, 1000);  // experiment(subfigure="d", sigma=1.0, lambda_=1.0/9.0, batches=1000)
 
-    save_all();
+    // save_all();
     // get_data();
     return 0;
 }
