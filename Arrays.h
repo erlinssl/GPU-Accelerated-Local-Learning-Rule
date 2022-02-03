@@ -9,6 +9,7 @@
 #include <array>
 #include <cmath>
 #include <vector>
+#include <string>
 
 
 class SquareArray {
@@ -36,6 +37,8 @@ public:
     CubeArray operator/(double y);
     CubeArray operator+=(CubeArray y);
     friend CubeArray operator*(double y, CubeArray x);
+
+    void save(std::string filename);
 };
 
 

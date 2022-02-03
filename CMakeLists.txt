@@ -7,6 +7,7 @@ set(SOURCE_FILES main.cpp)
 
 add_executable(filter_finder main.cpp Model.cpp Arrays.cpp)
 
+configure_file(data/train-images-idx3-ubyte trainingdata COPYONLY)
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 add_library(CPy SHARED ${SOURCE_FILES})
