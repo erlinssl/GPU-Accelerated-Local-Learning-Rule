@@ -7,6 +7,7 @@
 
 
 #include <memory>
+#include <string>
 #include "Arrays.h"
 
 class Model {
@@ -16,6 +17,9 @@ public:
     double lambda;
     explicit Model(double sigma_, double lambda_) : sigma(sigma_), lambda(lambda_), w(false, 16, 5, 5) {};
     void update(SquareArray x);
+
+    void save(char subfigure);
+    void load(char subfigure);
 
 private:
     double f(int i, SquareArray x);

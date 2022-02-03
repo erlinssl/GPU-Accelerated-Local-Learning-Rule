@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.21)
 project(filter_finder)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -I/usr/include/python3.10 -lpython3.10 -I/usr/lib/python3.10/site-packages/numpy/core/include")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpython3.10 -I/usr/include/python3.10")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/lib/python3.10/site-packages/numpy/core/include")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(SOURCE_FILES main.cpp)
 
 add_executable(filter_finder main.cpp Model.cpp Arrays.cpp)

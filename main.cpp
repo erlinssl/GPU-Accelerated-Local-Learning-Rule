@@ -20,7 +20,7 @@ void get_data() {
     if (std::filesystem::exists("trainingdata")) {
         std::cout << "finnes" << std::endl;
         std::vector<std::vector <std::vector<double>>> multi_pic_vector;
-        unsigned int b;
+        unsigned short int b;
         int rowCounter = 0;
         int picCounter = 0;
         int columnCounter = 0;
@@ -63,6 +63,8 @@ CubeArray get_batch(size_t batch_size){
 void experiment(const char* subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Random - set seed
     Model model(sigma, lambda_);
+
+    /*
     size_t batch_size = 1000;
 
     for (size_t i = 0; i < nbatches; i++){
@@ -71,16 +73,18 @@ void experiment(const char* subfigure, double sigma, double lambda_, size_t nbat
             model.update(batch[j]);
         }
         std::cout << "Completed batch " << i+1  << std::endl;
-    }
+    }*/
 
     // TODO Implement Save & Load functionality for a model's W
     // np.save(f"figure2{subfigure}.npy", model.W) // python version
+    // model.save('a');
+    model.load('a');
 }
 
 plt::Plot figure(const CubeArray& images){
     plt::Plot plot("grid");
-    const int nrows = (int) std::sqrt(images.w.size()), ncols = (int) std::sqrt(images.w.size());
-    int imsize = (int) images.w[0].size();
+    const int nrows = (int) std::sqrt(images.cube.size()), ncols = (int) std::sqrt(images.cube.size());
+    int imsize = (int) images.cube[0].size();
     std::vector<float> z(imsize * imsize);
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
@@ -114,12 +118,12 @@ void save_all(){
 int main() {
     const double learning_rate = .1;
 
-    // experiment("a", 1.0, 0.5, 1000);  // experiment(subfigure="a", sigma=1.0, lambda_=0.5, batches=1000)
+    experiment("a", 1.0, 0.5, 1000);  // experiment(subfigure="a", sigma=1.0, lambda_=0.5, batches=1000)
     // experiment("b", 1.0, 0.5, 10000);  // experiment(subfigure="b", sigma=1.0, lambda_=0.5, batches=10000)
     // experiment("c", 0.5, 0.5, 1000);  // experiment(subfigure="c", sigma=0.5, lambda_=0.5, batches=1000)
     // experiment("d", 1.0, 1.0/9.0, 1000);  // experiment(subfigure="d", sigma=1.0, lambda_=1.0/9.0, batches=1000)
 
-    // save_all();
-    get_data();
+    save_all();
+    // get_data();
     return 0;
 }

@@ -3,20 +3,29 @@
 //
 
 #include "Arrays.h"
-#include <iostream>
+
+#include <utility>
+
+// -----------------------------------------------------------------------
+// ----------------------------- CUBE ARRAYS -----------------------------
+// -----------------------------------------------------------------------
 
 CubeArray::CubeArray(bool zero, int outer, int middle, int inner) {
     for (int i = 0; i < outer; ++i) {
-        w.emplace_back(std::vector<std::vector<double>>());
+        cube.emplace_back(std::vector<std::vector<double>>());
         for (int j = 0; j < middle; ++j) {
-            w[i].emplace_back(std::vector<double>());
+            cube[i].emplace_back(std::vector<double>());
             for (int k = 0; k < inner; ++k) {
-                if (zero) w[i][j].emplace_back(0);
+                if (zero) cube[i][j].emplace_back(0);
                     // todo use c++ 11 instead
-                else w[i][j].emplace_back(((double) rand() / RAND_MAX) * (1 - 0));
+                else cube[i][j].emplace_back(((double) rand() / RAND_MAX) * (1 - 0));
             }
         }
     }
+}
+
+CubeArray::CubeArray(std::vector<std::vector<std::vector<double>>> cube_) {
+    cube = std::move(cube_);
 }
 
 
@@ -24,7 +33,7 @@ double CubeArray::calc(SquareArray x, size_t outer) {
     double sum = 0;
     for (size_t inner = 0; inner < 5; inner++) {
         for (size_t index = 0; index < 5; index++) {
-            double value = x[inner][index] - this->w[outer][inner][index];
+            double value = x[inner][index] - this->cube[outer][inner][index];
             sum += std::pow(value, 2);
         }
     }
@@ -32,7 +41,7 @@ double CubeArray::calc(SquareArray x, size_t outer) {
 }
 
 SquareArray CubeArray::operator[](size_t i) const {
-    return SquareArray(w[i]);
+    return SquareArray(cube[i]);
 }
 
 CubeArray operator*(double y,CubeArray x) {
@@ -48,7 +57,7 @@ CubeArray operator*(double y,CubeArray x) {
 
 
 size_t CubeArray::size() {
-    return w.size();
+    return cube.size();
 }
 
 CubeArray CubeArray::operator/(double y) {
@@ -73,6 +82,22 @@ CubeArray CubeArray::operator+=(CubeArray y) {
     }
     return *this;
 }
+
+void CubeArray::print() {
+    for(auto square : cube){
+        for(auto vec : square){
+            for(auto thing : vec){
+                std::cout << thing << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+}
+
+// -----------------------------------------------------------------------
+// ---------------------------- SQUARE ARRAYS ----------------------------
+// -----------------------------------------------------------------------
 
 SquareArray::SquareArray(std::vector<std::vector<double>> x) {
     arr = x;
