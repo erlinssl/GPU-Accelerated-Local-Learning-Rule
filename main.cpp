@@ -1,6 +1,8 @@
+#define WITHOUT_NUMPY
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <iterator>
 
 #include "Arrays.h"
 #include "Model.h"
@@ -13,41 +15,44 @@ double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
 
-// TODO Import MNIST dataset
-void get_data() {
+// TODO missing 267 pictures ???? wrong file size??? should be 16 bytes + 28*28*60000 bytes but is not
+std::vector<std::vector <std::vector<double>>> get_data() {
     std::cout << "getting data" << std::endl;
 
     if (std::filesystem::exists("trainingdata")) {
         std::cout << "finnes" << std::endl;
         std::vector<std::vector <std::vector<double>>> multi_pic_vector;
-        unsigned int b;
-        int rowCounter = 0;
-        int picCounter = 0;
-        int columnCounter = 0;
-        std::ifstream inputFile("trainingdata");
-        if(inputFile.good()) {
-            std::cout << "inputfile good" << std::endl;
-            for(int i = 0; i < 16; ++i) {
-                inputFile >> b;
-                std::cout << b << std::endl;
+        unsigned char b = 0;
+        unsigned int rowCounter = 0;
+        unsigned int picCounter = 0;
+        unsigned int columnCounter = 0;
+
+        auto f = std::ifstream("/home/ingebrigt/Documents/uni/v22/filter-finder/data/train-images-idx3-ubyte", std::ios::binary | std::ios::in);
+
+        for(int i = 0; i < 60000; ++i) {
+            std::vector<std::vector<double>> single_pic_vector;
+            single_pic_vector.reserve(28);
+            for(int j = 0; j < 28; ++j) {
+                single_pic_vector.emplace_back(std::vector<double>());
             }
-            for(int i = 0; i < 60000; ++i) {
-                std::vector<std::vector<double>> single_pic_vector;
-                for(int j = 0; j < 28; ++j) {
-                    single_pic_vector.emplace_back(std::vector<double>());
-                }
-                multi_pic_vector.emplace_back(single_pic_vector);
-            }
-            std::cout << "finished skipping" << std::endl;
-            while (inputFile >> b) {
-                //std::cout << picCounter << " : " << rowCounter << std::endl;
-                //multi_pic_vector[picCounter][rowCounter++].emplace_back(b);
-                rowCounter++;
-            }
-            std::cout << rowCounter << std::endl;
-            inputFile.close();
-            //return data;
+            multi_pic_vector.emplace_back(single_pic_vector);
         }
+
+        // todo convert from int 0 to 255 to double from 0 to 1
+        while (f >> b) {
+            multi_pic_vector[picCounter][rowCounter].emplace_back(b);
+            columnCounter++;
+            if (columnCounter > 27) {
+                rowCounter++;
+                columnCounter = 0;
+                if (rowCounter > 27) {
+                    picCounter++;
+                    rowCounter = 0;
+                }
+            }
+        }
+        std::cout << "number of pictures: " << picCounter << std::endl;
+        return multi_pic_vector;
     }
     else {
         std::cout << "finnes ikke" << std::endl;
@@ -60,6 +65,7 @@ CubeArray get_batch(size_t batch_size){
     // TODO Functionality dependent on MNIST implementation
 }
 
+/*
 void experiment(const char* subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Random - set seed
     Model model(sigma, lambda_);
@@ -101,6 +107,7 @@ plt::Plot figure(const CubeArray& images){
     return plot;
 }
 
+
 void save_all(){
     std::vector<char> subfigures = {'a', 'b', 'c', 'd'};
     plt::Plot plot("sub_fig");
@@ -110,6 +117,7 @@ void save_all(){
         plt::show();
     }
 }
+ */
 
 int main() {
     const double learning_rate = .1;
