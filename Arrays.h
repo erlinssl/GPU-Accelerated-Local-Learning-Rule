@@ -26,6 +26,8 @@ public:
     friend SquareArray operator+=(std::vector<std::vector<double>> x, SquareArray y);
     SquareArray operator-(SquareArray x);
     SquareArray operator*(double y);
+
+    void print();
 };
 
 class CubeArray {

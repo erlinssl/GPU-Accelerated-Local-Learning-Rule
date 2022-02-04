@@ -41,7 +41,7 @@ double CubeArray::calc(SquareArray x, size_t outer) {
 }
 
 SquareArray CubeArray::operator[](size_t i) const {
-    return SquareArray(cube[i]);
+    return SquareArray(this->cube[i]);
 }
 
 CubeArray operator*(double y,CubeArray x) {
@@ -108,7 +108,7 @@ size_t SquareArray::size() {
 }
 
 std::vector<double> SquareArray::operator[](size_t i) {
-    return arr[i];
+    return this->arr[i];
 }
 
 SquareArray operator*(double x, SquareArray y) {
@@ -122,7 +122,7 @@ SquareArray operator*(double x, SquareArray y) {
 
 SquareArray SquareArray::operator-(std::vector<std::vector<double>> y) {
     for (int i = 0; i < this->size(); ++i) {
-        for (int j = 0; j < this[i].size(); ++j) {
+        for (int j = 0; j < this->arr[i].size(); ++j) {
             (*this)[i][j] = (*this)[i][j] - y[i][j];
         }
     }
@@ -165,4 +165,13 @@ void SquareArray::flat(std::vector<float> &out) {
         }
     }
     // return out;
+}
+
+void SquareArray::print(){
+    for(const auto& vec : this->arr){
+        for(auto thing : vec){
+            std::cout << thing << " ";
+        }
+        std::cout << std::endl;
+    }
 }

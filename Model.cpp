@@ -28,6 +28,8 @@ void Model::update(SquareArray x) {
     auto diff = CubeArray(true, 16, 5, 5);
     // todo make 16 dynamic according to outermost shape
     for (int i1 = 0; i1 < 16; ++i1) {
+        SquareArray temp = w.cube[i1];
+        SquareArray arr = x - w.cube[i1];
         diff.cube[i1] += f(i1, x) * (x - w.cube[i1]);
         for (int i2 = 0; i2 < 16; ++i2) {
             if (i1 != i2) {
