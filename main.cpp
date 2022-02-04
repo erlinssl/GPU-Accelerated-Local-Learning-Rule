@@ -23,7 +23,7 @@ std::vector<std::vector <std::vector<double>>> get_data() {
 
         std::ifstream f("trainingdata", std::ios::binary | std::ios::in);
         // ignore until image data
-        //f.ignore(16);
+        f.ignore(16);
 
         std::vector<std::vector <std::vector<double>>> multi_pic_vector;
         for(int i = 0; i < 60000; ++i) {
