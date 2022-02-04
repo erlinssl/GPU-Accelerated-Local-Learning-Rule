@@ -103,6 +103,17 @@ SquareArray::SquareArray(std::vector<std::vector<double>> x) {
     arr = x;
 }
 
+SquareArray::SquareArray(int outer, int inner) {
+    arr = std::vector<std::vector<double>>();
+    for (int i = 0; i < outer; ++i) {
+        arr.emplace_back(std::vector<double>());
+        for (int j = 0; j < inner; ++j) {
+            // todo use c++11 instead
+            arr[j].emplace_back(((double) rand() / RAND_MAX) * (1 - 0));
+        }
+    }
+}
+
 size_t SquareArray::size() {
     return arr.size();
 }
@@ -166,3 +177,4 @@ void SquareArray::flat(std::vector<float> &out) {
     }
     // return out;
 }
+

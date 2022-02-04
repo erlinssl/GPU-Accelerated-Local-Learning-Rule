@@ -13,10 +13,11 @@
 #include <iostream>
 
 
+// todo convert to template in order to use with int as well
 class SquareArray {
 public:
-    SquareArray(int outer, int inner);
     SquareArray(std::vector<std::vector<double>> x);
+    SquareArray(int outer, int inner);
     std::vector<std::vector<double>> arr;
     size_t size();
     void flat(std::vector<float> &out);
