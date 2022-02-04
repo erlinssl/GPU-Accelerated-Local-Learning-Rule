@@ -15,20 +15,17 @@ double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
 
-// TODO missing 267 pictures ???? wrong file size??? should be 16 bytes + 28*28*60000 bytes but is not
 std::vector<std::vector <std::vector<double>>> get_data() {
     std::cout << "getting data" << std::endl;
 
     if (std::filesystem::exists("trainingdata")) {
-        std::cout << "finnes" << std::endl;
+        std::cout << "found training data" << std::endl;
+
+        std::ifstream f("trainingdata", std::ios::binary | std::ios::in);
+        // ignore until image data
+        //f.ignore(16);
+
         std::vector<std::vector <std::vector<double>>> multi_pic_vector;
-        unsigned char b = 0;
-        unsigned int rowCounter = 0;
-        unsigned int picCounter = 0;
-        unsigned int columnCounter = 0;
-
-        auto f = std::ifstream("/home/ingebrigt/Documents/uni/v22/filter-finder/data/train-images-idx3-ubyte", std::ios::binary | std::ios::in);
-
         for(int i = 0; i < 60000; ++i) {
             std::vector<std::vector<double>> single_pic_vector;
             single_pic_vector.reserve(28);
@@ -38,9 +35,12 @@ std::vector<std::vector <std::vector<double>>> get_data() {
             multi_pic_vector.emplace_back(single_pic_vector);
         }
 
-        // todo convert from int 0 to 255 to double from 0 to 1
-        while (f >> b) {
-            multi_pic_vector[picCounter][rowCounter].emplace_back(b);
+        char b;
+        unsigned int rowCounter = 0;
+        unsigned int picCounter = 0;
+        unsigned int columnCounter = 0;
+        while (f.get(b)) {
+            multi_pic_vector[picCounter][rowCounter].emplace_back(((double) b) / 255.0);
             columnCounter++;
             if (columnCounter > 27) {
                 rowCounter++;
@@ -55,7 +55,7 @@ std::vector<std::vector <std::vector<double>>> get_data() {
         return multi_pic_vector;
     }
     else {
-        std::cout << "finnes ikke" << std::endl;
+        std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
         exit(1);
     }
 }
