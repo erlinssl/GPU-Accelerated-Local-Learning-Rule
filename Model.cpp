@@ -95,6 +95,7 @@ bool Model::load(const char &subfigure) {
 
     std::string line;
     this->w.cube.clear();
+
     std::vector<std::vector<double>> square = {};
     std::vector<double> inner = {};
 

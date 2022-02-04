@@ -66,19 +66,18 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
     size_t batch_size = 1000;
 
-    /*for (size_t i = 0; i < nbatches; i++){
+    for (size_t i = 0; i < nbatches; i++){
         CubeArray batch = get_batch(batch_size);
         for (size_t j = 0; j < batch.size(); j++){
             model.update(batch[j]);
         }
         std::cout << "Completed batch " << i+1  << std::endl;
-    }*/
+    }
 
     model.save(subfigure);
 }
 
-plt::Plot figure(const CubeArray& images){
-    plt::Plot plot("grid");
+void figure(const CubeArray& images){
     const int nrows = (int) std::sqrt(images.cube.size()), ncols = (int) std::sqrt(images.cube.size());
     int imsize = (int) images.cube[0].size();
     std::vector<float> z(imsize * imsize);
@@ -98,7 +97,6 @@ plt::Plot figure(const CubeArray& images){
             plt::plot();
         }
     }
-    return plot;
 }
 
 void save_all(){
@@ -109,7 +107,7 @@ void save_all(){
     for (char fig : subfigures){
         std::cout << "Handling fig " << fig << std::endl;
         model.load(fig);
-        plot = figure(model.w);
+        figure(model.w);
         plt::show();
         /*
          std::string path = "../saved/figure2"
