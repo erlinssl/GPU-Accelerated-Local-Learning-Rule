@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 
@@ -12,44 +13,47 @@ double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
 
-// TODO Import MNIST dataset
-void get_data() {
+std::vector<std::vector <std::vector<double>>> get_data() {
     std::cout << "getting data" << std::endl;
 
     if (std::filesystem::exists("trainingdata")) {
-        std::cout << "finnes" << std::endl;
+        std::cout << "found training data" << std::endl;
+
+        std::ifstream f("trainingdata", std::ios::binary | std::ios::in);
+        // ignore until image data
+        f.ignore(16);
+
         std::vector<std::vector <std::vector<double>>> multi_pic_vector;
-        unsigned short int b;
-        int rowCounter = 0;
-        int picCounter = 0;
-        int columnCounter = 0;
-        std::ifstream inputFile("trainingdata");
-        if(inputFile.good()) {
-            std::cout << "inputfile good" << std::endl;
-            for(int i = 0; i < 16; ++i) {
-                inputFile >> b;
-                std::cout << b << std::endl;
+        for(int i = 0; i < 60000; ++i) {
+            std::vector<std::vector<double>> single_pic_vector;
+            single_pic_vector.reserve(28);
+            for(int j = 0; j < 28; ++j) {
+                single_pic_vector.emplace_back(std::vector<double>());
             }
-            for(int i = 0; i < 60000; ++i) {
-                std::vector<std::vector<double>> single_pic_vector;
-                for(int j = 0; j < 28; ++j) {
-                    single_pic_vector.emplace_back(std::vector<double>());
-                }
-                multi_pic_vector.emplace_back(single_pic_vector);
-            }
-            std::cout << "finished skipping" << std::endl;
-            while (inputFile >> b) {
-                //std::cout << picCounter << " : " << rowCounter << std::endl;
-                //multi_pic_vector[picCounter][rowCounter++].emplace_back(b);
-                rowCounter++;
-            }
-            std::cout << rowCounter << std::endl;
-            inputFile.close();
-            //return data;
+            multi_pic_vector.emplace_back(single_pic_vector);
         }
+
+        char b;
+        unsigned int rowCounter = 0;
+        unsigned int picCounter = 0;
+        unsigned int columnCounter = 0;
+        while (f.get(b)) {
+            multi_pic_vector[picCounter][rowCounter].emplace_back(((double) b) / 255.0);
+            columnCounter++;
+            if (columnCounter > 27) {
+                rowCounter++;
+                columnCounter = 0;
+                if (rowCounter > 27) {
+                    picCounter++;
+                    rowCounter = 0;
+                }
+            }
+        }
+        std::cout << "number of pictures: " << picCounter << std::endl;
+        return multi_pic_vector;
     }
     else {
-        std::cout << "finnes ikke" << std::endl;
+        std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
         exit(1);
     }
 }
