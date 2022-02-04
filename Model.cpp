@@ -60,7 +60,7 @@ void Model::update(SquareArray x) {
  *   [4 1] ]]
 */
 
-void Model::save(char subfigure) {
+void Model::save(const char &subfigure) {
     std::string path = "../saved/figure2";
     path.push_back(subfigure);
     path.append(".fig");
@@ -82,22 +82,28 @@ static inline void rtrim(std::string &s) {
     }).base(), s.end());
 }
 
-void Model::load(char subfigure) {
+bool Model::load(const char &subfigure) {
     std::string path = "../saved/figure2";
     path.push_back(subfigure);
     path.append(".fig");
+    if(!std::filesystem::exists(path)){
+        std::cout << "Figure " << subfigure << " not found." << std::endl;
+        return false;
+    }
+    std::cout << "path " << path << std::endl;
     std::ifstream file(path);
 
     std::string line;
-    std::vector<std::vector<std::vector<double>>> cube = {};
+    this->w.cube.clear();
     std::vector<std::vector<double>> square = {};
     std::vector<double> inner = {};
 
     while (std::getline(file, line)) {
         rtrim(line);
+        std::replace(line.begin(), line.end(), '.', ',');
         size_t last = 0, next = 0;
-        if (line == ""){
-            cube.push_back(square);
+        if (line.empty()){
+            this->w.cube.push_back(square);
             square = {};
             continue;
         } else {
@@ -110,7 +116,6 @@ void Model::load(char subfigure) {
             square.push_back(inner);
         }
     }
-    cube.push_back(square);
-
-    CubeArray cubeArray(cube);
+    this->w.cube.push_back(square);
+    return true;
 }
