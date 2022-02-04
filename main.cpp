@@ -60,7 +60,7 @@ std::vector<std::vector <std::vector<double>>> get_data() {
 
 CubeArray get_batch(size_t batch_size){
     // TODO Functionality dependent on MNIST implementation
-    CubeArray cube(true, 16, 5, 5);
+    CubeArray cube(true, batch_size, 5, 5);
     return cube;
 }
 
