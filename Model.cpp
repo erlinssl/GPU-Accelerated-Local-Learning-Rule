@@ -24,8 +24,9 @@ std::vector<std::vector<double>> operator-=(std::vector<std::vector<double>> &x,
     return x;
 }
 
-void Model::update(SquareArray x) {
-    auto diff = CubeArray(true, 16, 5, 5);
+template <typename T>
+void Model<T>::update(SquareArray<T> x) {
+    auto diff = CubeArray<T>(true, 16, 5, 5);
     // todo make 16 dynamic according to outermost shape
     for (int i1 = 0; i1 < 16; ++i1) {
         diff.cube[i1] += f(i1, x) * (x - w.cube[i1]);

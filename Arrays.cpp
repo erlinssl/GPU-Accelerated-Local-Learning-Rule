@@ -10,26 +10,30 @@
 // ----------------------------- CUBE ARRAYS -----------------------------
 // -----------------------------------------------------------------------
 
-CubeArray::CubeArray(bool zero, int outer, int middle, int inner) {
+template <typename T>
+CubeArray<T>::CubeArray(bool zero, int outer, int middle, int inner) {
     for (int i = 0; i < outer; ++i) {
-        cube.emplace_back(std::vector<std::vector<double>>());
+        cube.emplace_back(std::vector<std::vector<T>>());
         for (int j = 0; j < middle; ++j) {
-            cube[i].emplace_back(std::vector<double>());
+            cube[i].emplace_back(std::vector<T>());
             for (int k = 0; k < inner; ++k) {
                 if (zero) cube[i][j].emplace_back(0);
                     // todo use c++ 11 instead
+                    // todo fix this concerning templates
                 else cube[i][j].emplace_back(((double) rand() / RAND_MAX) * (1 - 0));
             }
         }
     }
 }
 
-CubeArray::CubeArray(std::vector<std::vector<std::vector<double>>> cube_) {
+template <typename T>
+CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> cube_) {
     cube = std::move(cube_);
 }
 
 
-double CubeArray::calc(SquareArray x, size_t outer) {
+template <typename T>
+double CubeArray<T>::calc(SquareArray<T> x, size_t outer) {
     double sum = 0;
     for (size_t inner = 0; inner < 5; inner++) {
         for (size_t index = 0; index < 5; index++) {
@@ -40,11 +44,13 @@ double CubeArray::calc(SquareArray x, size_t outer) {
     return -sum;
 }
 
-SquareArray CubeArray::operator[](size_t i) const {
+template <typename T>
+SquareArray<T> CubeArray<T>::operator[](size_t i) const {
     return SquareArray(this->cube[i]);
 }
 
-CubeArray operator*(double y,CubeArray x) {
+template <typename T>
+CubeArray<T> operator*(T y, CubeArray<T> x) {
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
             for (int k = 0; k < x[i][j].size(); ++k) {
@@ -55,12 +61,13 @@ CubeArray operator*(double y,CubeArray x) {
     return x;
 }
 
-
-size_t CubeArray::size() {
+template <typename T>
+size_t CubeArray<T>::size() {
     return cube.size();
 }
 
-CubeArray CubeArray::operator/(double y) {
+template <typename T>
+CubeArray<T> CubeArray<T>::operator/(double y) {
     auto x = *this;
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
@@ -72,7 +79,8 @@ CubeArray CubeArray::operator/(double y) {
     return x;
 }
 
-CubeArray CubeArray::operator+=(CubeArray y) {
+template <typename T>
+CubeArray<T> CubeArray<T>::operator+=(CubeArray<T> y) {
     for (int i = 0; i < this->size(); ++i) {
         for (int j = 0; j < (*this)[i].size(); ++j) {
             for (int k = 0; k < (*this)[i][j].size(); ++k) {
@@ -83,7 +91,8 @@ CubeArray CubeArray::operator+=(CubeArray y) {
     return *this;
 }
 
-void CubeArray::print() {
+template <typename T>
+void CubeArray<T>::print() {
     for(auto square : cube){
         for(auto vec : square){
             for(auto thing : vec){
@@ -99,19 +108,23 @@ void CubeArray::print() {
 // ---------------------------- SQUARE ARRAYS ----------------------------
 // -----------------------------------------------------------------------
 
-SquareArray::SquareArray(std::vector<std::vector<double>> x) {
+template <typename T>
+SquareArray<T>::SquareArray(std::vector<std::vector<T>> x) {
     arr = x;
 }
 
-size_t SquareArray::size() {
+template <typename T>
+size_t SquareArray<T>::size() {
     return arr.size();
 }
 
-std::vector<double> SquareArray::operator[](size_t i) {
+template <typename T>
+std::vector<T> SquareArray<T>::operator[](size_t i) {
     return this->arr[i];
 }
 
-SquareArray operator*(double x, SquareArray y) {
+template <typename T>
+SquareArray<T> operator*(double x, SquareArray<T> y) {
     for (int i = 0; i < y.size(); i++) {
         for (auto &val : y[i]) {
             val *= x;
@@ -120,7 +133,8 @@ SquareArray operator*(double x, SquareArray y) {
     return y;
 }
 
-SquareArray SquareArray::operator-(std::vector<std::vector<double>> y) {
+template <typename T>
+SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> y) {
     for (int i = 0; i < this->size(); ++i) {
         for (int j = 0; j < this->arr[i].size(); ++j) {
             (*this)[i][j] = (*this)[i][j] - y[i][j];
@@ -129,7 +143,8 @@ SquareArray SquareArray::operator-(std::vector<std::vector<double>> y) {
     return *this;
 }
 
-SquareArray operator+=(std::vector<std::vector<double>> x, SquareArray y) {
+template <typename T>
+SquareArray<T> operator+=(std::vector<std::vector<T>> x, SquareArray<T> y) {
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < y.size(); ++j) {
             x[i][j] += y[i][j];
@@ -138,7 +153,8 @@ SquareArray operator+=(std::vector<std::vector<double>> x, SquareArray y) {
     return SquareArray(x);
 }
 
-SquareArray SquareArray::operator-(SquareArray y) {
+template <typename T>
+SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
     auto x = *this;
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
@@ -148,7 +164,8 @@ SquareArray SquareArray::operator-(SquareArray y) {
     return x;
 }
 
-SquareArray SquareArray::operator*(double y) {
+template <typename T>
+SquareArray<T> SquareArray<T>::operator*(T y) {
     auto x = *this;
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
@@ -158,7 +175,8 @@ SquareArray SquareArray::operator*(double y) {
     return x;
 }
 
-void SquareArray::flat(std::vector<float> &out) {
+template <typename T>
+void SquareArray<T>::flat(std::vector<float> &out) {
     for (size_t i = 0; i < this->size(); i++){
         for (size_t j = 0; j < this->size(); j++){
             out.at(this->size() * i + j) = this->arr[i][j];
@@ -167,7 +185,8 @@ void SquareArray::flat(std::vector<float> &out) {
     // return out;
 }
 
-void SquareArray::print(){
+template <typename T>
+void SquareArray<T>::print(){
     for(const auto& vec : this->arr){
         for(auto thing : vec){
             std::cout << thing << " ";

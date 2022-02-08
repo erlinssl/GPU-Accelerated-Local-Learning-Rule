@@ -13,34 +13,37 @@
 #include <iostream>
 
 
+template <typename T>
 class SquareArray {
 public:
     SquareArray(int outer, int inner);
-    SquareArray(std::vector<std::vector<double>> x);
-    std::vector<std::vector<double>> arr;
+    SquareArray(std::vector<std::vector<T>> x);
+    std::vector<std::vector<T>> arr;
     size_t size();
     void flat(std::vector<float> &out);
-    std::vector<double> operator[](size_t i);
-    SquareArray operator-(std::vector<std::vector<double>> y);
+    std::vector<T> operator[](size_t i);
+    SquareArray operator-(std::vector<std::vector<T>> y);
     friend SquareArray operator*(double x, SquareArray y);
-    friend SquareArray operator+=(std::vector<std::vector<double>> x, SquareArray y);
+    // todo does this need to be friend?
+    friend SquareArray operator+=(std::vector<std::vector<T>> x, SquareArray y);
     SquareArray operator-(SquareArray x);
-    SquareArray operator*(double y);
+    SquareArray operator*(T y);
 
     void print();
 };
 
+template <typename T>
 class CubeArray {
 public:
     CubeArray(bool zero, int outer, int middle, int inner);
-    CubeArray(std::vector<std::vector<std::vector<double>>> cube_);
+    CubeArray(std::vector<std::vector<std::vector<T>>> cube_);
     size_t size();
-    std::vector<std::vector<std::vector<double>>> cube;
-    double calc(SquareArray x, size_t outer);
-    SquareArray operator[](size_t i) const; //
+    std::vector<std::vector<std::vector<T>>> cube;
+    double calc(SquareArray<T> x, size_t outer);
+    SquareArray<T> operator[](size_t i) const; //
     CubeArray operator/(double y);
     CubeArray operator+=(CubeArray y);
-    friend CubeArray operator*(double y, CubeArray x);
+    friend CubeArray operator*(T y, CubeArray x);
 
     void print();
 };
