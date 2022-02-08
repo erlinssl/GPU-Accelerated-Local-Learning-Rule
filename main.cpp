@@ -60,8 +60,41 @@ CubeArray<double> get_data() {
 
 template <typename T>
 CubeArray<T> get_batch(size_t batch_size){
+    // todo don't know if this needs to be nested, but it is nested in python :)
+    std::vector<std::vector<double>> rand_array;
+    rand_array.emplace_back(std::vector<double>());
+    for (int i = 0; i < batch_size; ++i) {
+        rand_array[0].emplace_back((double)rand()/(double)RAND_MAX);
+    }
+    SquareArray s(rand_array);
+    auto batch_indexes = (s * 60000);
+    for (auto &b : batch_indexes) {
+        b = (int) b;
+    }
+
+    auto random_multiplied_square = (SquareArray(batch_size, 1) * (28 - 4)).arr;
+    std::vector<std::vector<int>> floored;
+    floored.emplace_back(std::vector<int>());
+    for (auto a : random_multiplied_square) {
+        floored[0].emplace_back((int)a);
+    }
+
+    // todo uncomment when operator has been added and proper templates have been made
+    // batch_indexes = batch_indexes[0] + floored[0];
+    /*
+    batch_indexes = np.concatenate((batch_indexes, np.floor(2 + np.random.rand(batch_size, 1) * (data.shape[1] - 4)).astype(int)), axis=1)
+    batch_indexes = np.concatenate((batch_indexes, np.floor(2 + np.random.rand(batch_size, 1) * (data.shape[2] - 4)).astype(int)), axis=1)
+
+    batch = np.zeros((batch_size, 5, 5))
+    for count, index in enumerate(batch_indexes):
+    batch[count] = data[index[0], index[1] - 2:index[1] + 3, index[2] - 2:index[2] + 3]
+
+    return batch
+
+     */
+
     // TODO Functionality dependent on MNIST implementation
-    CubeArray<T> cube(true, batch_size, 5, 5);
+    CubeArray cube(true, 16, 5, 5);
     return cube;
 }
 
@@ -127,6 +160,8 @@ void save_all(){
 }
 
 int main() {
+    //todo what does this do
+    srand((unsigned)time(NULL));
     const double learning_rate = .1;
 
     experiment<double>('a', 1.0, 0.5, 1000);  // experiment(subfigure="a", sigma=1.0, lambda_=0.5, batches=1000)

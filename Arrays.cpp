@@ -118,6 +118,19 @@ size_t SquareArray<T>::size() {
     return arr.size();
 }
 
+
+template <typename T>
+SquareArray<T>::SquareArray(int outer, int inner) {
+    arr = std::vector<std::vector<double>>();
+    for (int i = 0; i < outer; ++i) {
+        arr.emplace_back(std::vector<double>());
+        for (int j = 0; j < inner; ++j) {
+            // todo use c++11 instead
+            arr[j].emplace_back(((double) rand() / RAND_MAX) * (1 - 0));
+        }
+    }
+}
+
 template <typename T>
 std::vector<T> SquareArray<T>::operator[](size_t i) {
     return this->arr[i];
