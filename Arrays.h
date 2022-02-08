@@ -17,7 +17,7 @@ template <typename T>
 class SquareArray {
 public:
     SquareArray(int outer, int inner);
-    SquareArray(std::vector<std::vector<T>> x);
+    explicit SquareArray(std::vector<std::vector<T>> x);
     std::vector<std::vector<T>> arr;
     size_t size();
     void flat(std::vector<float> &out);
@@ -36,7 +36,7 @@ template <typename T>
 class CubeArray {
 public:
     CubeArray(bool zero, int outer, int middle, int inner);
-    CubeArray(std::vector<std::vector<std::vector<T>>> cube_);
+    explicit CubeArray(std::vector<std::vector<std::vector<T>>> cube_);
     size_t size();
     std::vector<std::vector<std::vector<T>>> cube;
     double calc(SquareArray<T> x, size_t outer);

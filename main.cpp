@@ -13,7 +13,7 @@ double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
 
-std::vector<std::vector <std::vector<double>>> get_data() {
+CubeArray<double> get_data() {
     std::cout << "getting data" << std::endl;
 
     if (std::filesystem::exists("trainingdata")) {
@@ -50,7 +50,7 @@ std::vector<std::vector <std::vector<double>>> get_data() {
             }
         }
         std::cout << "number of pictures: " << picCounter << std::endl;
-        return multi_pic_vector;
+        return CubeArray<double>(multi_pic_vector);
     }
     else {
         std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
@@ -58,20 +58,22 @@ std::vector<std::vector <std::vector<double>>> get_data() {
     }
 }
 
-CubeArray get_batch(size_t batch_size){
+template <typename T>
+CubeArray<T> get_batch(size_t batch_size){
     // TODO Functionality dependent on MNIST implementation
-    CubeArray cube(true, batch_size, 5, 5);
+    CubeArray<T> cube(true, batch_size, 5, 5);
     return cube;
 }
 
+template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
-    Model model(sigma, lambda_);
+    Model<T> model(sigma, lambda_);
 
     size_t batch_size = 1000;
 
     for (size_t i = 0; i < nbatches; i++){
-        CubeArray batch = get_batch(batch_size);
+        CubeArray<T> batch = get_batch<double>(batch_size);
         for (size_t j = 0; j < batch.size(); j++){
             model.update(batch[j]);
         }
@@ -81,7 +83,8 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     model.save(subfigure);
 }
 
-void figure(const CubeArray& images){
+template <typename T>
+void figure(const CubeArray<T>& images){
     const int nrows = (int) std::sqrt(images.cube.size()), ncols = (int) std::sqrt(images.cube.size());
     int imsize = (int) images.cube[0].size();
     std::vector<float> z(imsize * imsize);
@@ -103,11 +106,12 @@ void figure(const CubeArray& images){
     }
 }
 
+template <typename T>
 void save_all(){
     std::vector<char> subfigures = {'a'}; //, 'b', 'c', 'd'};
     plt::Plot plot("sub_fig");
 
-    Model model(1.0, 0.5);
+    Model<T> model(1.0, 0.5);
     for (char fig : subfigures){
         std::cout << "Handling fig " << fig << std::endl;
         model.load(fig);
@@ -125,12 +129,12 @@ void save_all(){
 int main() {
     const double learning_rate = .1;
 
-    experiment('a', 1.0, 0.5, 1000);  // experiment(subfigure="a", sigma=1.0, lambda_=0.5, batches=1000)
+    experiment<double>('a', 1.0, 0.5, 1000);  // experiment(subfigure="a", sigma=1.0, lambda_=0.5, batches=1000)
     // experiment('b', 1.0, 0.5, 10000);  // experiment(subfigure="b", sigma=1.0, lambda_=0.5, batches=10000)
-    experiment('c', 0.5, 0.5, 1000);  // experiment(subfigure="c", sigma=0.5, lambda_=0.5, batches=1000)
+    experiment<double>('c', 0.5, 0.5, 1000);  // experiment(subfigure="c", sigma=0.5, lambda_=0.5, batches=1000)
     // experiment('d', 1.0, 1.0/9.0, 1000);  // experiment(subfigure="d", sigma=1.0, lambda_=1.0/9.0, batches=1000)
 
-    save_all();
+    save_all<double>();
     // get_data();
     std::cout << "debug" << std::endl;
     return 0;

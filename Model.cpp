@@ -11,11 +11,13 @@
 
 
 double learning_rate = 0.1;
-double Model::f(int i, SquareArray x) {
+template <typename T>
+double Model<T>::f(int i, SquareArray<T> x) {
     return std::exp(this->w.calc(std::move(x), i)/this->sigma);
 }
 
-std::vector<std::vector<double>> operator-=(std::vector<std::vector<double>> &x, SquareArray y) {
+template <typename T>
+std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, SquareArray<T> y) {
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
             x[i][j] -= y[i][j];
@@ -61,7 +63,8 @@ void Model<T>::update(SquareArray<T> x) {
  *   [4 1] ]]
 */
 
-void Model::save(const char &subfigure) {
+template <typename T>
+void Model<T>::save(const char &subfigure) {
     std::string path = "../saved/figure2";
     path.push_back(subfigure);
     path.append(".fig");
@@ -83,7 +86,8 @@ static inline void rtrim(std::string &s) {
     }).base(), s.end());
 }
 
-bool Model::load(const char &subfigure) {
+template <typename T>
+bool Model<T>::load(const char &subfigure) {
     std::string path = "../saved/figure2";
     path.push_back(subfigure);
     path.append(".fig");
