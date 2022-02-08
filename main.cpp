@@ -58,8 +58,11 @@ CubeArray<double> get_data() {
     }
 }
 
+auto data = get_data();
+
 template <typename T>
 CubeArray<T> get_batch(size_t batch_size){
+    // batch_indexes = np.floor(np.random.rand(batch_size, 1) * data.shape[0]).astype(int)
     // todo don't know if this needs to be nested, but it is nested in python :)
     std::vector<std::vector<double>> rand_array;
     rand_array.emplace_back(std::vector<double>());
@@ -67,16 +70,21 @@ CubeArray<T> get_batch(size_t batch_size){
         rand_array[0].emplace_back((double)rand()/(double)RAND_MAX);
     }
     SquareArray s(rand_array);
-    auto batch_indexes = (s * 60000);
-    for (auto &b : batch_indexes) {
-        b = (int) b;
+    SquareArray<double> multiplied_array = (s * 60000);
+    SquareArray<int> batch_indexes(multiplied_array.size(), multiplied_array[0].size());
+    for (int i = 0; i < multiplied_array.size(); ++i) {
+        for (int j = 0; j < multiplied_array[i].size(); ++j) {
+            batch_indexes[i].emplace_back((int) multiplied_array[i][j]);
+        }
     }
 
-    auto random_multiplied_square = (SquareArray(batch_size, 1) * (28 - 4)).arr;
-    std::vector<std::vector<int>> floored;
-    floored.emplace_back(std::vector<int>());
-    for (auto a : random_multiplied_square) {
-        floored[0].emplace_back((int)a);
+    // batch_indexes = np.concatenate((batch_indexes, np.floor(2 + np.random.rand(batch_size, 1) * (data.shape[1] - 4)).astype(int)), axis=1)
+    auto random_multiplied_square = 2 + (SquareArray(batch_size, 1) * (28 - 4)).arr;
+    SquareArray<int> floored(random_multiplied_square.size(), random_multiplied_square[0].size());
+    for (int i = 0; i < random_multiplied_square.size(); ++i) {
+        for (int j = 0; j < random_multiplied_square[i].size(); ++j) {
+            floored[i].emplace_back(random_multiplied_square[i][j]);
+        }
     }
 
     // todo uncomment when operator has been added and proper templates have been made
