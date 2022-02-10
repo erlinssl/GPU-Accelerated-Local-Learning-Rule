@@ -46,7 +46,7 @@ double CubeArray<T>::calc(SquareArray<T> x, size_t outer) {
 
 template <typename T>
 SquareArray<T> CubeArray<T>::operator[](size_t i) const {
-    return SquareArray(this->cube[i]);
+    return SquareArray(cube[i]);
 }
 
 template <typename T>
@@ -108,8 +108,8 @@ template <typename T>
 void CubeArray<T>::print() {
     for(auto square : cube){
         for(auto vec : square){
-            for(auto thing : vec){
-                std::cout << thing << " ";
+            for(auto value : vec){
+                std::cout << value << " ";
             }
             std::cout << std::endl;
         }
@@ -146,7 +146,7 @@ SquareArray<T>::SquareArray(int outer, int inner) {
 
 template <typename T>
 std::vector<T> SquareArray<T>::operator[](size_t i) {
-    return this->arr[i];
+    return arr[i];
 }
 
 template <typename T>
@@ -161,8 +161,8 @@ SquareArray<T> operator*(T x, SquareArray<T> y) {
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> y) {
-    for (int i = 0; i < this->size(); ++i) {
-        for (int j = 0; j < this->arr[i].size(); ++j) {
+    for (int i = 0; i < size(); ++i) {
+        for (int j = 0; j < arr[i].size(); ++j) {
             (*this)[i][j] = (*this)[i][j] - y[i][j];
         }
     }
@@ -171,9 +171,9 @@ SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> y) {
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator+=(SquareArray<T> y) {
-    for (int i = 0; i < this->size(); ++i) {
+    for (int i = 0; i < size(); ++i) {
         for (int j = 0; j < y.size(); ++j) {
-            this->arr[i][j] += y[i][j];
+            arr[i][j] += y[i][j];
         }
     }
     return SquareArray(*this);
@@ -181,9 +181,9 @@ SquareArray<T> SquareArray<T>::operator+=(SquareArray<T> y) {
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-=(SquareArray<T> y) {
-    for (int i = 0; i < this->size(); ++i) {
+    for (int i = 0; i < size(); ++i) {
         for (int j = 0; j < y.size(); ++j) {
-            this->arr[i][j] -= y[i][j];
+            arr[i][j] -= y[i][j];
         }
     }
     return SquareArray(*this);
@@ -224,9 +224,9 @@ SquareArray<T> SquareArray<T>::operator*(T y) {
 
 template <typename T>
 void SquareArray<T>::flat(std::vector<float> &out) {
-    for (size_t i = 0; i < this->size(); i++){
-        for (size_t j = 0; j < this->size(); j++){
-            out.at(this->size() * i + j) = this->arr[i][j];
+    for (size_t i = 0; i < size(); i++){
+        for (size_t j = 0; j < size(); j++){
+            out.at(size() * i + j) = arr[i][j];
         }
     }
     // return out;
@@ -234,9 +234,9 @@ void SquareArray<T>::flat(std::vector<float> &out) {
 
 template <typename T>
 void SquareArray<T>::print(){
-    for(const auto& vec : this->arr){
-        for(auto thing : vec){
-            std::cout << thing << " ";
+    for(const auto& vec : arr){
+        for(auto& value : vec){
+            std::cout << value << " ";
         }
         std::cout << std::endl;
     }

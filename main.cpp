@@ -62,7 +62,8 @@ auto data = get_data();
 
 template <typename T>
 CubeArray<T> get_batch(size_t batch_size){
-    // TODO Uncomment when functionality implemented
+    // TODO Uncomment when functionality implemented \
+        ALSO make batch resolution dependent on model resolution
     /*
     // batch_indexes = np.floor(np.random.rand(batch_size, 1) * data.shape[0]).astype(int)
     // todo don't know if this needs to be nested, but it is nested in python :)
