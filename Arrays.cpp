@@ -252,6 +252,18 @@ SquareArray<T> operator+(T x, SquareArray<T> y) {
     return y;
 }
 
+template<typename T>
+void SquareArray<T>::concatenate(SquareArray<T> x) {
+    if (x.size() > 1 || x[0].size() != this->size()) {
+        std::cerr << "cannot concatenate, wrong array dimensions" << std::endl;
+        // todo better error handling, this is also just a random number
+        exit(159);
+    }
+    for (int i = 0; i < this->size(); ++i) {
+        this->arr[i].emplace_back(x[0][i]);
+    }
+}
+
 template class CubeArray<double>;
 template class CubeArray<int>;
 template class SquareArray<double>;

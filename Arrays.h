@@ -22,6 +22,7 @@ public:
     explicit SquareArray(std::vector<std::vector<T>> x);
 
     void flat(std::vector<float> &out);
+    void concatenate(SquareArray<T> x);
     friend SquareArray<T> operator+(T x, SquareArray<T> y);
     friend SquareArray<T> operator*(T x, SquareArray<T> y);
     // todo does this need to be friend?
