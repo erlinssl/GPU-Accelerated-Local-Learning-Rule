@@ -20,7 +20,7 @@ CubeArray<T>::CubeArray(bool zero, int outer, int middle, int inner) {
                 if (zero) cube[i][j].emplace_back(0);
                     // todo use c++ 11 instead
                     // todo fix this concerning templates
-                else cube[i][j].emplace_back(((double) rand() / RAND_MAX) * (1 - 0));
+                else cube[i][j].emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
             }
         }
     }
@@ -67,12 +67,25 @@ size_t CubeArray<T>::size() {
 }
 
 template <typename T>
-CubeArray<T> CubeArray<T>::operator/(double y) {
+CubeArray<T> CubeArray<T>::operator/(T y) {
     auto x = *this;
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
             for (int k = 0; k < x[i][j].size(); ++k) {
                 x[i][j][k] /= y;
+            }
+        }
+    }
+    return x;
+}
+
+template <typename T>
+CubeArray<T> CubeArray<T>::operator*(T y) {
+    auto x = *this;
+    for (int i = 0; i < x.size(); ++i) {
+        for (int j = 0; j < x[i].size(); ++j) {
+            for (int k = 0; k < x[i][j].size(); ++k) {
+                x[i][j][k] *= y;
             }
         }
     }
@@ -121,12 +134,12 @@ size_t SquareArray<T>::size() {
 
 template <typename T>
 SquareArray<T>::SquareArray(int outer, int inner) {
-    arr = std::vector<std::vector<double>>();
+    arr = std::vector<std::vector<T>>();
     for (int i = 0; i < outer; ++i) {
-        arr.emplace_back(std::vector<double>());
+        arr.emplace_back(std::vector<T>());
         for (int j = 0; j < inner; ++j) {
             // todo use c++11 instead
-            arr[j].emplace_back(((double) rand() / RAND_MAX) * (1 - 0));
+            arr[j].emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
         }
     }
 }
@@ -137,7 +150,7 @@ std::vector<T> SquareArray<T>::operator[](size_t i) {
 }
 
 template <typename T>
-SquareArray<T> operator*(double x, SquareArray<T> y) {
+SquareArray<T> operator*(T x, SquareArray<T> y) {
     for (int i = 0; i < y.size(); i++) {
         for (auto &val : y[i]) {
             val *= x;
@@ -157,13 +170,23 @@ SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> y) {
 }
 
 template <typename T>
-SquareArray<T> operator+=(std::vector<std::vector<T>> x, SquareArray<T> y) {
-    for (int i = 0; i < x.size(); ++i) {
+SquareArray<T> SquareArray<T>::operator+=(SquareArray<T> y) {
+    for (int i = 0; i < this->size(); ++i) {
         for (int j = 0; j < y.size(); ++j) {
-            x[i][j] += y[i][j];
+            this->arr[i][j] += y[i][j];
         }
     }
-    return SquareArray(x);
+    return SquareArray(*this);
+}
+
+template <typename T>
+SquareArray<T> SquareArray<T>::operator-=(SquareArray<T> y) {
+    for (int i = 0; i < this->size(); ++i) {
+        for (int j = 0; j < y.size(); ++j) {
+            this->arr[i][j] -= y[i][j];
+        }
+    }
+    return SquareArray(*this);
 }
 
 template <typename T>
@@ -172,6 +195,17 @@ SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
             x[i][j] -= y[i][j];
+        }
+    }
+    return x;
+}
+
+template <typename T>
+SquareArray<T> SquareArray<T>::operator+(T y) {
+    auto x = *this;
+    for (int i = 0; i < x.size(); ++i) {
+        for (int j = 0; j < x[i].size(); ++j) {
+            x[i][j] += y;
         }
     }
     return x;
@@ -209,7 +243,7 @@ void SquareArray<T>::print(){
 }
 
 template <typename T>
-SquareArray<T> operator+(int x, SquareArray<T> y) {
+SquareArray<T> operator+(T x, SquareArray<T> y) {
     for (int i = 0; i < y.size(); ++i) {
         for (int j = 0; j < y[i].size(); ++j) {
             y[i][j] += x;
@@ -217,3 +251,8 @@ SquareArray<T> operator+(int x, SquareArray<T> y) {
     }
     return y;
 }
+
+template class CubeArray<double>;
+template class CubeArray<int>;
+template class SquareArray<double>;
+template class SquareArray<int>;

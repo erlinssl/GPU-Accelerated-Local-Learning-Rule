@@ -31,13 +31,13 @@ void Model<T>::update(SquareArray<T> x) {
     auto diff = CubeArray<T>(true, 16, 5, 5);
     // todo make 16 dynamic according to outermost shape
     for (int i1 = 0; i1 < 16; ++i1) {
-        diff.cube[i1] += f(i1, x) * (x - w.cube[i1]);
+        (SquareArray<T>) diff.cube[i1] += (x - w.cube[i1]) * (f(i1, x));
         for (int i2 = 0; i2 < 16; ++i2) {
             if (i1 != i2) {
-                diff.cube[i1] -= 2.0 * lambda * (w[i2] - w[i1]) * f(i1, w[i2]);
+                (SquareArray<T>) diff.cube[i1] -= (w[i2] - w[i1]) * 2.0 * lambda * f(i1, w[i2]);
             }
         }
-        w += learning_rate * diff / sigma;
+        w += diff * learning_rate / sigma;
     }
 }
 
@@ -101,8 +101,8 @@ bool Model<T>::load(const char &subfigure) {
     std::string line;
     this->w.cube.clear();
 
-    std::vector<std::vector<double>> square = {};
-    std::vector<double> inner = {};
+    std::vector<std::vector<T>> square = {};
+    std::vector<T> inner = {};
 
     while (std::getline(file, line)) {
         rtrim(line);
@@ -125,3 +125,6 @@ bool Model<T>::load(const char &subfigure) {
     this->w.cube.push_back(square);
     return true;
 }
+
+template class Model<int>;
+template class Model<double>;
