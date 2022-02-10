@@ -207,3 +207,13 @@ void SquareArray<T>::print(){
         std::cout << std::endl;
     }
 }
+
+template <typename T>
+SquareArray<T> operator+(int x, SquareArray<T> y) {
+    for (int i = 0; i < y.size(); ++i) {
+        for (int j = 0; j < y[i].size(); ++j) {
+            y[i][j] += x;
+        }
+    }
+    return y;
+}

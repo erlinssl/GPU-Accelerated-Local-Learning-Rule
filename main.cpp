@@ -79,7 +79,7 @@ CubeArray<T> get_batch(size_t batch_size){
     }
 
     // batch_indexes = np.concatenate((batch_indexes, np.floor(2 + np.random.rand(batch_size, 1) * (data.shape[1] - 4)).astype(int)), axis=1)
-    auto random_multiplied_square = 2 + (SquareArray(batch_size, 1) * (28 - 4)).arr;
+    auto random_multiplied_square = 2 + (SquareArray<double>(batch_size, 1) * (28 - 4));
     SquareArray<int> floored(random_multiplied_square.size(), random_multiplied_square[0].size());
     for (int i = 0; i < random_multiplied_square.size(); ++i) {
         for (int j = 0; j < random_multiplied_square[i].size(); ++j) {
@@ -102,7 +102,7 @@ CubeArray<T> get_batch(size_t batch_size){
      */
 
     // TODO Functionality dependent on MNIST implementation
-    CubeArray cube(true, 16, 5, 5);
+    CubeArray<double> cube(true, 16, 5, 5);
     return cube;
 }
 
