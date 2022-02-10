@@ -62,6 +62,8 @@ auto data = get_data();
 
 template <typename T>
 CubeArray<T> get_batch(size_t batch_size){
+    // TODO Uncomment when functionality implemented
+    /*
     // batch_indexes = np.floor(np.random.rand(batch_size, 1) * data.shape[0]).astype(int)
     // todo don't know if this needs to be nested, but it is nested in python :)
     std::vector<std::vector<double>> rand_array;
@@ -86,6 +88,7 @@ CubeArray<T> get_batch(size_t batch_size){
             floored[i].emplace_back(random_multiplied_square[i][j]);
         }
     }
+    */
 
     // todo uncomment when operator has been added and proper templates have been made
     // batch_indexes = batch_indexes[0] + floored[0];
@@ -109,7 +112,7 @@ CubeArray<T> get_batch(size_t batch_size){
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
-    Model<T> model(sigma, lambda_);
+    Model<T> model(sigma, lambda_, 4, 5);
 
     size_t batch_size = 1000;
 
@@ -152,7 +155,7 @@ void save_all(){
     std::vector<char> subfigures = {'a'}; //, 'b', 'c', 'd'};
     plt::Plot plot("sub_fig");
 
-    Model<T> model(1.0, 0.5);
+    Model<T> model(1.0, 0.5, 4, 5);
     for (char fig : subfigures){
         std::cout << "Handling fig " << fig << std::endl;
         model.load(fig);
@@ -169,14 +172,16 @@ void save_all(){
 
 int main() {
     //todo what does this do
-    srand((unsigned)time(NULL));
+    srand((unsigned)time(nullptr));
     const double learning_rate = .1;
 
-    experiment<double>('a', 1.0, 0.5, 1000);  // experiment(subfigure="a", sigma=1.0, lambda_=0.5, batches=1000)
-    // experiment('b', 1.0, 0.5, 10000);  // experiment(subfigure="b", sigma=1.0, lambda_=0.5, batches=10000)
-    experiment<double>('c', 0.5, 0.5, 1000);  // experiment(subfigure="c", sigma=0.5, lambda_=0.5, batches=1000)
-    // experiment('d', 1.0, 1.0/9.0, 1000);  // experiment(subfigure="d", sigma=1.0, lambda_=1.0/9.0, batches=1000)
+    /////// EXPERIMENTS
+    experiment<double>('a', 1.0, 0.5, 1000);
+    // experiment('b', 1.0, 0.5, 10000);
+    experiment<double>('c', 0.5, 0.5, 1000);
+    // experiment('d', 1.0, 1.0/9.0, 1000);
 
+    /////// SAVING FIGURES
     save_all<double>();
     // get_data();
     std::cout << "debug" << std::endl;

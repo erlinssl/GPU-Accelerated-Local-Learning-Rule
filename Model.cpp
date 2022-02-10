@@ -28,8 +28,7 @@ std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, Squa
 
 template <typename T>
 void Model<T>::update(SquareArray<T> x) {
-    auto diff = CubeArray<T>(true, 16, 5, 5);
-    // todo make 16 dynamic according to outermost shape
+    auto diff = CubeArray<T>(true, this->filters, this->resolution, this->resolution);
     for (int i1 = 0; i1 < 16; ++i1) {
         (SquareArray<T>) diff.cube[i1] += (x - w.cube[i1]) * (f(i1, x));
         for (int i2 = 0; i2 < 16; ++i2) {
