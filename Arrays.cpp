@@ -122,31 +122,30 @@ void CubeArray<T>::print() {
 // -----------------------------------------------------------------------
 
 template <typename T>
-SquareArray<T>::SquareArray(std::vector<std::vector<T>> x) {
+SquareArray<T>::SquareArray(std::vector<T> x) {
     arr = x;
 }
 
 template <typename T>
 size_t SquareArray<T>::size() {
-    return arr.size();
+    return nrows;
 }
 
 
 template <typename T>
-SquareArray<T>::SquareArray(int outer, int inner) {
-    arr = std::vector<std::vector<T>>();
-    for (int i = 0; i < outer; ++i) {
-        arr.emplace_back(std::vector<T>());
-        for (int j = 0; j < inner; ++j) {
-            // todo use c++11 instead
-            arr[j].emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
-        }
+SquareArray<T>::SquareArray(size_t nrows_, size_t ncols_) {
+    nrows = nrows_;
+    ncols = ncols_;
+    arr = std::vector<T>();
+    for (int i = 0; i < nrows_*ncols_; ++i){
+        // todo use c++11 instead
+        arr.emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
     }
 }
 
 template <typename T>
 std::vector<T> SquareArray<T>::operator[](size_t i) {
-    return arr[i];
+    return std::vector<T>(arr.begin() + nrows * i, arr.begin() + nrows * i + ncols);
 }
 
 template <typename T>
@@ -250,6 +249,11 @@ SquareArray<T> operator+(T x, SquareArray<T> y) {
         }
     }
     return y;
+}
+
+template <typename T>
+size_t SquareArray<T>::index(size_t x, size_t y){
+    return x * nrows + y;
 }
 
 template class CubeArray<double>;

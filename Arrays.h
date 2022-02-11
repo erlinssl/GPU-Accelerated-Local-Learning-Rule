@@ -16,10 +16,12 @@
 template <typename T>
 class SquareArray {
 public:
-    std::vector<std::vector<T>> arr;
+    std::vector<T> arr;
+    size_t nrows;
+    size_t ncols;
 
-    SquareArray(int outer, int inner);
-    explicit SquareArray(std::vector<std::vector<T>> x);
+    SquareArray(size_t nrows_, size_t ncols_);
+    explicit SquareArray(std::vector<T> x);
 
     void flat(std::vector<float> &out);
     friend SquareArray<T> operator+(T x, SquareArray<T> y);
@@ -38,6 +40,7 @@ public:
 
     size_t size();
     void print();
+    size_t index(size_t x, size_t y);
 };
 
 template <typename T>
