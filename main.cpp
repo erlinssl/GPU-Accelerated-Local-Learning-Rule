@@ -101,17 +101,11 @@ CubeArray<T> get_batch(size_t batch_size){
      return batch
      */
     for (int i = 0; i < batch_indexes.size(); ++i) {
-        auto outer_slice = std::vector<std::vector<double>>(batch_indexes[i].begin() + batch_indexes[i][1] - 2, batch_indexes[i].begin() + batch_indexes[i][1 + 3]);
         // todo probably does not need to be nested
-        auto inner_slice = std::vector<std::vector<double>>();
-        inner_slice.emplace_back(std::vector<double>());
-        for (int j = 0; j < outer_slice.size(); ++j) {
-            for (auto k : std::vector<double>(outer_slice.begin() + batch_indexes[i][2] - 2, outer_slice.begin() + batch_indexes[i][2] + 3)) {
-                inner_slice[0].emplace_back(k);
-            }
-        }
-        batch[i] = SquareArray(inner_slice);
-
+        auto slice = data[batch_indexes[i][0]].get_slices(batch_indexes[i][1] - 2, batch_indexes[i][1 + 3], batch_indexes[i][2] - 2, batch_indexes[i][2] + 3);
+        std::vector<std::vector<double>> s2;
+        s2.emplace_back(slice);
+        batch[i] = SquareArray(s2);
     }
     return batch;
 }
