@@ -45,7 +45,7 @@ class CubeArray {
 public:
     std::vector<std::vector<std::vector<T>>> cube;
 
-    CubeArray(bool zero, int outer, int middle, int inner);
+    CubeArray(bool zero, size_t outer, size_t middle, size_t inner);
     explicit CubeArray(std::vector<std::vector<std::vector<T>>> cube_);
 
     size_t size();

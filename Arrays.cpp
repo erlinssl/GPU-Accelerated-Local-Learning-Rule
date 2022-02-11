@@ -11,7 +11,7 @@
 // -----------------------------------------------------------------------
 
 template <typename T>
-CubeArray<T>::CubeArray(bool zero, int outer, int middle, int inner) {
+CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
     for (int i = 0; i < outer; ++i) {
         cube.emplace_back(std::vector<std::vector<T>>());
         for (int j = 0; j < middle; ++j) {
@@ -226,7 +226,7 @@ template <typename T>
 void SquareArray<T>::flat(std::vector<float> &out) {
     for (size_t i = 0; i < size(); i++){
         for (size_t j = 0; j < size(); j++){
-            out.at(size() * i + j) = arr[i][j];
+            out[size() * i + j] = arr[i][j];
         }
     }
     // return out;

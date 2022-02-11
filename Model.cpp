@@ -94,7 +94,6 @@ bool Model<T>::load(const char &subfigure) {
         std::cout << "Figure " << subfigure << " not found." << std::endl;
         return false;
     }
-    std::cout << "path " << path << std::endl;
     std::ifstream file(path);
 
     std::string line;
@@ -105,7 +104,9 @@ bool Model<T>::load(const char &subfigure) {
 
     while (std::getline(file, line)) {
         rtrim(line);
-        std::replace(line.begin(), line.end(), '.', ',');
+        // TODO The following line may or may not need to be active, depending on system locale \
+            If filter plots are empty, try (un)commenting it.
+        // std::replace(line.begin(), line.end(), '.', ',');
         size_t last = 0, next = 0;
         if (line.empty()){
             this->w.cube.push_back(square);

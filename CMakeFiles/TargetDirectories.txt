@@ -1,0 +1,4 @@
+/home/erlinssl/Documents/Bachelor/filter-finder/CMakeFiles/filter_finder.dir
+/home/erlinssl/Documents/Bachelor/filter-finder/CMakeFiles/CPy.dir
+/home/erlinssl/Documents/Bachelor/filter-finder/CMakeFiles/edit_cache.dir
+/home/erlinssl/Documents/Bachelor/filter-finder/CMakeFiles/rebuild_cache.dir

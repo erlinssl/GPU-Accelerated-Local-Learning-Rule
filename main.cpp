@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #include "Arrays.h"
 #include "Model.h"
@@ -12,6 +13,9 @@ namespace plt = matplotlibcpp;
 double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
+
+const static int GRID_SIZE = 4;
+const static int RESOLUTION = 5;
 
 CubeArray<double> get_data() {
     std::cout << "getting data" << std::endl;
@@ -58,7 +62,7 @@ CubeArray<double> get_data() {
     }
 }
 
-auto data = get_data();
+// auto data = get_data();
 
 template <typename T>
 CubeArray<T> get_batch(size_t batch_size){
@@ -105,34 +109,37 @@ CubeArray<T> get_batch(size_t batch_size){
 
      */
 
-    // TODO Functionality dependent on MNIST implementation
-    CubeArray<double> cube(true, 16, 5, 5);
+    // TODO Remove placeholder when get_batch functionality finalized
+    CubeArray<double> cube(true, batch_size, RESOLUTION, RESOLUTION);
     return cube;
 }
 
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
-    Model<T> model(sigma, lambda_, 4, 5);
+    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
 
-    size_t batch_size = 1000;
+    size_t batch_size = 100;
 
     for (size_t i = 0; i < nbatches; i++){
+        auto start = std::chrono::high_resolution_clock::now();
         CubeArray<T> batch = get_batch<double>(batch_size);
-        for (size_t j = 0; j < batch.size(); j++){
+        for (size_t j = 0; j < batch_size; j++){
             model.update(batch[j]);
         }
-        std::cout << "Completed batch " << i+1  << std::endl;
+        auto stop = std::chrono::high_resolution_clock::now();
+        std::cout << "CO3: Completed batch " << i+1 << " @ " << batch_size << " after " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
+        << "ms" << std::endl;
     }
 
     model.save(subfigure);
 }
 
 template <typename T>
-void figure(const CubeArray<T>& images){
-    const int nrows = (int) std::sqrt(images.cube.size()), ncols = (int) std::sqrt(images.cube.size());
-    int imsize = (int) images.cube[0].size();
-    std::vector<float> z(imsize * imsize);
+void figure(const Model<T>& model){
+    std::vector<float> z(model.resolution * model.resolution);
+    const int nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
     const int colors = 1;
@@ -140,10 +147,10 @@ void figure(const CubeArray<T>& images){
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
-            images[index].flat(z);
+            model.w[index].flat(z);
 
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
-            plt::imshow(zptr, imsize, imsize, colors);
+            plt::imshow(zptr, model.resolution, model.resolution, colors);
             plt::xticks(ticks);
             plt::yticks(ticks);
             plt::plot();
@@ -156,11 +163,12 @@ void save_all(){
     std::vector<char> subfigures = {'a'}; //, 'b', 'c', 'd'};
     plt::Plot plot("sub_fig");
 
-    Model<T> model(1.0, 0.5, 4, 5);
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
+
     for (char fig : subfigures){
         std::cout << "Handling fig " << fig << std::endl;
         model.load(fig);
-        figure(model.w);
+        figure(model);
         plt::show();
         /*
          std::string path = "../saved/figure2"
@@ -178,13 +186,14 @@ int main() {
 
     /////// EXPERIMENTS
     experiment<double>('a', 1.0, 0.5, 1000);
-    // experiment('b', 1.0, 0.5, 10000);
+    // experiment<double>('b', 1.0, 0.5, 10000);
     experiment<double>('c', 0.5, 0.5, 1000);
-    // experiment('d', 1.0, 1.0/9.0, 1000);
+    // experiment<double>('d', 1.0, 1.0/9.0, 1000);
 
-    /////// SAVING FIGURES
+    /////// SHOWING FIGURES
     save_all<double>();
     // get_data();
-    std::cout << "debug" << std::endl;
+    Py_Finalize();
+    std::cout << "end of main" << std::endl;
     return 0;
 }
