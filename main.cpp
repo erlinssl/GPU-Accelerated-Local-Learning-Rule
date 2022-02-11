@@ -9,6 +9,7 @@
 
 namespace plt = matplotlibcpp;
 
+static size_t RESOLUTION = 5;
 double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
@@ -111,6 +112,30 @@ CubeArray<T> get_batch(size_t batch_size){
 }
 
 template <typename T>
+CubeArray<T> get_batch_revised(size_t batch_size){
+    std::vector<std::vector<size_t>> batch_indices;
+    for(int i = 0; i < batch_size; ++i) {
+        std::vector<size_t> temp;
+        // std::cout << "test " << (double)rand()/RAND_MAX << std::endl;
+        temp.emplace_back((int)((((double)rand()/RAND_MAX) * 60000.)));
+        temp.emplace_back((int)((2 + ((double)rand()/RAND_MAX) * (28 - 4))));
+        temp.emplace_back((int)((2 + ((double)rand()/RAND_MAX) * (28 - 4))));
+        batch_indices.emplace_back(temp);
+    }
+
+    auto batch = CubeArray<T>(true, batch_size, RESOLUTION, RESOLUTION);
+
+    for (int i = 0; i < batch_indices.size(); ++i) {
+        // todo probably does not need to be nested
+        auto slice = data[batch_indices[i][0]].get_slices(batch_indices[i][1] - 2, batch_indices[i][1 + 3], batch_indices[i][2] - 2, batch_indices[i][2] + 3);
+        std::vector<std::vector<T>> s2;
+        s2.emplace_back(slice);
+        batch[i] = SquareArray(s2);
+    }
+    return batch;
+}
+
+template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
     Model<T> model(sigma, lambda_);
@@ -119,6 +144,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
     for (size_t i = 0; i < nbatches; i++){
         CubeArray<T> batch = get_batch<double>(batch_size);
+        std::cout << "got batch" << std::endl;
         for (size_t j = 0; j < batch.size(); j++){
             model.update(batch[j]);
         }
@@ -182,7 +208,6 @@ int main() {
     // experiment('d', 1.0, 1.0/9.0, 1000);  // experiment(subfigure="d", sigma=1.0, lambda_=1.0/9.0, batches=1000)
 
     save_all<double>();
-    // get_data();
     std::cout << "debug" << std::endl;
     return 0;
 }
