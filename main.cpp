@@ -93,12 +93,27 @@ CubeArray<T> get_batch(size_t batch_size){
     // batch = np.zeros((batch_size, 5, 5))
     auto batch = CubeArray<double>(true, 1000, 5, 5);
 
-    
 
+    /*
+     for count, index in enumerate(batch_indexes):
+     //index 0 er det samme som å ta batch_indexes[i][0]
+        batch[count] = data[index[0], index[1] - 2:index[1] + 3, index[2] - 2:index[2] + 3]
+     return batch
+     */
+    for (int i = 0; i < batch_indexes.size(); ++i) {
+        auto outer_slice = std::vector<std::vector<double>>(batch_indexes[i].begin() + batch_indexes[i][1] - 2, batch_indexes[i].begin() + batch_indexes[i][1 + 3]);
+        // todo probably does not need to be nested
+        auto inner_slice = std::vector<std::vector<double>>();
+        inner_slice.emplace_back(std::vector<double>());
+        for (int j = 0; j < outer_slice.size(); ++j) {
+            for (auto k : std::vector<double>(outer_slice.begin() + batch_indexes[i][2] - 2, outer_slice.begin() + batch_indexes[i][2] + 3)) {
+                inner_slice[0].emplace_back(k);
+            }
+        }
+        batch[i] = SquareArray(inner_slice);
 
-    // TODO Functionality dependent on MNIST implementation
-    CubeArray<double> cube(true, 16, 5, 5);
-    return cube;
+    }
+    return batch;
 }
 
 template <typename T>
