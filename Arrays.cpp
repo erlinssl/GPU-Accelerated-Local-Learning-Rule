@@ -269,7 +269,6 @@ std::vector<T> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, si
     std::vector<T> ans;
     for (int i = outer_from; i < outer_to; ++i) {
         for (int j = inner_from; j < inner_to; ++j) {
-            std::cout << "i: " << i << ", j: " << j << std::endl;
             ans.emplace_back((*this)[i][j]);
         }
     }
