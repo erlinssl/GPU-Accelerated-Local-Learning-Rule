@@ -1,1 +1,0 @@
-/usr/bin/c++  -std=c++11 -lpython3.10 -I/usr/include/python3.10 -I/home/erlinssl/Documents/Bachelor/py-test/venv/lib/python3.10/site-packages/numpy/core/include/ CMakeFiles/filter_finder.dir/main.cpp.o CMakeFiles/filter_finder.dir/Model.cpp.o CMakeFiles/filter_finder.dir/Arrays.cpp.o -o filter_finder 
