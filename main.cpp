@@ -117,22 +117,17 @@ CubeArray<T> get_batch(size_t batch_size){
 template <typename T>
 CubeArray<T> get_batch_revised(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices;
-    std::cout << "start" << std::endl;
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
-        // std::cout << "test " << (double)rand()/RAND_MAX << std::endl;
         temp.emplace_back((int)((((double)rand()/RAND_MAX) * 60000.)));
         temp.emplace_back((int)((2 + ((double)rand()/RAND_MAX) * (28 - 4))));
         temp.emplace_back((int)((2 + ((double)rand()/RAND_MAX) * (28 - 4))));
         batch_indices.emplace_back(temp);
     }
-    std::cout << "through batch size" << std::endl;
 
     auto batch = CubeArray<T>(true, batch_size, RESOLUTION, RESOLUTION);
 
     for (int i = 0; i < batch_indices.size(); ++i) {
-        std::cout << i << std::endl;
-        std::cout << batch_indices[i].size() << std::endl;
         // todo probably does not need to be nested
         auto dt = data[batch_indices[i][0]];
         auto slice = dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3);
@@ -140,6 +135,7 @@ CubeArray<T> get_batch_revised(size_t batch_size){
         s2.emplace_back(slice);
         batch[i] = SquareArray(s2);
     }
+
     return batch;
 }
 
@@ -148,11 +144,11 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
 
-    size_t batch_size = 100;
+    size_t batch_size = 1000;
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        CubeArray<T> batch = get_batch<double>(batch_size);
+        CubeArray<T> batch = get_batch_revised<double>(batch_size);
         for (size_t j = 0; j < batch_size; j++){
             model.update(batch[j]);
         }
@@ -195,7 +191,7 @@ void save_all(){
     Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
 
     for (char fig : subfigures){
-        std::cout << "Handling fig " << fig << std::endl;
+        std::cout << "Graphing fig " << fig << std::endl;
         model.load(fig);
         figure(model);
         plt::show();
@@ -214,9 +210,13 @@ int main() {
     const double learning_rate = .1;
 
     /////// EXPERIMENTS
-    experiment<double>('a', 1.0, 0.5, 1000);
+    auto start = std::chrono::high_resolution_clock::now();
+    experiment<double>('a', 1.0, 0.5, 100);
+    auto stop = std::chrono::high_resolution_clock::now();
+    std::cout << "Experiment a ended after" <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
     // experiment<double>('b', 1.0, 0.5, 10000);
-    experiment<double>('c', 0.5, 0.5, 1000);
+    // experiment<double>('c', 0.5, 0.5, 1000);
     // experiment<double>('d', 1.0, 1.0/9.0, 1000);
 
     /////// SHOWING FIGURES
