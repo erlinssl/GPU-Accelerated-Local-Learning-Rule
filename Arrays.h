@@ -31,7 +31,7 @@ public:
     std::vector<T> & operator[](size_t i);
 
     SquareArray<T> operator*(T y);
-    SquareArray<T> operator-(SquareArray<T> x);
+    SquareArray<T> operator-(SquareArray<T> x) const;
     SquareArray<T> operator-(std::vector<std::vector<T>> y);
     SquareArray<T> operator+(T x);
 

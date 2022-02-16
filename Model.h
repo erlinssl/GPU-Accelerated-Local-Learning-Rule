@@ -21,13 +21,13 @@ public:
     int resolution;
     explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_) : sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), w(false, grid_size_ * grid_size_, image_res_, image_res_) {};
     explicit Model(const char subfigure, int grid_size_, int image_res_) : sigma(1.0), lambda(0.5), filters(grid_size_ * grid_size_), resolution(image_res_), w(false, grid_size_ * grid_size_, image_res_, image_res_) {this->load(subfigure);};
-    void update(SquareArray<T> x);
+    void update(SquareArray<T> const &x);
 
     void save(const char &subfigure);
     bool load(const char &subfigure);
 
 private:
-    double f(int i, SquareArray<T> x);
+    double f(int i, SquareArray<T> const &x);
 };
 
 

@@ -6,9 +6,9 @@
 #include "Arrays.h"
 #include "Model.h"
 
-#include "dependencies/matplotlibcpp.h"
+//#include "dependencies/matplotlibcpp.h"
 
-namespace plt = matplotlibcpp;
+//namespace plt = matplotlibcpp;
 
 double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
@@ -137,6 +137,7 @@ CubeArray<T> get_batch_revised(size_t batch_size){
     return CubeArray<T>(batch);
 }
 
+
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
@@ -159,6 +160,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     model.save(subfigure);
 }
 
+/*
 template <typename T>
 void figure(const Model<T>& model){
     std::vector<float> z(model.resolution * model.resolution);
@@ -199,6 +201,7 @@ void save_all(){
          path.append(".pgf");
          plt::save(path);
         */
+/*
     }
 }
 
@@ -212,6 +215,7 @@ void test_batch(){
 }
 
 
+ */
 int main() {
     //todo what does this do
     srand((unsigned)time(nullptr));

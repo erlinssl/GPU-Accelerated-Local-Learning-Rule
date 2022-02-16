@@ -12,8 +12,8 @@
 
 double learning_rate = 0.1;
 template <typename T>
-double Model<T>::f(int i, SquareArray<T> x) {
-    return std::exp(this->w.calc(std::move(x), i)/this->sigma);
+double Model<T>::f(int i, SquareArray<T> const &x) {
+    return std::exp(this->w.calc(x, i)/this->sigma);
 }
 
 template <typename T>
@@ -27,7 +27,7 @@ std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, Squa
 }
 
 template <typename T>
-void Model<T>::update(SquareArray<T> x) {
+void Model<T>::update(SquareArray<T> const &x) {
     CubeArray<T> diff = CubeArray<T>(true, filters, resolution, resolution);
     for (int i1 = 0; i1 < filters; ++i1) {
         diff[i1] += (x - w[i1]) * (f(i1, x));

@@ -195,7 +195,7 @@ SquareArray<T> SquareArray<T>::operator-=(SquareArray<T> y) {
 }
 
 template <typename T>
-SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
+SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) const {
     auto x = *this;
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
