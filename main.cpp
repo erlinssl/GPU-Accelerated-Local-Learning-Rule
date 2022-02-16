@@ -6,9 +6,9 @@
 #include "Arrays.h"
 #include "Model.h"
 
-#include "dependencies/matplotlibcpp.h"
+//#include "dependencies/matplotlibcpp.h"
 
-namespace plt = matplotlibcpp;
+//namespace plt = matplotlibcpp;
 
 double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
@@ -131,10 +131,18 @@ CubeArray<T> get_batch_revised(size_t batch_size){
         // todo probably does not need to be nested
         auto dt = data[batch_indices[i][0]];
         auto slice = dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3);
-        std::vector<std::vector<T>> s2;
-        s2.emplace_back(slice);
-        batch[i] = SquareArray(s2);
+
+        batch[i] = SquareArray(slice);
     }
+    std::cout << "printing batch" << std::endl;
+    for (int i = 0; i < batch.size(); ++i) {
+        for (int j = 0; j < batch[i].size(); ++j) {
+            for (int k = 0; k < batch[i][j].size(); ++k) {
+                if (batch[i][j][k] != 0) std::cout << i << " : " << j << " : " << k << " - " << batch[i][j][k] << std::endl;
+            }
+        }
+    }
+    std::cout << "done printing batch" << std::endl;
 
     return batch;
 }
@@ -161,6 +169,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     model.save(subfigure);
 }
 
+/*
 template <typename T>
 void figure(const Model<T>& model){
     std::vector<float> z(model.resolution * model.resolution);
@@ -201,8 +210,11 @@ void save_all(){
          path.append(".pgf");
          plt::save(path);
         */
+/*
     }
 }
+ */
+
 
 int main() {
     //todo what does this do
@@ -220,9 +232,9 @@ int main() {
     // experiment<double>('d', 1.0, 1.0/9.0, 1000);
 
     /////// SHOWING FIGURES
-    save_all<double>();
+    //save_all<double>();
     // get_data();
-    Py_Finalize();
+    //Py_Finalize();
     std::cout << "end of main" << std::endl;
     return 0;
 }

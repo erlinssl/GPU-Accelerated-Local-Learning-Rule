@@ -265,11 +265,13 @@ void SquareArray<T>::concatenate(SquareArray<T> x) {
 }
 
 template <typename T>
-std::vector<T> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to) {
-    std::vector<T> ans;
+std::vector<std::vector<T>> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to) {
+    std::vector<std::vector<T>> ans;
+
     for (int i = outer_from; i < outer_to; ++i) {
+        ans.emplace_back(std::vector<T>());
         for (int j = inner_from; j < inner_to; ++j) {
-            ans.emplace_back((*this)[i][j]);
+            ans[i - outer_from].emplace_back((*this)[i][j]);
         }
     }
     return ans;
