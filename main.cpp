@@ -183,6 +183,15 @@ void figure(const Model<T>& model){
     }
 }
 
+void test_batch(){
+    Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
+    model.w = get_batch_revised<double>(16);
+    std::cout << "Plotting batch" << std::endl;
+    plt::Plot plot("test_plot");
+    figure(model);
+    plt::show();
+}
+
 template <typename T>
 void save_all(){
     std::vector<char> subfigures = {'a'}; //, 'b', 'c', 'd'};
@@ -209,18 +218,23 @@ int main() {
     srand((unsigned)time(nullptr));
     const double learning_rate = .1;
 
+    /////// TESTING
+    test_batch();
+
     /////// EXPERIMENTS
-    auto start = std::chrono::high_resolution_clock::now();
-    experiment<double>('a', 1.0, 0.5, 100);
-    auto stop = std::chrono::high_resolution_clock::now();
-    std::cout << "Experiment a ended after" <<
-        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
+    if (true){
+        auto start = std::chrono::high_resolution_clock::now();
+        experiment<double>('a', 1.0, 0.5, 100);
+        auto stop = std::chrono::high_resolution_clock::now();
+        std::cout << "Experiment a ended after" <<
+                  std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
+    }
     // experiment<double>('b', 1.0, 0.5, 10000);
     // experiment<double>('c', 0.5, 0.5, 1000);
     // experiment<double>('d', 1.0, 1.0/9.0, 1000);
 
     /////// SHOWING FIGURES
-    save_all<double>();
+    // save_all<double>();
     // get_data();
     Py_Finalize();
     std::cout << "end of main" << std::endl;
