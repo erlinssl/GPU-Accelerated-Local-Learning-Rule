@@ -145,7 +145,12 @@ SquareArray<T>::SquareArray(int outer, int inner) {
 }
 
 template <typename T>
-std::vector<T> SquareArray<T>::operator[](size_t i) {
+std::vector<T> & SquareArray<T>::operator[](size_t i) {
+    return arr[i];
+}
+
+template <typename T>
+std::vector<T> SquareArray<T>::operator[](size_t i) const {
     return arr[i];
 }
 

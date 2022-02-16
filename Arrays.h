@@ -27,7 +27,8 @@ public:
     friend SquareArray<T> operator+(T x, SquareArray<T> y);
     friend SquareArray<T> operator*(T x, SquareArray<T> y);
     // todo does this need to be friend?
-    std::vector<T> operator[](size_t i);
+    std::vector<T> operator[](size_t i) const;
+    std::vector<T> & operator[](size_t i);
 
     SquareArray<T> operator*(T y);
     SquareArray<T> operator-(SquareArray<T> x);
