@@ -44,7 +44,7 @@ public:
     size_t size() const;
     size_t length() const;
     size_t index(size_t x, size_t y) const;
-    void print();
+    void print() const;
 };
 
 template <typename T>
@@ -71,7 +71,7 @@ public:
     size_t size();
     size_t length();
     size_t index(size_t x, size_t y, size_t z);
-    void print();
+    void print() const;
 };
 
 

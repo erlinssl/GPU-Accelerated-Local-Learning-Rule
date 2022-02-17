@@ -106,7 +106,7 @@ bool Model<T>::load(const char &subfigure) {
         // TODO The following line may or may not need to be active, depending on system locale \
             If filter plots are empty, try (un)commenting it.
         // std::replace(line.begin(), line.end(), '.', ',');
-        size_t last = 0, next = 0;
+        size_t last = 0, next;
         while ((next = line.find(DELIMITER, last)) != std::string::npos) {
             inner.push_back(std::stod(line.substr(last, next-last)));
             last = next + 1;

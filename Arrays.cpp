@@ -17,6 +17,9 @@
 template <typename T>
 SquareArray<T>::SquareArray(std::vector<T> x) {
     arr = x;
+    // TODO Find a less primitive solution
+    nrows = std::sqrt(x.size());
+    ncols = std::sqrt(x.size());
 }
 
 
@@ -127,7 +130,11 @@ SquareArray<T> SquareArray<T>::operator*(T y) {
 
 template <typename T>
 void SquareArray<T>::flat(std::vector<float> &out) {
-    out = std::vector<float>(arr.begin(), arr.end());
+    for (size_t i = 0; i < size(); i++){
+        for (size_t j = 0; j < size(); j++){
+            out[size() * i + j] = arr[index(i, j)];
+        }
+    }
 }
 
 template <typename T>
@@ -141,10 +148,9 @@ SquareArray<T> operator+(T x, SquareArray<T> y) {
 template <typename T>
 std::vector<std::vector<T>> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to) {
     std::vector<std::vector<T>> ans;
-
-    for (int i = outer_from; i < outer_to; ++i) {
+    for (size_t i = outer_from; i < outer_to; ++i) {
         ans.emplace_back(std::vector<T>());
-        for (int j = inner_from; j < inner_to; ++j) {
+        for (size_t j = inner_from; j < inner_to; ++j) {
             ans[i - outer_from].emplace_back(arr[index(i, j)]);
         }
     }
@@ -162,36 +168,53 @@ size_t SquareArray<T>::length() const {
 }
 
 template <typename T>
-size_t SquareArray<T>::index(size_t x, size_t y) const{
-    return x * nrows + y;
+size_t SquareArray<T>::index(size_t x, size_t y) const {
+    return (x * nrows) + y;
 }
 
 template <typename T>
-void SquareArray<T>::print(){
+void SquareArray<T>::print() const {
     size_t counter = 0;
     for(const auto& value : arr){
         std::cout << value << " ";
         counter++;
-        if(counter % 5 == 0){
+        if(counter % ncols == 0){
             std::cout << std::endl;
         }
     }
 }
 
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // ----------------------------- CUBE ARRAYS -----------------------------
 // -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+
+
 
 template <typename T>
 CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
     for (size_t i = 0; i < outer*middle*inner; ++i){
-        // todo use c++ 11 instead
-        cube.template emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
+        if(zero){
+            cube.emplace_back(0);
+        } else {
+            // todo use c++ 11 instead
+            cube.emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
+        }
     }
 }
 
 template <typename T>
 CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> cube_) {
+    nlays = cube_.size();
+    nrows = cube_[0].size();
+    ncols = cube_[0][0].size();
+
     std::vector<T> temp;
     for (auto & layer : cube_) {
         for (auto & row : layer) {
@@ -221,8 +244,9 @@ double CubeArray<T>::calc(SquareArray<T> x, size_t outer) {
 template <typename T>
 SquareArray<T> CubeArray<T>::operator[](size_t i) const {
     std::vector<T> temp;
-    for(size_t j = 0; j < nrows*ncols; ++j){
-        temp.push_back(cube[i*nlays + j]);
+    temp.reserve(nrows*ncols);
+    for(size_t j = 0; j < nrows * ncols; ++j){
+        temp.push_back(cube[i*nrows*ncols + j]);
     }
     return SquareArray(temp);
 }
@@ -273,13 +297,13 @@ size_t CubeArray<T>::length() {
 
 template <typename T>
 size_t CubeArray<T>::index(size_t x, size_t y, size_t z){
-    return x*nlays + y*nrows + z;
+    return (x * nlays * nrows) + (y * nrows) + z;
 }
 
 template <typename T>
-void CubeArray<T>::print() {
+void CubeArray<T>::print() const {
     size_t counter = 0;
-    size_t rows = 0;
+    size_t rows = 1;
     for(auto & val : cube){
         std::cout << val << " ";
         counter++;
@@ -287,9 +311,10 @@ void CubeArray<T>::print() {
             std::cout << std::endl;
             rows++;
         }
-        if (rows % nrows == 0){
+        if (rows % (nrows+1) == 0){
             std::cout << std::endl;
             counter = 0;
+            rows = 1;
         }
     }
 }

@@ -65,7 +65,6 @@ CubeArray<double> get_data() {
 
 auto data = get_data();
 
-
 template <typename T>
 CubeArray<T> get_batch_revised(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices;
@@ -135,6 +134,7 @@ void figure(const Model<T>& model){
 }
 
 void test_batch(){
+    std::cout << "Testing batch" << std::endl;
     Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
     model.w = get_batch_revised<double>(16);
     std::cout << "Plotting batch" << std::endl;
@@ -170,7 +170,7 @@ int main() {
     const double learning_rate = .1;
 
     /////// TESTING
-    test_batch();
+    // test_batch();
 
     /////// EXPERIMENTS
     if (true){
