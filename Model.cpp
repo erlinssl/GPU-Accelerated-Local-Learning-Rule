@@ -69,10 +69,10 @@ void Model<T>::save(const char &subfigure) {
     path.append(".fig");
     std::ofstream output_file(path);
 
-    for (const auto& square : w.cube) {
-        for (const auto& inner : square) {
+    for (int x = 0; x < filters; ++x) {
+        for (int y = 0; y < resolution; ++y) {
             std::ostream_iterator<double> output_iterator(output_file, " ");
-            std::copy(inner.begin(), inner.end(), output_iterator);
+            std::copy(w.cube.begin(), w.cube.begin() + resolution, output_iterator);
             output_file << "\n";
         }
         output_file << "\n";
@@ -99,7 +99,6 @@ bool Model<T>::load(const char &subfigure) {
     std::string line;
     this->w.cube.clear();
 
-    std::vector<std::vector<T>> square = {};
     std::vector<T> inner = {};
 
     while (std::getline(file, line)) {
@@ -108,21 +107,14 @@ bool Model<T>::load(const char &subfigure) {
             If filter plots are empty, try (un)commenting it.
         // std::replace(line.begin(), line.end(), '.', ',');
         size_t last = 0, next = 0;
-        if (line.empty()){
-            this->w.cube.push_back(square);
-            square = {};
-            continue;
-        } else {
-            inner = {};
-            while ((next = line.find(DELIMITER, last)) != std::string::npos) {
-                inner.push_back(std::stod(line.substr(last, next-last)));
-                last = next + 1;
-            }
-            inner.push_back(std::stod(line.substr(last)));
-            square.push_back(inner);
+        while ((next = line.find(DELIMITER, last)) != std::string::npos) {
+            inner.push_back(std::stod(line.substr(last, next-last)));
+            last = next + 1;
         }
+        inner.push_back(std::stod(line.substr(last)));
     }
-    this->w.cube.push_back(square);
+
+    this->w.cube.swap(inner);
     return true;
 }
 

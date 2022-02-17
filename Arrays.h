@@ -24,7 +24,6 @@ public:
     explicit SquareArray(std::vector<T> x);
 
     void flat(std::vector<float> &out);
-    void concatenate(SquareArray<T> x);
     std::vector<std::vector<T>> get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to);
     friend SquareArray<T> operator+(T x, SquareArray<T> y);
     friend SquareArray<T> operator*(T x, SquareArray<T> y);
@@ -34,6 +33,7 @@ public:
 
     SquareArray<T> operator*(T y);
     SquareArray<T> operator-(SquareArray<T> x);
+    SquareArray<T> operator-(SquareArray<T> x) const;
     SquareArray<T> operator-(std::vector<std::vector<T>> y);
     SquareArray<T> operator+(T x);
 
@@ -50,12 +50,14 @@ public:
 template <typename T>
 class CubeArray {
 public:
-    std::vector<std::vector<std::vector<T>>> cube;
+    std::vector<T> cube;
+    size_t nlays;
+    size_t nrows;
+    size_t ncols;
 
     CubeArray(bool zero, size_t outer, size_t middle, size_t inner);
     explicit CubeArray(std::vector<std::vector<std::vector<T>>> cube_);
 
-    size_t size();
     double calc(SquareArray<T> x, size_t outer);
     SquareArray<T> operator[](size_t i) const; //
 
@@ -66,6 +68,9 @@ public:
 
     friend CubeArray<T> operator*(T y, CubeArray<T> x);
 
+    size_t size();
+    size_t length();
+    size_t index(size_t x, size_t y, size_t z);
     void print();
 };
 
