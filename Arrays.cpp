@@ -146,9 +146,21 @@ SquareArray<T>::SquareArray(size_t nrows_, size_t ncols_) {
     }
 }
 
+/*
 template <typename T>
 std::vector<T> SquareArray<T>::operator[](size_t i) {
     return std::vector<T>(arr.begin() + nrows * i, arr.begin() + nrows * i + ncols);
+}
+ */
+
+template <typename T>
+std::vector<T> & SquareArray<T>::operator[](size_t i) {
+    return arr[i];
+}
+
+template <typename T>
+std::vector<T> SquareArray<T>::operator[](size_t i) const {
+    return arr[i];
 }
 
 template <typename T>
@@ -192,7 +204,7 @@ SquareArray<T> SquareArray<T>::operator-=(SquareArray<T> y) {
 }
 
 template <typename T>
-SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
+SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) const {
     auto x = *this;
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
@@ -252,6 +264,31 @@ SquareArray<T> operator+(T x, SquareArray<T> y) {
         }
     }
     return y;
+}
+
+template<typename T>
+void SquareArray<T>::concatenate(SquareArray<T> x) {
+    if (x.size() > 1 || x[0].size() != this->size()) {
+        std::cerr << "cannot concatenate, wrong array dimensions" << std::endl;
+        // todo better error handling, this is also just a random number
+        exit(159);
+    }
+    for (int i = 0; i < this->size(); ++i) {
+        this->arr[i].emplace_back(x[0][i]);
+    }
+}
+
+template <typename T>
+std::vector<std::vector<T>> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to) {
+    std::vector<std::vector<T>> ans;
+
+    for (int i = outer_from; i < outer_to; ++i) {
+        ans.emplace_back(std::vector<T>());
+        for (int j = inner_from; j < inner_to; ++j) {
+            ans[i - outer_from].emplace_back((*this)[i][j]);
+        }
+    }
+    return ans;
 }
 
 template <typename T>

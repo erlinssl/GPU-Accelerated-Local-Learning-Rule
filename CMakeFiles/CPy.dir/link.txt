@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC  -std=c++11 -lpython3.10 -I/usr/include/python3.10 -I/home/erlinssl/Documents/Bachelor/py-test/venv/lib/python3.10/site-packages/numpy/core/include/ -shared -Wl,-soname,libCPy.so -o libCPy.so CMakeFiles/CPy.dir/main.cpp.o  /usr/lib/libpython3.10.so 
