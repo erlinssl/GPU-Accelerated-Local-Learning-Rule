@@ -33,7 +33,7 @@ public:
     std::vector<T> & operator[](size_t i);
 
     SquareArray<T> operator*(T y);
-    SquareArray<T> operator-(SquareArray<T> x) const;
+    SquareArray<T> operator-(SquareArray<T> x);
     SquareArray<T> operator-(std::vector<std::vector<T>> y);
     SquareArray<T> operator+(T x);
 
@@ -41,9 +41,10 @@ public:
     SquareArray<T> operator-=(SquareArray<T> y);
 
 
-    size_t size();
+    size_t size() const;
+    size_t length() const;
+    size_t index(size_t x, size_t y) const;
     void print();
-    size_t index(size_t x, size_t y);
 };
 
 template <typename T>
