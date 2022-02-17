@@ -31,9 +31,10 @@ void Model<T>::update(SquareArray<T> const &x) {
     CubeArray<T> diff = CubeArray<T>(true, filters, resolution, resolution);
     for (int i1 = 0; i1 < filters; ++i1) {
         diff[i1] += (x - w[i1]) * (f(i1, x));
+
         for (int i2 = 0; i2 < filters; ++i2) {
             if (i1 != i2) {
-                diff[i1] -= (w[i2] - w[i1]) * 2.0 * lambda * f(i1, w[i2]);
+                diff[i1] -= (w[i2] - w[i1]) * (2.0 * lambda * f(i1, w[i2]));
             }
         }
         w += (diff * learning_rate / sigma);
@@ -71,13 +72,10 @@ void Model<T>::save(const char &subfigure) {
 
     std::cout << "Saving figure" << std::endl;
 
-    size_t counter = 0;
     for(size_t layer = 0; layer < filters; layer++) {
         for (size_t row = 0; row < resolution; row++) {
             auto temp2 = w[layer];
-            std::cout << "check1" << std::endl;
             auto temp = temp2[row];
-            std::cout << "check2" << std::endl;
             std::ostream_iterator<double> output_iterator(output_file, " ");
             std::copy(temp.begin(), temp.end(), output_iterator);
             output_file << "\n";
