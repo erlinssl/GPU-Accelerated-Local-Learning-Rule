@@ -23,14 +23,15 @@ public:
 
     void flat(std::vector<float> &out);
     void concatenate(SquareArray<T> x);
-    std::vector<T> get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to);
+    std::vector<std::vector<T>> get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to);
     friend SquareArray<T> operator+(T x, SquareArray<T> y);
     friend SquareArray<T> operator*(T x, SquareArray<T> y);
     // todo does this need to be friend?
-    std::vector<T> operator[](size_t i);
+    std::vector<T> operator[](size_t i) const;
+    std::vector<T> & operator[](size_t i);
 
     SquareArray<T> operator*(T y);
-    SquareArray<T> operator-(SquareArray<T> x);
+    SquareArray<T> operator-(SquareArray<T> x) const;
     SquareArray<T> operator-(std::vector<std::vector<T>> y);
     SquareArray<T> operator+(T x);
 

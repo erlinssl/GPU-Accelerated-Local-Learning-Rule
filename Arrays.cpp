@@ -145,7 +145,12 @@ SquareArray<T>::SquareArray(int outer, int inner) {
 }
 
 template <typename T>
-std::vector<T> SquareArray<T>::operator[](size_t i) {
+std::vector<T> & SquareArray<T>::operator[](size_t i) {
+    return arr[i];
+}
+
+template <typename T>
+std::vector<T> SquareArray<T>::operator[](size_t i) const {
     return arr[i];
 }
 
@@ -190,7 +195,7 @@ SquareArray<T> SquareArray<T>::operator-=(SquareArray<T> y) {
 }
 
 template <typename T>
-SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
+SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) const {
     auto x = *this;
     for (int i = 0; i < x.size(); ++i) {
         for (int j = 0; j < x[i].size(); ++j) {
@@ -265,11 +270,13 @@ void SquareArray<T>::concatenate(SquareArray<T> x) {
 }
 
 template <typename T>
-std::vector<T> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to) {
-    std::vector<T> ans;
+std::vector<std::vector<T>> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to) {
+    std::vector<std::vector<T>> ans;
+
     for (int i = outer_from; i < outer_to; ++i) {
+        ans.emplace_back(std::vector<T>());
         for (int j = inner_from; j < inner_to; ++j) {
-            ans.emplace_back((*this)[i][j]);
+            ans[i - outer_from].emplace_back((*this)[i][j]);
         }
     }
     return ans;

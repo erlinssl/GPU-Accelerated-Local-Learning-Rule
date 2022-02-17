@@ -125,19 +125,18 @@ CubeArray<T> get_batch_revised(size_t batch_size){
         batch_indices.emplace_back(temp);
     }
 
-    auto batch = CubeArray<T>(true, batch_size, RESOLUTION, RESOLUTION);
+    std::vector<std::vector<std::vector<T>>> batch;
 
     for (int i = 0; i < batch_indices.size(); ++i) {
         // todo probably does not need to be nested
         auto dt = data[batch_indices[i][0]];
         auto slice = dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3);
-        std::vector<std::vector<T>> s2;
-        s2.emplace_back(slice);
-        batch[i] = SquareArray(s2);
+        batch.push_back(slice);
     }
 
-    return batch;
+    return CubeArray<T>(batch);
 }
+
 
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
@@ -234,7 +233,7 @@ int main() {
     // experiment<double>('d', 1.0, 1.0/9.0, 1000);
 
     /////// SHOWING FIGURES
-    // save_all<double>();
+    save_all<double>();
     // get_data();
     Py_Finalize();
     std::cout << "end of main" << std::endl;
