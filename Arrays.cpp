@@ -199,6 +199,10 @@ void SquareArray<T>::print() const {
 
 template <typename T>
 CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
+    nlays = outer;
+    nrows = middle;
+    ncols = inner;
+
     for (size_t i = 0; i < outer*middle*inner; ++i){
         if(zero){
             cube.emplace_back(0);
