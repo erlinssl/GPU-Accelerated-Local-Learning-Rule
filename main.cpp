@@ -42,7 +42,8 @@ CubeArray<double> get_data() {
         unsigned int picCounter = 0;
         unsigned int columnCounter = 0;
         while (f.get(b)) {
-            multi_pic_vector[picCounter][rowCounter].emplace_back(((double) b) / 255.0);
+            auto c = (unsigned char) b;
+            multi_pic_vector[picCounter][rowCounter].emplace_back(((double) c) / 255.0);
             columnCounter++;
             if (columnCounter > 27) {
                 rowCounter++;
