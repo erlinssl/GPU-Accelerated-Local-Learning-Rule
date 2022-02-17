@@ -16,6 +16,7 @@ double figsize_scale = 0.2;
 
 const static int GRID_SIZE = 4;
 const static int RESOLUTION = 5;
+const static int BATCH_SIZE = 1000;
 
 CubeArray<double> get_data() {
     std::cout << "getting data" << std::endl;
@@ -92,22 +93,23 @@ CubeArray<T> get_batch_revised(size_t batch_size){
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
+    auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
-
-    size_t batch_size = 1000;
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        CubeArray<T> batch = get_batch_revised<double>(batch_size);
-        for (size_t j = 0; j < batch_size; j++){
+        CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
+        for (size_t j = 0; j < BATCH_SIZE; j++){
             model.update(batch[j]);
         }
         auto stop = std::chrono::high_resolution_clock::now();
-        std::cout << "CO3: Completed batch " << i+1 << " @ " << batch_size << " after " <<
+        std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
         << "ms" << std::endl;
     }
-
+    auto stop = std::chrono::high_resolution_clock::now();
+    std::cout << "Experiment " << subfigure <<" ended after " <<
+              std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
     model.save(subfigure);
 }
 
@@ -174,15 +176,11 @@ int main() {
 
     /////// EXPERIMENTS
     if (true){
-        auto start = std::chrono::high_resolution_clock::now();
         experiment<double>('a', 1.0, 0.5, 100);
-        auto stop = std::chrono::high_resolution_clock::now();
-        std::cout << "Experiment a ended after" <<
-                  std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
-    }
     // experiment<double>('b', 1.0, 0.5, 10000);
     // experiment<double>('c', 0.5, 0.5, 1000);
     // experiment<double>('d', 1.0, 1.0/9.0, 1000);
+    }
 
     /////// SHOWING FIGURES
     save_all<double>();

@@ -44,11 +44,12 @@ std::vector<T> SquareArray<T>::operator[](size_t i) {
 // TODO Might need to directly reference the actual vector?
 template <typename T>
 std::vector<T> & SquareArray<T>::operator[](size_t i) {
-    std::vector<T> temp;
+    auto *temp = new std::vector<T>();
+    temp->reserve(ncols);
     for(size_t j = 0; j < ncols; j++){
-        temp.push_back(arr[index(i, j)]);
+        temp->push_back(arr[index(i, j)]);
     }
-    return temp;
+    return *temp;
 }
 
 template <typename T>

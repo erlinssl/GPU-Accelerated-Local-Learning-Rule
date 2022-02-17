@@ -69,6 +69,23 @@ void Model<T>::save(const char &subfigure) {
     path.append(".fig");
     std::ofstream output_file(path);
 
+    std::cout << "Saving figure" << std::endl;
+
+    size_t counter = 0;
+    for(size_t layer = 0; layer < filters; layer++) {
+        for (size_t row = 0; row < resolution; row++) {
+            auto temp2 = w[layer];
+            std::cout << "check1" << std::endl;
+            auto temp = temp2[row];
+            std::cout << "check2" << std::endl;
+            std::ostream_iterator<double> output_iterator(output_file, " ");
+            std::copy(temp.begin(), temp.end(), output_iterator);
+            output_file << "\n";
+        }
+        output_file << "\n";
+    }
+
+    /*
     for (int x = 0; x < filters; ++x) {
         for (int y = 0; y < resolution; ++y) {
             std::ostream_iterator<double> output_iterator(output_file, " ");
@@ -77,6 +94,7 @@ void Model<T>::save(const char &subfigure) {
         }
         output_file << "\n";
     }
+    */
 }
 
 static inline void rtrim(std::string &s) {
@@ -111,7 +129,9 @@ bool Model<T>::load(const char &subfigure) {
             inner.push_back(std::stod(line.substr(last, next-last)));
             last = next + 1;
         }
-        inner.push_back(std::stod(line.substr(last)));
+        if(!line.substr(last).empty()){
+            inner.push_back(std::stod(line.substr(last)));
+        }
     }
 
     this->w.cube.swap(inner);
