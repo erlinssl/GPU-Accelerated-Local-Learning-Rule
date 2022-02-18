@@ -30,7 +30,7 @@ double Model<T>::f(int i, SquareArray<T> const &x) {
 
 template <typename T>
 void Model<T>::update(SquareArray<T> const &x) {
-    CubeArray<T> diff = CubeArray<T>(true, filters, resolution, resolution);
+    std::fill(diff.cube.begin(), diff.cube.end(), 0);
     for (int i1 = 0; i1 < filters; ++i1) {
         diff.plus_index(i1, (x - w[i1]) * (f(i1, x)));
 
@@ -123,7 +123,7 @@ bool Model<T>::load(const char &subfigure) {
         rtrim(line);
         // TODO The following line may or may not need to be active, depending on system locale \
             If filter plots are empty, try (un)commenting it.
-        // std::replace(line.begin(), line.end(), '.', ',');
+        std::replace(line.begin(), line.end(), '.', ',');
         size_t last = 0, next;
         while ((next = line.find(DELIMITER, last)) != std::string::npos) {
             inner.push_back(std::stod(line.substr(last, next-last)));

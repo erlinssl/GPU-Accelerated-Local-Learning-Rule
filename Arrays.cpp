@@ -28,6 +28,7 @@ SquareArray<T>::SquareArray(size_t nrows_, size_t ncols_) {
     nrows = nrows_;
     ncols = ncols_;
     arr = std::vector<T>();
+    arr.reserve(nrows_ * ncols_);
     for (int i = 0; i < nrows_*ncols_; ++i){
         // todo use c++11 instead
         arr.emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
@@ -55,6 +56,7 @@ std::vector<T> & SquareArray<T>::operator[](size_t i) {
 template <typename T>
 std::vector<T> SquareArray<T>::operator[](size_t i) const {
     std::vector<T> temp;
+    temp.reserve(ncols);
     for(size_t j = 0; j < ncols; j++){
         temp.push_back(arr[index(i, j)]);
     }
@@ -71,7 +73,7 @@ SquareArray<T> operator*(T x, SquareArray<T> y) {
 
 // TODO Change parameter type from 2D to 1D vector, change references to method
 template <typename T>
-SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> y) {
+SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> const &y) {
     for (int i = 0; i < ncols; ++i) {
         for (int j = 0; j < nrows; ++j) {
             (*this).arr[index(i, j)] = (*this).arr[index(i, j)] - y[i][j];
@@ -81,8 +83,9 @@ SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> y) {
 }
 
 template <typename T>
-SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
+SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) {
     std::vector<T> temp;
+    temp.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
         temp.push_back(arr[i] - y.arr[i]);
     }
@@ -90,8 +93,9 @@ SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
 }
 
 template <typename T>
-SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) const {
+SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) const {
     std::vector<T> temp;
+    temp.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
         temp.push_back(arr[i] - y.arr[i]);
     }
@@ -99,7 +103,7 @@ SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) const {
 }
 
 template <typename T>
-SquareArray<T> SquareArray<T>::operator+=(SquareArray<T> y) {
+SquareArray<T> SquareArray<T>::operator+=(SquareArray<T> const &y) {
     for (size_t i = 0; i < arr.size(); ++i) {
         arr[i] += y.arr[i];
     }
@@ -107,7 +111,7 @@ SquareArray<T> SquareArray<T>::operator+=(SquareArray<T> y) {
 }
 
 template <typename T>
-SquareArray<T> SquareArray<T>::operator-=(SquareArray<T> y) {
+SquareArray<T> SquareArray<T>::operator-=(SquareArray<T> const &y) {
     for (size_t i = 0; i < arr.size(); ++i) {
         arr[i] -= y.arr[i];
     }
@@ -150,8 +154,10 @@ SquareArray<T> operator+(T x, SquareArray<T> y) {
 template <typename T>
 std::vector<std::vector<T>> SquareArray<T>::get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to) {
     std::vector<std::vector<T>> ans;
+    ans.reserve((outer_to - outer_from) * (inner_to - inner_from));
     for (size_t i = outer_from; i < outer_to; ++i) {
         ans.emplace_back(std::vector<T>());
+        ans[i - outer_from].reserve(inner_to - inner_from);
         for (size_t j = inner_from; j < inner_to; ++j) {
             ans[i - outer_from].emplace_back(arr[index(i, j)]);
         }
@@ -204,7 +210,7 @@ CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
     nlays = outer;
     nrows = middle;
     ncols = inner;
-
+    cube.reserve(outer*middle*inner);
     for (size_t i = 0; i < outer*middle*inner; ++i){
         if(zero){
             cube.emplace_back(0);
@@ -216,12 +222,13 @@ CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
 }
 
 template <typename T>
-CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> cube_) {
+CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> const &cube_) {
     nlays = cube_.size();
     nrows = cube_[0].size();
     ncols = cube_[0][0].size();
 
     std::vector<T> temp;
+    temp.reserve(cube_.size() * cube_[0].size() * cube_[0].size());
     for (auto & layer : cube_) {
         for (auto & row : layer) {
             for (auto & col : row) {
@@ -234,7 +241,7 @@ CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> cube_) {
 
 
 template <typename T>
-double CubeArray<T>::calc(SquareArray<T> x, size_t outer) {
+double CubeArray<T>::calc(SquareArray<T> const &x, size_t outer) {
     double sum = 0;
 
     for (size_t row = 0; row < nrows; row++) {
@@ -284,7 +291,7 @@ CubeArray<T> CubeArray<T>::operator*(T y) {
 }
 
 template <typename T>
-CubeArray<T> CubeArray<T>::operator+=(CubeArray<T> y) {
+CubeArray<T> CubeArray<T>::operator+=(CubeArray<T> const &y) {
     for (size_t i = 0; i < length(); i++){
         cube[i] += y.cube[i];
     }
@@ -326,14 +333,14 @@ void CubeArray<T>::print() const {
 }
 
 template <typename T>
-void CubeArray<T>::minus_index(size_t index_, SquareArray<T> y) {
+void CubeArray<T>::minus_index(size_t index_, SquareArray<T> const &y) {
     for (int i = 0; i < y.ncols * y.nrows; ++i) {
         cube[index_ * nrows * ncols + i] -= y.arr[i];
     }
 }
 
 template <typename T>
-void CubeArray<T>::plus_index(size_t index_, SquareArray<T> y) {
+void CubeArray<T>::plus_index(size_t index_, SquareArray<T> const &y) {
     for (int i = 0; i < y.ncols * y.nrows; ++i) {
         cube[index_ * nrows * ncols + i] += y.arr[i];
     }

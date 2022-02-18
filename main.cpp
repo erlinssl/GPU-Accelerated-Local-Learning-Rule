@@ -70,6 +70,7 @@ auto data = get_data();
 template <typename T>
 CubeArray<T> get_batch_revised(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices;
+    batch_indices.reserve(batch_size);
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         temp.emplace_back((int)((((double)rand()/RAND_MAX) * 60000.)));
@@ -175,13 +176,13 @@ int main() {
     // test_batch();
 
     /////// EXPERIMENTS
-    save_all<double>({'a'});
     if (true){
     experiment<double>('a', 1.0, 0.5, 1000);
-    experiment<double>('b', 1.0, 0.5, 10000);
-    experiment<double>('c', 0.5, 0.5, 1000);
-    experiment<double>('d', 1.0, 1.0/9.0, 1000);
-    save_all<double>({'a' , 'b', 'c', 'd'});
+    save_all<double>({'a'});
+    //experiment<double>('b', 1.0, 0.5, 10000);
+    //experiment<double>('c', 0.5, 0.5, 1000);
+    //experiment<double>('d', 1.0, 1.0/9.0, 1000);
+    //save_all<double>({'a' , 'b', 'c', 'd'});
     } else {
         // for testing
         experiment<double>('z', 1.0, 0.5, 100);

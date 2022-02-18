@@ -32,13 +32,13 @@ public:
     std::vector<T> & operator[](size_t i);
 
     SquareArray<T> operator*(T y);
-    SquareArray<T> operator-(SquareArray<T> x);
-    SquareArray<T> operator-(SquareArray<T> x) const;
-    SquareArray<T> operator-(std::vector<std::vector<T>> y);
+    SquareArray<T> operator-(SquareArray<T> const &x);
+    SquareArray<T> operator-(SquareArray<T> const &x) const;
+    SquareArray<T> operator-(std::vector<std::vector<T>> const &y);
     SquareArray<T> operator+(T x);
 
-    SquareArray<T> operator+=(SquareArray<T> y);
-    SquareArray<T> operator-=(SquareArray<T> y);
+    SquareArray<T> operator+=(SquareArray<T> const &y);
+    SquareArray<T> operator-=(SquareArray<T> const &y);
 
 
     size_t size() const;
@@ -56,17 +56,17 @@ public:
     size_t ncols;
 
     CubeArray(bool zero, size_t outer, size_t middle, size_t inner);
-    explicit CubeArray(std::vector<std::vector<std::vector<T>>> cube_);
+    explicit CubeArray(std::vector<std::vector<std::vector<T>>> const &cube_);
 
-    double calc(SquareArray<T> x, size_t outer);
-    void minus_index(size_t index, SquareArray<T> y);
-    void plus_index(size_t index,  SquareArray<T> y);
+    double calc(SquareArray<T> const &x, size_t outer);
+    void minus_index(size_t index, SquareArray<T> const &y);
+    void plus_index(size_t index,  SquareArray<T> const &y);
     SquareArray<T> operator[](size_t i) const; //
 
     CubeArray<T> operator/(T y);
     CubeArray<T> operator*(T y);
 
-    CubeArray<T> operator+=(CubeArray<T> y);
+    CubeArray<T> operator+=(CubeArray<T> const &y);
 
     friend CubeArray<T> operator*(T y, CubeArray<T> x);
 
