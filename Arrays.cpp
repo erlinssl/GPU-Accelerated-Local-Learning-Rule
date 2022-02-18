@@ -132,9 +132,9 @@ SquareArray<T> SquareArray<T>::operator*(T y) {
 
 template <typename T>
 void SquareArray<T>::flat(std::vector<float> &out) {
-    for (size_t i = 0; i < size(); i++){
-        for (size_t j = 0; j < size(); j++){
-            out[size() * i + j] = arr[index(i, j)];
+    for (size_t i = 0; i < nrows; i++){
+        for (size_t j = 0; j < ncols; j++){
+            out[index(i, j)] = arr[index(i, j)];
         }
     }
 }

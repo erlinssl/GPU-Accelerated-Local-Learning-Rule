@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <utility>
 
 #include "Arrays.h"
 #include "Model.h"
@@ -115,7 +116,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
 template <typename T>
 void figure(const Model<T>& model){
-    std::vector<float> z(model.resolution * model.resolution);
+    std::vector<float> z(model.resolution * model.resolution, 0.0);
     const int nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
@@ -146,13 +147,12 @@ void test_batch(){
 }
 
 template <typename T>
-void save_all(){
-    std::vector<char> subfigures = {'a'}; //, 'b', 'c', 'd'};
+void save_all(const std::vector<char>& figs){
     plt::Plot plot("sub_fig");
 
     Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
 
-    for (char fig : subfigures){
+    for (char fig : figs){
         std::cout << "Graphing fig " << fig << std::endl;
         model.load(fig);
         figure(model);
@@ -175,18 +175,19 @@ int main() {
     // test_batch();
 
     /////// EXPERIMENTS
+    save_all<double>({'a'});
     if (true){
-    // experiment<double>('a', 1.0, 0.5, 1000);
-    // experiment<double>('b', 1.0, 0.5, 10000);
-    // experiment<double>('c', 0.5, 0.5, 1000);
-    // experiment<double>('d', 1.0, 1.0/9.0, 1000);
-    experiment<double>('z', 1.0, 0.5, 100); // for testing
+    experiment<double>('a', 1.0, 0.5, 1000);
+    experiment<double>('b', 1.0, 0.5, 10000);
+    experiment<double>('c', 0.5, 0.5, 1000);
+    experiment<double>('d', 1.0, 1.0/9.0, 1000);
+    save_all<double>({'a' , 'b', 'c', 'd'});
+    } else {
+        // for testing
+        experiment<double>('z', 1.0, 0.5, 100);
+        save_all<double>({'z'});
     }
 
-    /////// SHOWING FIGURES
-    save_all<double>();
-    // get_data();
     Py_Finalize();
-    std::cout << "end of main" << std::endl;
     return 0;
 }
