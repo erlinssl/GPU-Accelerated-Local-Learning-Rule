@@ -82,19 +82,20 @@ SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> y) {
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) {
+    std::vector<T> temp;
     for (size_t i = 0; i < arr.size(); ++i) {
-        arr[i] -= y.arr[i];
+        temp.push_back(arr[i] - y.arr[i]);
     }
-    return *this;
+    return SquareArray(std::move(temp));
 }
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(SquareArray<T> y) const {
-    auto x = *this;
+    std::vector<T> temp;
     for (size_t i = 0; i < arr.size(); ++i) {
-        x.arr[i] -= y.arr[i];
+        temp.push_back(arr[i] - y.arr[i]);
     }
-    return x;
+    return SquareArray(std::move(temp));
 }
 
 template <typename T>
@@ -302,7 +303,7 @@ size_t CubeArray<T>::length() {
 
 template <typename T>
 size_t CubeArray<T>::index(size_t x, size_t y, size_t z){
-    return (x * nlays * nrows) + (y * nrows) + z;
+    return (x * nrows * ncols) + (y * nrows) + z;
 }
 
 template <typename T>
@@ -325,16 +326,16 @@ void CubeArray<T>::print() const {
 }
 
 template <typename T>
-void CubeArray<T>::minus_index(size_t index, SquareArray<T> y) {
+void CubeArray<T>::minus_index(size_t index_, SquareArray<T> y) {
     for (int i = 0; i < y.ncols * y.nrows; ++i) {
-        cube[index * nrows * ncols + i] -= y.arr[i];
+        cube[index_ * nrows * ncols + i] -= y.arr[i];
     }
 }
 
 template <typename T>
-void CubeArray<T>::plus_index(size_t index, SquareArray<T> y) {
+void CubeArray<T>::plus_index(size_t index_, SquareArray<T> y) {
     for (int i = 0; i < y.ncols * y.nrows; ++i) {
-        cube[index * nrows * ncols + i] += y.arr[i];
+        cube[index_ * nrows * ncols + i] += y.arr[i];
     }
 }
 
