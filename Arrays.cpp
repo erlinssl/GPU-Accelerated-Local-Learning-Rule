@@ -324,6 +324,19 @@ void CubeArray<T>::print() const {
     }
 }
 
+template <typename T>
+void CubeArray<T>::minus_index(size_t index, SquareArray<T> y) {
+    for (int i = 0; i < y.ncols * y.nrows; ++i) {
+        cube[index * nrows * ncols + i] -= y.arr[i];
+    }
+}
+
+template <typename T>
+void CubeArray<T>::plus_index(size_t index, SquareArray<T> y) {
+    for (int i = 0; i < y.ncols * y.nrows; ++i) {
+        cube[index * nrows * ncols + i] += y.arr[i];
+    }
+}
 
 template class SquareArray<double>;
 template class SquareArray<int>;

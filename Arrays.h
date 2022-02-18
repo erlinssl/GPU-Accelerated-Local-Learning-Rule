@@ -59,6 +59,8 @@ public:
     explicit CubeArray(std::vector<std::vector<std::vector<T>>> cube_);
 
     double calc(SquareArray<T> x, size_t outer);
+    void minus_index(size_t index, SquareArray<T> y);
+    void plus_index(size_t index,  SquareArray<T> y);
     SquareArray<T> operator[](size_t i) const; //
 
     CubeArray<T> operator/(T y);
