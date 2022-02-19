@@ -22,6 +22,7 @@ public:
 
     SquareArray(size_t nrows_, size_t ncols_);
     explicit SquareArray(std::vector<T> x);
+    SquareArray(size_t outer, size_t inner, size_t empty_array_indicator) : arr(), nrows(outer), ncols(inner) {};
 
     void flat(std::vector<float> &out);
     std::vector<std::vector<T>> get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to);

@@ -84,22 +84,22 @@ SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> const &y) {
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) {
-    std::vector<T> temp;
-    temp.reserve(arr.size());
+    SquareArray<T> temp (ncols, nrows, 1);
+    temp.arr.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
-        temp.push_back(arr[i] - y.arr[i]);
+        temp.arr.push_back(arr[i] - y.arr[i]);
     }
-    return SquareArray(std::move(temp));
+    return temp;
 }
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) const {
-    std::vector<T> temp;
-    temp.reserve(arr.size());
+    SquareArray<T> temp (ncols, nrows, 1);
+    temp.arr.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
-        temp.push_back(arr[i] - y.arr[i]);
+        temp.arr.push_back(arr[i] - y.arr[i]);
     }
-    return SquareArray(std::move(temp));
+    return temp;
 }
 
 template <typename T>
@@ -243,12 +243,9 @@ CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> const &cube_) {
 template <typename T>
 double CubeArray<T>::calc(SquareArray<T> const &x, size_t outer) {
     double sum = 0;
-
     for (size_t row = 0; row < nrows; row++) {
         for (size_t value = 0; value < ncols; value++) {
-            sum += std::pow(
-                    x.arr[x.index(row, value)] - this->cube[index(outer, row, value)]
-                    , 2);
+            sum += std::pow(x.arr[x.index(row, value)] - this->cube[index(outer, row, value)], 2);
         }
     }
     return -sum;
@@ -256,12 +253,12 @@ double CubeArray<T>::calc(SquareArray<T> const &x, size_t outer) {
 
 template <typename T>
 SquareArray<T> CubeArray<T>::operator[](size_t i) const {
-    std::vector<T> temp;
-    temp.reserve(nrows*ncols);
+    SquareArray<T> temp(nrows, ncols, 1);
+    temp.arr.reserve(nrows*ncols);
     for(size_t j = 0; j < nrows * ncols; ++j){
-        temp.push_back(cube[i*nrows*ncols + j]);
+        temp.arr.push_back(cube[i*nrows*ncols + j]);
     }
-    return SquareArray(temp);
+    return temp;
 }
 
 template <typename T>
