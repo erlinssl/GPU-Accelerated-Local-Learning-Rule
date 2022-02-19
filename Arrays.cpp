@@ -214,7 +214,6 @@ CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
         if(zero){
             cube.emplace_back(0);
         } else {
-            // todo use c++ 11 instead
             cube.emplace_back(get_rand());
         }
     }

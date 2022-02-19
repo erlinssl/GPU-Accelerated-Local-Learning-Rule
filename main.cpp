@@ -75,6 +75,7 @@ CubeArray<T> get_batch_revised(size_t batch_size){
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         temp.emplace_back((int)((get_rand() * 60000.)));
+        // todo hardcoded shapes
         temp.emplace_back((int)((2 + get_rand() * (28 - 4))));
         temp.emplace_back((int)((2 + get_rand() * (28 - 4))));
         batch_indices.emplace_back(temp);
