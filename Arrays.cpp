@@ -30,8 +30,7 @@ SquareArray<T>::SquareArray(size_t nrows_, size_t ncols_) {
     arr = std::vector<T>();
     arr.reserve(nrows_ * ncols_);
     for (int i = 0; i < nrows_*ncols_; ++i){
-        // todo use c++11 instead
-        arr.emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
+        arr.emplace_back(get_rand());
     }
 }
 
@@ -216,7 +215,7 @@ CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
             cube.emplace_back(0);
         } else {
             // todo use c++ 11 instead
-            cube.emplace_back(((T) rand() / RAND_MAX) * (1 - 0));
+            cube.emplace_back(get_rand());
         }
     }
 }

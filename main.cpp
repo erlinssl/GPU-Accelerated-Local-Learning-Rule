@@ -3,10 +3,10 @@
 #include <fstream>
 #include <chrono>
 #include <utility>
+#include <random>
 
 #include "Arrays.h"
 #include "Model.h"
-
 #include "dependencies/matplotlibcpp.h"
 
 namespace plt = matplotlibcpp;
@@ -18,6 +18,7 @@ double figsize_scale = 0.2;
 const static int GRID_SIZE = 4;
 const static int RESOLUTION = 5;
 const static int BATCH_SIZE = 1000;
+
 
 CubeArray<double> get_data() {
     std::cout << "getting data" << std::endl;
@@ -73,9 +74,9 @@ CubeArray<T> get_batch_revised(size_t batch_size){
     batch_indices.reserve(batch_size);
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
-        temp.emplace_back((int)((((double)rand()/RAND_MAX) * 60000.)));
-        temp.emplace_back((int)((2 + ((double)rand()/RAND_MAX) * (28 - 4))));
-        temp.emplace_back((int)((2 + ((double)rand()/RAND_MAX) * (28 - 4))));
+        temp.emplace_back((int)((get_rand() * 60000.)));
+        temp.emplace_back((int)((2 + get_rand() * (28 - 4))));
+        temp.emplace_back((int)((2 + get_rand() * (28 - 4))));
         batch_indices.emplace_back(temp);
     }
 
@@ -170,6 +171,7 @@ void save_all(const std::vector<char>& figs){
 int main() {
     //todo what does this do
     srand((unsigned)time(nullptr));
+
     const double learning_rate = .1;
 
     /////// TESTING
