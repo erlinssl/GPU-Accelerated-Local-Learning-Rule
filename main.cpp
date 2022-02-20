@@ -70,15 +70,13 @@ auto data = get_data();
 
 template <typename T>
 CubeArray<T> get_batch_revised(size_t batch_size){
-    std::vector<std::vector<size_t>> batch_indices;
-    batch_indices.reserve(batch_size);
+    std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
-        temp.emplace_back((int)((get_rand() * 60000.)));
+        batch_indices[i][0] = ((int)((get_rand() * 60000.)));
         // todo hardcoded shapes
-        temp.emplace_back((int)((2 + get_rand() * (28 - 4))));
-        temp.emplace_back((int)((2 + get_rand() * (28 - 4))));
-        batch_indices.emplace_back(temp);
+        batch_indices[i][1] = ((int)((2 + get_rand() * (28 - 4))));
+        batch_indices[i][2] = ((int)((2 + get_rand() * (28 - 4))));
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
@@ -86,8 +84,7 @@ CubeArray<T> get_batch_revised(size_t batch_size){
     for (int i = 0; i < batch_indices.size(); ++i) {
         // todo probably does not need to be nested
         auto dt = data[batch_indices[i][0]];
-        auto slice = dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3);
-        batch.push_back(slice);
+        batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
     }
 
     return CubeArray<T>(batch);
@@ -162,7 +159,7 @@ void save_all(const std::vector<char>& figs){
         plt::show();
         /*
          std::string path = "../saved/figure2"
-         path.push_back(fig);
+         path.emplace_back(fig);
          path.append(".pgf");
          plt::save(path);
         */

@@ -47,7 +47,7 @@ std::vector<T> & SquareArray<T>::operator[](size_t i) {
     auto *temp = new std::vector<T>();
     temp->reserve(ncols);
     for(size_t j = 0; j < ncols; j++){
-        temp->push_back(arr[index(i, j)]);
+        temp->emplace_back(arr[index(i, j)]);
     }
     return *temp;
 }
@@ -57,7 +57,7 @@ std::vector<T> SquareArray<T>::operator[](size_t i) const {
     std::vector<T> temp;
     temp.reserve(ncols);
     for(size_t j = 0; j < ncols; j++){
-        temp.push_back(arr[index(i, j)]);
+        temp.emplace_back(arr[index(i, j)]);
     }
     return temp;
 }
@@ -86,7 +86,7 @@ SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) {
     SquareArray<T> temp (ncols, nrows, 1);
     temp.arr.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
-        temp.arr.push_back(arr[i] - y.arr[i]);
+        temp.arr.emplace_back(arr[i] - y.arr[i]);
     }
     return temp;
 }
@@ -96,7 +96,7 @@ SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) const {
     SquareArray<T> temp (ncols, nrows, 1);
     temp.arr.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
-        temp.arr.push_back(arr[i] - y.arr[i]);
+        temp.arr.emplace_back(arr[i] - y.arr[i]);
     }
     return temp;
 }
@@ -224,17 +224,14 @@ CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> const &cube_) {
     nlays = cube_.size();
     nrows = cube_[0].size();
     ncols = cube_[0][0].size();
-
-    std::vector<T> temp;
-    temp.reserve(cube_.size() * cube_[0].size() * cube_[0].size());
+    cube.reserve(cube_.size() * cube_[0].size() * cube_[0].size());
     for (auto & layer : cube_) {
         for (auto & row : layer) {
             for (auto & col : row) {
-                temp.push_back(col);
+                cube.emplace_back(col);
             }
         }
     }
-    cube.swap(temp);
 }
 
 
@@ -254,7 +251,7 @@ SquareArray<T> CubeArray<T>::operator[](size_t i) const {
     SquareArray<T> temp(nrows, ncols, 1);
     temp.arr.reserve(nrows*ncols);
     for(size_t j = 0; j < nrows * ncols; ++j){
-        temp.arr.push_back(cube[i*nrows*ncols + j]);
+        temp.arr.emplace_back(cube[i*nrows*ncols + j]);
     }
     return temp;
 }
