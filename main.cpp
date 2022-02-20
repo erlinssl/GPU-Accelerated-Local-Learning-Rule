@@ -82,7 +82,6 @@ CubeArray<T> get_batch_revised(size_t batch_size){
     std::vector<std::vector<std::vector<T>>> batch;
 
     for (int i = 0; i < batch_indices.size(); ++i) {
-        // todo probably does not need to be nested
         auto dt = data[batch_indices[i][0]];
         batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
     }
@@ -167,9 +166,6 @@ void save_all(const std::vector<char>& figs){
 }
 
 int main() {
-    //todo what does this do
-    srand((unsigned)time(nullptr));
-
     const double learning_rate = .1;
 
     /////// TESTING
