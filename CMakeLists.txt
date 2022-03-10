@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -O3")
 set(SOURCE_FILES main.cpp)
 
 find_package (Python3 COMPONENTS Development NumPy)
+find_package (ArrayFire)
 
 add_definitions(-w) # TODO Remove
 
@@ -19,3 +20,4 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 
 target_link_libraries(filter_finder ${PYTHON_LIBRARIES})
 target_link_libraries(filter_finder ${Python3_NumPy_INCLUDE_DIRS})
+target_link_libraries(filter_finder ArrayFire::af)

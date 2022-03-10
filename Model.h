@@ -8,8 +8,12 @@
 
 #include <memory>
 #include <string>
-#include "Arrays.h"
 #include <filesystem>
+
+#include <arrayfire.h>
+
+#include "Arrays.h"
+
 
 template <typename T>
 class Model {
