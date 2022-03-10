@@ -124,7 +124,7 @@ bool Model<T>::load(const char &subfigure) {
         rtrim(line);
         // TODO The following line may or may not need to be active, depending on system locale \
             If filter plots are empty, try (un)commenting it.
-        std::replace(line.begin(), line.end(), '.', ',');
+        //std::replace(line.begin(), line.end(), '.', ',');
         size_t last = 0, next;
         while ((next = line.find(DELIMITER, last)) != std::string::npos) {
             inner.emplace_back(std::stod(line.substr(last, next-last)));

@@ -96,30 +96,30 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
-    std::vector<std::thread> threads(4);
+
+    auto num_threads = 4;
+    std::vector<std::thread> threads(num_threads);
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
         CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
         std::vector<CubeArray<T>> cubs;
-        cubs.reserve(4);
-        for (int j = 0; j < 4; ++j) {
-            threads[j] = std::thread([j, &batch, &model, &cubs]{
+        cubs.reserve(num_threads);
+        for (int j = 0; j < num_threads; ++j) {
+            threads[j] = std::thread([j, &batch, &model, &cubs, &num_threads]{
                 auto m = model;
-                for (int k = (BATCH_SIZE / 4) * j; k < (BATCH_SIZE / 4) * (j + 1); ++k) {
+                for (int k = (BATCH_SIZE / num_threads) * j; k < (BATCH_SIZE / num_threads) * (j + 1); ++k) {
                     m.update(batch[k]);
                 }
                 cubs.emplace_back(m.w);
             });
         }
-        for (int j = 0; j < 4; ++j) {
+        for (int j = 0; j < num_threads; ++j) {
             threads[j].join();
         }
-        for (int j = 0; j < 3; ++j) {
-            if (j < 3) {
-                cubs[0] += cubs[j + 1];
-            }
+        for (int j = 0; j < num_threads - 1; ++j) {
+            cubs[0] += cubs[j + 1];
         }
-        model.w = cubs[0] / 4;
+        model.w = cubs[0] / num_threads;
 
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
