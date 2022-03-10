@@ -97,7 +97,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
 
-    auto num_threads = 4;
+    short num_threads = 10;
     std::vector<std::thread> threads(num_threads);
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
@@ -105,19 +105,20 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         std::vector<CubeArray<T>> cubs;
         cubs.reserve(num_threads);
         for (int j = 0; j < num_threads; ++j) {
-            threads[j] = std::thread([j, &batch, &model, &cubs, &num_threads]{
+            cubs.push_back(model.w);
+            threads[j] = std::thread([j, &batch, &model, &cubs, num_threads]{
                 auto m = model;
                 for (int k = (BATCH_SIZE / num_threads) * j; k < (BATCH_SIZE / num_threads) * (j + 1); ++k) {
                     m.update(batch[k]);
                 }
-                cubs.emplace_back(m.w);
+                cubs[j] = (m.w);
             });
         }
         for (int j = 0; j < num_threads; ++j) {
             threads[j].join();
         }
-        for (int j = 0; j < num_threads - 1; ++j) {
-            cubs[0] += cubs[j + 1];
+        for (int j = 1; j < num_threads; ++j) {
+            cubs[0] += cubs[j];
         }
         model.w = cubs[0] / num_threads;
 
