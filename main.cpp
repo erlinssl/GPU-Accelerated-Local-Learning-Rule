@@ -4,6 +4,7 @@
 #include <chrono>
 #include <utility>
 #include <random>
+#include <thread>
 
 #include "Arrays.h"
 #include "Model.h"
@@ -95,13 +96,31 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
-
+    std::vector<std::thread> threads(4);
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
         CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
-        for (size_t j = 0; j < BATCH_SIZE; j++){
-            model.update(batch[j]);
+        std::vector<CubeArray<T>> cubs;
+        cubs.reserve(4);
+        for (int j = 0; j < 4; ++j) {
+            threads[j] = std::thread([j, &batch, &model, &cubs]{
+                auto m = model;
+                for (int k = (BATCH_SIZE / 4) * j; k < (BATCH_SIZE / 4) * (j + 1); ++k) {
+                    m.update(batch[k]);
+                }
+                cubs.emplace_back(m.w);
+            });
         }
+        for (int j = 0; j < 4; ++j) {
+            threads[j].join();
+        }
+        for (int j = 0; j < 3; ++j) {
+            if (j < 3) {
+                cubs[0] += cubs[j + 1];
+            }
+        }
+        model.w = cubs[0] / 4;
+
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
