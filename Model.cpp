@@ -31,17 +31,42 @@ double Model<T>::f(int i, SquareArray<T> const &x) {
 
 template <typename T>
 void Model<T>::update(SquareArray<T> const &x) {
-    std::fill(diff.cube.begin(), diff.cube.end(), 0);
-    for (int i1 = 0; i1 < filters; ++i1) {
-        diff.plus_index(i1, (x - w[i1]) * (f(i1, x)));
+    std::vector<double> mu_changes(num_threads);
+    std::vector<std::thread> threads(num_threads);
+    std::vector<CubeArray<T>> diffs;
 
-        for (int i2 = 0; i2 < filters; ++i2) {
-            if (i1 != i2) {
-                diff.minus_index(i1, (w[i2] - w[i1]) * (2.0 * lambda * f(i1, w[i2])));
+    for(size_t j = 0; j < filters/num_threads; j++){
+        threads.push_back(std::thread([this, j, &diffs, &x]{
+            auto diff = CubeArray<T>(true, filters, resolution, resolution);
+
+            for (size_t i1 = j*filters/num_threads; i1 < (j+1)*filters/num_threads; ++i1) {
+                diff.plus_index(i1, (x - w[i1]) * (f(i1, x)));
+
+                for (size_t i2 = 0; i2 < filters; ++i2) {
+                    if (i1 != i2) {
+                        diff.minus_index(i1, (w[i2] - w[i1]) * (2.0 * lambda * f(i1, w[i2])));
+                    }
+                }
+
+                diffs.emplace_back(diff);
             }
-        }
-        w += ((diff * learning_rate) / sigma);
+            std::cout << "done" << std::endl;
+        }));
     }
+    std::cout << "pissed" << std::endl;
+
+    for (size_t j = 0; j < num_threads; ++j) {
+        std::cout << "joining" << j << " " << std::endl;
+        threads[j].join();
+        std::cout << "joined" << std::endl;
+    }
+
+
+    for (size_t j = 1; j < num_threads; ++j) {
+        diffs[0] += diffs[j];
+    }
+
+    w += (((diffs[0]/num_threads) * learning_rate) / sigma);
 }
 
 /* Saved array

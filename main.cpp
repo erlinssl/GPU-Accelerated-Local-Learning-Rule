@@ -71,7 +71,7 @@ auto data = get_data();
 template <typename T>
 CubeArray<T> get_batch_revised(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
-    for(int i = 0; i < batch_size; ++i) {
+    for(size_t i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         batch_indices[i][0] = ((int)((get_rand() * 60000.)));
         // todo hardcoded shapes
@@ -81,7 +81,7 @@ CubeArray<T> get_batch_revised(size_t batch_size){
 
     std::vector<std::vector<std::vector<T>>> batch;
 
-    for (int i = 0; i < batch_indices.size(); ++i) {
+    for (size_t i = 0; i < batch_indices.size(); ++i) {
         auto dt = data[batch_indices[i][0]];
         batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
     }
