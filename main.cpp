@@ -182,11 +182,11 @@ int main() {
     /////// EXPERIMENTS
     if (true){
     experiment<double>('a', 1.0, 0.5, 1000);
-    // experiment<double>('b', 1.0, 0.5, 10000);
-    // experiment<double>('c', 0.5, 0.5, 1000);
-    // experiment<double>('d', 1.0, 1.0/9.0, 1000);
+    experiment<double>('b', 1.0, 0.5, 10000);
+    experiment<double>('c', 0.5, 0.5, 1000);
+    experiment<double>('d', 1.0, 1.0/9.0, 1000);
     // print_stats();
-    save_all<double>({'a' , 'b', 'c', 'd'});
+    save_all<double>({/*'a' , 'b', 'c',*/ 'd'});
     } else {
         // for testing
         experiment<double>('z', 1.0, 0.5, 100);

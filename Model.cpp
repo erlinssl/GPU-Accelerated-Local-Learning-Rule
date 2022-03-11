@@ -40,7 +40,7 @@ void Model<T>::update(SquareArray<T> const &x) {
         threads.push_back(std::thread([this, j, &diffs, x]{
             CubeArray<T> diff(true, filters, resolution, resolution);
 
-            for (size_t i1 = j*filters/num_threads; i1 < (j+1)*filters/num_threads; ++i1) {
+            for (size_t i1 = j * filters / num_threads; i1 < (j + 1) * filters / num_threads; ++i1) {
                 diff.plus_index(i1, (x - w[i1]) * (f(i1, x)));
 
                 for (size_t i2 = 0; i2 < filters; ++i2) {
