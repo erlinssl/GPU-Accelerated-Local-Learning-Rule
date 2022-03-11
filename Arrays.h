@@ -58,7 +58,6 @@ public:
 
     CubeArray(bool zero, size_t outer, size_t middle, size_t inner);
     explicit CubeArray(std::vector<std::vector<std::vector<T>>> const &cube_);
-    CubeArray();
 
     double calc(SquareArray<T> const &x, size_t outer);
     void minus_index(size_t index, SquareArray<T> const &y);
