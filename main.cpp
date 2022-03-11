@@ -89,6 +89,7 @@ CubeArray<T> get_batch_revised(size_t batch_size){
     return CubeArray<T>(batch);
 }
 
+static std::vector<long> ex_times;
 
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
@@ -103,14 +104,21 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
             model.update(batch[j]);
         }
         auto stop = std::chrono::high_resolution_clock::now();
-        std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
+        std::cout << subfigure << "-" << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
         << "ms" << std::endl;
     }
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
+    ex_times.push_back((stop - start).count());
     model.save(subfigure);
+}
+
+void print_stats(){
+    for (auto time : ex_times) {
+        std::cout << time << std::endl;
+    }
 }
 
 template <typename T>
@@ -174,11 +182,11 @@ int main() {
     /////// EXPERIMENTS
     if (true){
     experiment<double>('a', 1.0, 0.5, 1000);
-    save_all<double>({'a'});
-    //experiment<double>('b', 1.0, 0.5, 10000);
-    //experiment<double>('c', 0.5, 0.5, 1000);
-    //experiment<double>('d', 1.0, 1.0/9.0, 1000);
-    //save_all<double>({'a' , 'b', 'c', 'd'});
+    experiment<double>('b', 1.0, 0.5, 10000);
+    experiment<double>('c', 0.5, 0.5, 1000);
+    experiment<double>('d', 1.0, 1.0/9.0, 1000);
+    print_stats();
+    save_all<double>({'a' , 'b', 'c', 'd'});
     } else {
         // for testing
         experiment<double>('z', 1.0, 0.5, 100);
