@@ -43,11 +43,21 @@ af::array get_data() {
     }
 }
 
-auto data = get_data();
+af::array data = get_data();
 
 template <typename T>
-CubeArray<T> get_batch_revised(size_t batch_size){
+af::array get_batch_revised(size_t batch_size){
+    //getrand kan erstattes helt med randu
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
+    af::array batch_indices_2 = af::randu(batch_size, 3, s64);
+
+    batch_indices_2.col(0) *= 60000;
+    batch_indices_2.cols(1, 2) *= (28 - 4);
+
+    batch_indices_2.cols(1, 2) += 2;
+
+
+
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         batch_indices[i][0] = ((int)((get_rand() * 60000.)));
@@ -57,13 +67,17 @@ CubeArray<T> get_batch_revised(size_t batch_size){
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
+    af::array A = af::constant(0, batch_indices.size(), 28, 28);
 
     for (int i = 0; i < batch_indices.size(); ++i) {
-        auto dt = data[batch_indices[i][0]];
-        batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
+        auto dt = data(batch_indices[i][0]);
+
+        auto r = dt.rows(batch_indices[i][1] - 1, batch_indices[i][1] + 3);
+        auto s = r.cols(batch_indices[i][2] - 2, batch_indices[i][2] + 3);
+        A.row(i) = s;
     }
 
-    return CubeArray<T>(batch);
+    return A;
 }
 
 
