@@ -46,7 +46,7 @@ af::array get_data() {
 af::array data = get_data();
 
 template <typename T>
-af::array get_batch_revised(size_t batch_size){
+af::array get_batch(size_t batch_size){
     //getrand kan erstattes helt med randu
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     af::array batch_indices_2 = af::randu(batch_size, 3, s64);
@@ -89,9 +89,9 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
+        af::array batch = get_batch<double>(BATCH_SIZE);
         for (size_t j = 0; j < BATCH_SIZE; j++){
-            model.update(batch[j]);
+            model.update(batch(j));
         }
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
@@ -115,7 +115,7 @@ void figure(const Model<T>& model){
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
-            model.w[index].flat(z);
+            model.mu[index].flat(z);
 
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
             plt::imshow(zptr, model.resolution, model.resolution, colors);
@@ -129,7 +129,7 @@ void figure(const Model<T>& model){
 void test_batch(){
     std::cout << "Testing batch" << std::endl;
     Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
-    model.w = get_batch_revised<double>(16);
+    model.mu = get_batch<double>(16);
     std::cout << "Plotting batch" << std::endl;
     plt::Plot plot("test_plot");
     figure(model);
@@ -181,6 +181,6 @@ int main() {
         save_all<double>({'z'});
     }
 
-    //////////////////Py_Finalize();
+    Py_Finalize();
     return 0;
 }
