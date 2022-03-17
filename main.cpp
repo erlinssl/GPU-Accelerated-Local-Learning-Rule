@@ -4,7 +4,6 @@
 #include <chrono>
 #include <utility>
 #include <random>
-
 #include "Arrays.h"
 #include "Model.h"
 #include "dependencies/matplotlibcpp.h"
@@ -20,9 +19,8 @@ const static int RESOLUTION = 5;
 const static int BATCH_SIZE = 1000;
 
 
-CubeArray<double> get_data() {
+af::array get_data() {
     std::cout << "getting data" << std::endl;
-
     if (std::filesystem::exists("trainingdata")) {
         std::cout << "found training data" << std::endl;
 
@@ -30,35 +28,14 @@ CubeArray<double> get_data() {
         // ignore until image data
         f.ignore(16);
 
-        std::vector<std::vector <std::vector<double>>> multi_pic_vector;
-        for(int i = 0; i < 60000; ++i) {
-            std::vector<std::vector<double>> single_pic_vector;
-            single_pic_vector.reserve(28);
-            for(int j = 0; j < 28; ++j) {
-                single_pic_vector.emplace_back(std::vector<double>());
-            }
-            multi_pic_vector.emplace_back(single_pic_vector);
-        }
-
+        std::vector<double> multi_pic_array;
+        multi_pic_array.reserve(60000 * 28 * 28);
         char b;
-        unsigned int rowCounter = 0;
-        unsigned int picCounter = 0;
-        unsigned int columnCounter = 0;
-        while (f.get(b)) {
-            auto c = (unsigned char) b;
-            multi_pic_vector[picCounter][rowCounter].emplace_back(((double) c) / 255.0);
-            columnCounter++;
-            if (columnCounter > 27) {
-                rowCounter++;
-                columnCounter = 0;
-                if (rowCounter > 27) {
-                    picCounter++;
-                    rowCounter = 0;
-                }
-            }
+        for (int i = 0; i < 60000 * 28 *  28; ++i) {
+            f.get(b);
+            multi_pic_array.emplace_back(((double) b) / 255.0);
         }
-        std::cout << "number of pictures: " << picCounter << std::endl;
-        return CubeArray<double>(multi_pic_vector);
+      return {60000, 28, 28, &multi_pic_array[0]};
     }
     else {
         std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
@@ -167,6 +144,9 @@ void save_all(const std::vector<char>& figs){
 
 int main() {
     const double learning_rate = .1;
+    af_print(data);
+    af::array randcplx = af::randu(2, 1, f64);
+    std::cout << "type: " << data.type() << std::endl;
 
     /////// TESTING
     // test_batch();
@@ -175,16 +155,18 @@ int main() {
     if (true){
     experiment<double>('a', 1.0, 0.5, 1000);
     save_all<double>({'a'});
-    //experiment<double>('b', 1.0, 0.5, 10000);
-    //experiment<double>('c', 0.5, 0.5, 1000);
-    //experiment<double>('d', 1.0, 1.0/9.0, 1000);
-    //save_all<double>({'a' , 'b', 'c', 'd'});
+    /*
+    experiment<double>('b', 1.0, 0.5, 10000);
+    experiment<double>('c', 0.5, 0.5, 1000);
+    experiment<double>('d', 1.0, 1.0/9.0, 1000);
+    save_all<double>({'a' , 'b', 'c', 'd'});
+     */
     } else {
         // for testing
         experiment<double>('z', 1.0, 0.5, 100);
         save_all<double>({'z'});
     }
 
-    Py_Finalize();
+    //////////////////Py_Finalize();
     return 0;
 }
