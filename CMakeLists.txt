@@ -10,7 +10,7 @@ find_package (ArrayFire)
 
 add_definitions(-w) # TODO Remove
 
-add_executable(filter_finder main.cpp Model.cpp Arrays.cpp)
+add_executable(filter_finder main.cpp Model.cpp)
 
 configure_file(data/train-images-idx3-ubyte trainingdata COPYONLY)
 

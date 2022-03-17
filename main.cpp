@@ -20,7 +20,7 @@ const static int RESOLUTION = 5;
 const static int BATCH_SIZE = 1000;
 
 
-CubeArray<double> get_data() {
+af::array get_data() {
     std::cout << "getting data" << std::endl;
 
     if (std::filesystem::exists("trainingdata")) {
@@ -58,7 +58,7 @@ CubeArray<double> get_data() {
             }
         }
         std::cout << "number of pictures: " << picCounter << std::endl;
-        return CubeArray<double>(multi_pic_vector);
+        return {};
     }
     else {
         std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
@@ -69,7 +69,8 @@ CubeArray<double> get_data() {
 auto data = get_data();
 
 template <typename T>
-CubeArray<T> get_batch_revised(size_t batch_size){
+af::array get_batch_revised(size_t batch_size){
+    /*
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
@@ -85,8 +86,8 @@ CubeArray<T> get_batch_revised(size_t batch_size){
         auto dt = data[batch_indices[i][0]];
         batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
     }
-
-    return CubeArray<T>(batch);
+     */
+    return {};
 }
 
 
@@ -98,9 +99,9 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
+        af::array batch = get_batch_revised<double>(BATCH_SIZE);
         for (size_t j = 0; j < BATCH_SIZE; j++){
-            model.update(batch[j]);
+            model.update(batch(j));
         }
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
@@ -124,6 +125,7 @@ void figure(const Model<T>& model){
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
+            //TODO convert af::array -> std::vector for plotting
             model.w[index].flat(z);
 
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
@@ -138,7 +140,7 @@ void figure(const Model<T>& model){
 void test_batch(){
     std::cout << "Testing batch" << std::endl;
     Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
-    model.w = get_batch_revised<double>(16);
+    model.mu = get_batch_revised<double>(16);
     std::cout << "Plotting batch" << std::endl;
     plt::Plot plot("test_plot");
     figure(model);
