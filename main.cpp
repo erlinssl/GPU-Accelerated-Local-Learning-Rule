@@ -73,6 +73,7 @@ af::array get_batch(size_t batch_size){
         auto dt = data(batch_indices[i][0]);
 
         auto r = dt.rows(batch_indices[i][1] - 1, batch_indices[i][1] + 3);
+        // todo get an error here, do not know why B)
         auto s = r.cols(batch_indices[i][2] - 2, batch_indices[i][2] + 3);
         A.row(i) = s;
     }
@@ -115,8 +116,7 @@ void figure(const Model<T>& model){
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
-            model.mu[index].flat(z);
-
+            zptr = model.mu(index).template host<float>();
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
             plt::imshow(zptr, model.resolution, model.resolution, colors);
             plt::xticks(ticks);
@@ -158,9 +158,6 @@ void save_all(const std::vector<char>& figs){
 
 int main() {
     const double learning_rate = .1;
-    af_print(data);
-    af::array randcplx = af::randu(2, 1, f64);
-    std::cout << "type: " << data.type() << std::endl;
 
     /////// TESTING
     // test_batch();
