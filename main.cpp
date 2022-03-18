@@ -44,7 +44,6 @@ af::array get_data() {
 }
 
 af::array data = get_data();
-
 template <typename T>
 af::array get_batch(size_t batch_size){
     //getrand kan erstattes helt med randu
@@ -67,17 +66,11 @@ af::array get_batch(size_t batch_size){
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
-    af::array A = af::constant(0, batch_indices.size(), 28, 28);
+    af::array A = af::constant(0, batch_indices.size(), 5, 5);
 
     for (int i = 0; i < batch_indices.size(); ++i) {
-        auto dt = data(batch_indices[i][0]);
-
-        auto r = dt.rows(batch_indices[i][1] - 1, batch_indices[i][1] + 3);
-        // todo get an error here, do not know why B)
-        auto s = r.cols(batch_indices[i][2] - 2, batch_indices[i][2] + 3);
-        A.row(i) = s;
+        A(i, af::span, af::span) = data(batch_indices[i][0], af::seq(batch_indices[i][1] - 2, batch_indices[i][1] + 2), af::seq(batch_indices[i][2] - 2, batch_indices[i][2] + 2));
     }
-
     return A;
 }
 
