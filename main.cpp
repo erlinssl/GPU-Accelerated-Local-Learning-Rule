@@ -86,7 +86,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         auto start = std::chrono::high_resolution_clock::now();
         af::array batch = get_batch<double>(BATCH_SIZE);
         for (size_t j = 0; j < BATCH_SIZE; j++){
-            model.update(batch(j));
+            model.update(batch(j, af::span, af::span));
         }
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
