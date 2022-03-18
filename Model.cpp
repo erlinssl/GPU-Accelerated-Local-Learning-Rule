@@ -28,7 +28,7 @@ template <typename T>
 void Model<T>::update(af::array const &x) {
     diff = 0;
 
-    //TODO Research parallelization
+    //TODO Research parallelization, maybe use gfor ?
     for (int i1 = 0; i1 < filters; ++i1) {
         diff(i1, af::span, af::span) += (x - mu(i1, af::span, af::span)) * f(i1, x);
 
@@ -65,17 +65,18 @@ void Model<T>::update(af::array const &x) {
 */
 
 template <typename T>
-void Model<T>::save(const char &subfigure) {
+void Model<T>::save(const char subfigure) {
     std::string path = "../saved/figure2";
     path.push_back(subfigure);
     path.append(".fig");
 
     std::cout << "Saving figure to " << path << std::endl;
-    af::saveArray(&subfigure, mu, &path[0], false);
+    auto temp = af::saveArray(&subfigure, mu, &path[0], false);
+    std::cout << "index of array '" << &subfigure << "' is " << temp << std::endl;
 }
 
 template <typename T>
-bool Model<T>::load(const char &subfigure) {
+bool Model<T>::load(const char subfigure) {
     std::string path = "../saved/figure2";
     path.push_back(subfigure);
     path.append(".fig");
@@ -84,8 +85,14 @@ bool Model<T>::load(const char &subfigure) {
         return false;
     }
 
-    std::cout << "Reading array from " << path << std::endl;
-    mu = af::readArray(&path[0], subfigure);
+    std::cout << "Reading array with key '" << &subfigure << "' from " << path << std::endl;
+    auto index = af::readArrayCheck(&path[0], &subfigure);
+    if(index >= 0) {
+        mu = af::readArray(&path[0], index);
+    } else {
+        std::cout << "Invalid key" << std::endl;
+        return false;
+    }
     return true;
 }
 

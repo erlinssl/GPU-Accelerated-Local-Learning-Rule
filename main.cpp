@@ -138,9 +138,11 @@ void save_all(const std::vector<char>& figs){
 
     for (char fig : figs){
         std::cout << "Graphing fig " << fig << std::endl;
-        model.load(fig);
-        figure(model);
-        plt::show();
+        if(model.load(fig)){
+            std::cout << "Loaded figure " << fig << std::endl;
+            figure(model);
+            plt::show();
+        }
         /*
          std::string path = "../saved/figure2"
          path.emplace_back(fig);
@@ -157,7 +159,8 @@ int main() {
     // test_batch();
 
     /////// EXPERIMENTS
-    if (false){     // false for test experiment (fewer batches)
+    // false for test experiment (fewer batches)
+    if (false){
     experiment<double>('a', 1.0, 0.5, 1000);
     save_all<double>({'a'});
     experiment<double>('b', 1.0, 0.5, 10000);
@@ -165,8 +168,7 @@ int main() {
     experiment<double>('d', 1.0, 1.0/9.0, 1000);
     save_all<double>({'a' , 'b', 'c', 'd'});
     } else {
-        // for testing
-        experiment<double>('z', 1.0, 0.5, 100);
+        experiment<double>('z', 1.0, 0.5, 1000);
         save_all<double>({'z'});
     }
 
