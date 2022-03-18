@@ -19,15 +19,9 @@ std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
     return x;
 }
 
-
-template <typename T>
-double Model<T>::calc(af::array const &x, size_t outer) {
-    return af::sum<double>(af::pow(x - this->mu(outer, af::span, af::span), 2));
-}
-
 template <typename T>
 double Model<T>::f(int i, af::array const &x) {
-    return std::exp(calc(x, i)/this->sigma);
+    return std::exp(-af::sum<double>(af::pow(x - this->mu(i, af::span, af::span), 2))/this->sigma);
 }
 
 template <typename T>
@@ -43,6 +37,7 @@ void Model<T>::update(af::array const &x) {
                 diff(i1, af::span, af::span) -= (mu(i1, af::span, af::span) - mu(i2, af::span, af::span)) * 2 * lambda * f(i1, mu(i2, af::span, af::span));
             }
         }
+
         mu += ((diff * learning_rate) / sigma);
     }
 }

@@ -85,7 +85,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
         af::array batch = get_batch<double>(BATCH_SIZE);
-        for (size_t j = 0; j < BATCH_SIZE; j++){
+        for (int j = 0; j < BATCH_SIZE; j++){
             model.update(batch(j, af::span, af::span));
         }
         auto stop = std::chrono::high_resolution_clock::now();
@@ -157,15 +157,13 @@ int main() {
     // test_batch();
 
     /////// EXPERIMENTS
-    if (true){
+    if (false){     // false for test experiment (fewer batches)
     experiment<double>('a', 1.0, 0.5, 1000);
     save_all<double>({'a'});
-    /*
     experiment<double>('b', 1.0, 0.5, 10000);
     experiment<double>('c', 0.5, 0.5, 1000);
     experiment<double>('d', 1.0, 1.0/9.0, 1000);
     save_all<double>({'a' , 'b', 'c', 'd'});
-     */
     } else {
         // for testing
         experiment<double>('z', 1.0, 0.5, 100);
