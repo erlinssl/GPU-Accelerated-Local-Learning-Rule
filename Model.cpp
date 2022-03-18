@@ -36,12 +36,16 @@ void Model<T>::update(af::array const &x) {
 
     //TODO Research parallelization
     for (int i1 = 0; i1 < filters; ++i1) {
-        diff += mu(i1, af::span, af::span);
+        diff(i1, af::span, af::span) += mu(i1, af::span, af::span);
 
         for (int i2 = 0; i2 < filters; ++i2) {
-            diff -= mu(i1, af::span, af::span);
+            if (i1 != i2) {
+                diff(i1, af::span, af::span) -= (mu(i1, af::span, af::span) - mu(i2, af::span, af::span)) * 2 * lambda * f(i1, mu(i2, af::span, af::span));
+            }
         }
-
+        //todo error here :sob:
+        af_print(mu(i1, af::span, af::span));
+        af_print(((diff * learning_rate) / sigma));
         mu += ((diff * learning_rate) / sigma);
     }
 }

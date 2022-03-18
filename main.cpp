@@ -46,6 +46,7 @@ af::array get_data() {
 af::array data = get_data();
 template <typename T>
 af::array get_batch(size_t batch_size){
+    //todo convert to using batch_indices_2
     //getrand kan erstattes helt med randu
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     af::array batch_indices_2 = af::randu(batch_size, 3, s64);
