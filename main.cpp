@@ -110,7 +110,7 @@ void figure(const Model<T>& model){
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
-            zptr = model.mu(index).template host<float>();
+            zptr = model.mu(index, af::span, af::span).template host<float>();
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
             plt::imshow(zptr, model.resolution, model.resolution, colors);
             plt::xticks(ticks);
@@ -168,7 +168,7 @@ int main() {
     experiment<double>('d', 1.0, 1.0/9.0, 1000);
     save_all<double>({'a' , 'b', 'c', 'd'});
     } else {
-        experiment<double>('z', 1.0, 0.5, 1000);
+        // experiment<double>('z', 1.0, 0.5, 100);
         save_all<double>({'z'});
     }
 

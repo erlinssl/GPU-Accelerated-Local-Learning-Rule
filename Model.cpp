@@ -21,7 +21,7 @@ std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
 
 template <typename T>
 double Model<T>::f(int i, af::array const &x) {
-    return std::exp(-af::sum<double>(af::pow(x - this->mu(i, af::span, af::span), 2))/this->sigma);
+    return std::exp((-af::sum<double>(af::pow(x - mu(i, af::span, af::span), 2)))/sigma);
 }
 
 template <typename T>
