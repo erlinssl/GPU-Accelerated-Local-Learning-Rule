@@ -32,9 +32,10 @@ template <typename T>
 void Model<T>::update(af::array const &x) {
     diff = 0;
 
-    af::seq sequencia(0, 16);
+    af::seq sequencia(0, filters);
     af::array sqc = sequencia;
     gfor(af::seq i1, filters)  {
+        // todo could probably be optimized, dont know if this is still vectorized
         auto countLoop = (int) sqc(i1).scalar<float>();
         diff(i1, af::span, af::span) += (x - mu(i1, af::span, af::span)) * f(countLoop, x);
         for (int i2 = 0; i2 < filters; ++i2) {
