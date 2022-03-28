@@ -21,37 +21,26 @@ std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
 
 template <typename T>
 double Model<T>::f(int i, af::array const &x) {
-    return std::exp((-af::sum<double>(af::pow(x - mu(i, af::span, af::span), 2)))/sigma);
+    return std::exp(
+            (-af::sum<double>(
+                    af::pow(x - mu(i, af::span, af::span), 2)
+                    )
+                )/sigma);
 }
 
 template <typename T>
 void Model<T>::update(af::array const &x) {
     diff = 0;
 
-    float data[] = {0,  1,  2,  3,
-                    4,  5,  6,  7,
-                    8,  9, 10, 11,
-                    12, 13, 14, 15};
-    af::array A(4, 4, data);
-    auto in = af::seq(1,3,1);
-    auto dubs = af::seq(0.5, 5.5, 1);
-    af_print(A);
-    af_print(A(in, af::span));
-    gfor(af::seq i, 16 * 16) {
-        af::seq first = (i * (1.0/16.0));
-        auto second = af::seq(16);
-        af_print(first)
-    }
-    //TODO Research parallelization, maybe use gfor ?
-    for (int i1 = 0; i1 < filters; ++i1) {
-        diff(i1, af::span, af::span) += (x - mu(i1, af::span, af::span)) * f(i1, x);
-
+    af::seq sequencia(0, 16);
+    af::array sqc = sequencia;
+    gfor(af::seq i1, filters)  {
+        auto countLoop = (int) sqc(i1).scalar<float>();
+        diff(i1, af::span, af::span) += (x - mu(i1, af::span, af::span)) * f(countLoop, x);
         for (int i2 = 0; i2 < filters; ++i2) {
-            if (i1 != i2) {
-                diff(i1, af::span, af::span) -= (mu(i1, af::span, af::span) - mu(i2, af::span, af::span)) * 2 * lambda * f(i1, mu(i2, af::span, af::span));
-            }
+            auto condition = countLoop != i2;
+            diff(countLoop, af::span, af::span) -= condition * ((mu(countLoop, af::span, af::span) - mu(i2, af::span, af::span)) * 2 * lambda * f(countLoop, mu(i2, af::span, af::span)));
         }
-
         mu += ((diff * learning_rate) / sigma);
     }
 }
