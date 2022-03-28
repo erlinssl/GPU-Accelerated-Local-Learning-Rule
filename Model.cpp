@@ -32,12 +32,13 @@ void Model<T>::update(af::array const &x) {
     for (int i1 = 0; i1 < filters; ++i1) {
         diff(i1, af::span, af::span) += (x - mu(i1, af::span, af::span)) * f(i1, x);
 
-        for (int i2 = 0; i2 < filters; ++i2) {
-            if (i1 != i2) {
-                diff(i1, af::span, af::span) -= (mu(i1, af::span, af::span) - mu(i2, af::span, af::span)) * 2 * lambda * f(i1, mu(i2, af::span, af::span));
-            }
+        af::seq sequencia(0, 16);
+        af::array sqc = sequencia;
+        gfor(af::seq n, filters) {
+            af::array condition = (i1 != n);
+            auto countLoop = (int) sqc(n).scalar<float>();
+            diff(i1, af::span, af::span) -= (mu(i1, af::span, af::span) - mu(countLoop, af::span, af::span)) * 2 * lambda * f(i1, mu(countLoop, af::span, af::span));
         }
-
         mu += ((diff * learning_rate) / sigma);
     }
 }
