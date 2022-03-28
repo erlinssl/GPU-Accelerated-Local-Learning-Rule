@@ -47,7 +47,6 @@ af::array data = get_data();
 template <typename T>
 af::array get_batch(size_t batch_size){
     //todo convert to using batch_indices_2
-    //getrand kan erstattes helt med randu
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     af::array batch_indices_2 = af::randu(batch_size, 3, s64);
 
@@ -81,7 +80,6 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
-    af_print(model.mu);
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
@@ -94,7 +92,6 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
         << "ms" << std::endl;
     }
-    af_print(model.mu);
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
@@ -113,6 +110,7 @@ void figure(const Model<T>& model){
             size_t index = row * nrows + col;
             auto xptr = model.mu(index, af::span, af::span).template host<double>();
             zptr = (float*) xptr;
+
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
             plt::imshow(zptr, model.resolution, model.resolution, colors);
             plt::xticks(ticks);
