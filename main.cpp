@@ -105,11 +105,17 @@ void figure(const Model<T>& model){
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
     const int colors = 1;
+
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
-            auto xptr = model.mu(index, af::span, af::span).template host<double>();
-            zptr = (float*) xptr;
+
+            // TODO model.mu(...) seems to return the same 5x5 patch every time(?)
+            af::array af_z = model.mu(index, af::span, af::span);
+
+            for(int i = 0; i < af_z.elements(); i++) {
+                z[i] = (float) af_z(i).scalar<T>();
+            }
 
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
             plt::imshow(zptr, model.resolution, model.resolution, colors);
@@ -161,7 +167,7 @@ int main() {
     /////// EXPERIMENTS
     // false for test experiment (fewer batches)
     if (true){
-    experiment<double>('a', 1.0, 0.5, 1000);
+    experiment<double>('a', 1.0, 0.5, 100);
     save_all<double>({'a'});
     /*
     experiment<double>('b', 1.0, 0.5, 10000);
