@@ -81,6 +81,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
+    af_print(model.mu);
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
@@ -93,6 +94,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
         << "ms" << std::endl;
     }
+    af_print(model.mu);
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
@@ -106,11 +108,11 @@ void figure(const Model<T>& model){
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
     const int colors = 1;
-
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
-            zptr = model.mu(index, af::span, af::span).template host<float>();
+            auto xptr = model.mu(index, af::span, af::span).template host<double>();
+            zptr = (float*) xptr;
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
             plt::imshow(zptr, model.resolution, model.resolution, colors);
             plt::xticks(ticks);
