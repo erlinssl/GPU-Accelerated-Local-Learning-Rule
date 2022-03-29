@@ -167,7 +167,7 @@ int main() {
     /////// EXPERIMENTS
     // false for test experiment (fewer batches)
     if (true){
-    experiment<double>('a', 1.0, 0.5, 100);
+    experiment<double>('a', 1.0, 0.5, 1000);
     save_all<double>({'a'});
     /*
     experiment<double>('b', 1.0, 0.5, 10000);

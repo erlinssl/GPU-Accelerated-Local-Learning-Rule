@@ -37,13 +37,13 @@ void Model<T>::update(af::array const &x) {
     gfor(af::seq i1, filters)  {
         // todo could probably be optimized, dont know if this is still vectorized
         auto countLoop = (int) sqc(i1).scalar<float>();
-        diff(i1, af::span, af::span) += (x - mu(i1, af::span, af::span)) * f(countLoop, x);
+        diff(countLoop, af::span, af::span) += (x - mu(countLoop, af::span, af::span)) * f(countLoop, x);
         for (int i2 = 0; i2 < filters; ++i2) {
             auto condition = countLoop != i2;
             diff(countLoop, af::span, af::span) -= condition * ((mu(countLoop, af::span, af::span) - mu(i2, af::span, af::span)) * 2 * lambda * f(countLoop, mu(i2, af::span, af::span)));
         }
-        mu += ((diff * learning_rate) / sigma);
     }
+    mu += ((diff * learning_rate) / sigma);
 }
 
 /* Saved array
