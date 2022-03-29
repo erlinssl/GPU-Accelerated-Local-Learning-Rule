@@ -40,8 +40,8 @@ void Model<T>::update(SquareArray<T> const &x) {
                 diff.minus_index(i1, (w[i2] - w[i1]) * (2.0 * lambda * f(i1, w[i2])));
             }
         }
-        w += ((diff * learning_rate) / sigma);
     }
+    w += ((diff * learning_rate) / sigma);
 }
 
 /* Saved array
