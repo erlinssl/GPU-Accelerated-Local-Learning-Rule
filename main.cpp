@@ -35,7 +35,8 @@ af::array get_data() {
             f.get(b);
             multi_pic_array.emplace_back(((double) ((unsigned char) b)) / 255.0);
         }
-        return {60000, 28, 28, &multi_pic_array[0]};
+        auto x = af::array(28, 28, 60000, &multi_pic_array[0]);
+        return af::reorder(x, 2, 0, 1);
     }
     else {
         std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
