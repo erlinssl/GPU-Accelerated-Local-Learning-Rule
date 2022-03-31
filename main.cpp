@@ -159,7 +159,7 @@ void save_all(const std::vector<char>& figs){
 int main() {
     const double learning_rate = .1;
     /////// TESTING
-    test_batch<float>();
+    // test_batch<float>();
 
     /////// EXPERIMENTS
     // false for test experiment (fewer batches)
@@ -174,7 +174,7 @@ int main() {
      */
     } else {
         experiment<double>('z', 1.0, 0.5, 100);
-        save_all<double>({'z'});
+        save_all<float>({'z'});
     }
 
     Py_Finalize();

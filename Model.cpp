@@ -20,7 +20,7 @@ std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
 }
 
 template <typename T>
-double Model<T>::f(af::seq & i, af::array const &x) {
+double Model<T>::f(const af::seq & i, af::array const &x) {
     return std::exp(
             (-af::sum<double>(
                     af::pow((x - mu(af::span, af::span, i)), 2)
@@ -31,14 +31,13 @@ double Model<T>::f(af::seq & i, af::array const &x) {
 template <typename T>
 void Model<T>::update(af::array const &x) {
     diff = 0;
-    af::seq sequencia(0, filters);
-    af::array sqc = sequencia;
+
     gfor(af::seq i1, filters)  {
         // todo could probably be optimized, dont know if this is still vectorized
         diff(af::span, af::span, i1) += (x - mu(af::span, af::span, i1)) * f(i1, x);
         for (int i2 = 0; i2 < filters; ++i2) {
-            auto condition = i1 != i2;
-            diff(af::span, af::span, i1) -= condition * ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) * (2.0 * lambda * f(i1, mu(af::span, af::span, i2))));
+            af::array condition = (i1 != i2);
+            diff(af::span, af::span, i1) -= condition.as(f32) * ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) * (2.0 * lambda * f(i1, mu(af::span, af::span, i2))));
         }
     }
     mu += ((diff * learning_rate) / sigma);
@@ -99,4 +98,5 @@ bool Model<T>::load(const char subfigure) {
 }
 
 template class Model<int>;
+template class Model<float>;
 template class Model<double>;
