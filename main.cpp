@@ -35,8 +35,8 @@ af::array get_data() {
             f.get(b);
             multi_pic_array.emplace_back(((double) ((unsigned char) b)) / 255.0);
         }
-        auto x = af::array(28, 28, 60000, &multi_pic_array[0]);
-        return af::reorder(x, 2, 0, 1);
+        return {28, 28, 60000, &multi_pic_array[0]};
+        // return af::reorder(x, 2, 0, 1);
     }
     else {
         std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
@@ -64,10 +64,9 @@ af::array get_batch(size_t batch_size){
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
-    af::array A = af::constant(0, batch_indices.size(), 5, 5);
-
+    af::array A = af::constant(0, 5, 5, batch_indices.size());
     for (int i = 0; i < batch_indices.size(); ++i) {
-        A(i, af::span, af::span) = data(batch_indices[i][0], af::seq(batch_indices[i][1] - 2, batch_indices[i][1] + 2), af::seq(batch_indices[i][2] - 2, batch_indices[i][2] + 2));
+        A(af::span, af::span, i) = data(af::seq(batch_indices[i][1] - 2, batch_indices[i][1] + 2), af::seq(batch_indices[i][2] - 2, batch_indices[i][2] + 2), batch_indices[i][0]);
     }
     return A;
 }
@@ -83,7 +82,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         auto start = std::chrono::high_resolution_clock::now();
         af::array batch = get_batch<double>(BATCH_SIZE);
         for (int j = 0; j < BATCH_SIZE; j++){
-            model.update(batch(j, af::span, af::span));
+            model.update(batch(af::span, af::span, j));
         }
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
