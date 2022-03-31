@@ -35,9 +35,13 @@ void Model<T>::update(af::array const &x) {
     gfor(af::seq i1, filters)  {
         // todo could probably be optimized, dont know if this is still vectorized
         diff(af::span, af::span, i1) += (x - mu(af::span, af::span, i1)) * f(i1, x);
+
         for (int i2 = 0; i2 < filters; ++i2) {
             af::array condition = (i1 != i2);
-            diff(af::span, af::span, i1) -= condition.as(f32) * ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) * (2.0 * lambda * f(i1, mu(af::span, af::span, i2))));
+            // TODO
+            if(condition(i2).as(f32).scalar<float>() != 0) {
+                diff(af::span, af::span, i1) -= ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) * (2.0 * lambda * f(i1, mu(af::span, af::span, i2))));
+            }
         }
     }
     mu += ((diff * learning_rate) / sigma);

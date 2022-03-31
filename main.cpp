@@ -173,7 +173,7 @@ int main() {
     save_all<double>({'a' , 'b', 'c', 'd'});
      */
     } else {
-        experiment<double>('z', 1.0, 0.5, 100);
+        experiment<float>('z', 1.0, 0.5, 100);
         save_all<float>({'z'});
     }
 
