@@ -108,7 +108,7 @@ void figure(const Model<T>& model){
             size_t index = row * nrows + col;
 
             // TODO model.mu(...) seems to return the same 5x5 patch every time(?)
-            af::array af_z = model.mu(index, af::span, af::span);
+            af::array af_z = model.mu( af::span, af::span, index);
 
             for(int i = 0; i < af_z.elements(); i++) {
                 z[i] = (float) af_z(i).scalar<T>();
@@ -123,10 +123,11 @@ void figure(const Model<T>& model){
     }
 }
 
+template <typename T>
 void test_batch(){
     std::cout << "Testing batch" << std::endl;
-    Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
-    model.mu = get_batch<double>(16);
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
+    model.mu = get_batch<T>(16);
     std::cout << "Plotting batch" << std::endl;
     plt::Plot plot("test_plot");
     figure(model);
@@ -158,11 +159,11 @@ void save_all(const std::vector<char>& figs){
 int main() {
     const double learning_rate = .1;
     /////// TESTING
-    // test_batch();
+    test_batch<float>();
 
     /////// EXPERIMENTS
     // false for test experiment (fewer batches)
-    if (true){
+    if (false){
     experiment<double>('a', 1.0, 0.5, 1000);
     save_all<double>({'a'});
     /*
@@ -172,7 +173,7 @@ int main() {
     save_all<double>({'a' , 'b', 'c', 'd'});
      */
     } else {
-        // experiment<double>('z', 1.0, 0.5, 100);
+        experiment<double>('z', 1.0, 0.5, 100);
         save_all<double>({'z'});
     }
 
