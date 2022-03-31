@@ -49,21 +49,18 @@ template <typename T>
 af::array get_batch(size_t batch_size){
     //todo convert to using batch_indices_2
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
-    af::array batch_indices_2 = af::randu(batch_size, 3, s64);
-
+    af::array batch_indices_2 = af::randu(batch_size, 3, f64);
     batch_indices_2.col(0) *= 60000;
     batch_indices_2.cols(1, 2) *= (28 - 4);
 
     batch_indices_2.cols(1, 2) += 2;
 
-
-
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
-        batch_indices[i][0] = ((int)((get_rand() * 60000.)));
+        batch_indices[i][0] = ((unsigned long)((get_rand() * 60000.)));
         // todo hardcoded shapes
-        batch_indices[i][1] = ((int)((2 + get_rand() * (28 - 4))));
-        batch_indices[i][2] = ((int)((2 + get_rand() * (28 - 4))));
+        batch_indices[i][1] = ((unsigned long)((2 + get_rand() * (28 - 4))));
+        batch_indices[i][2] = ((unsigned long)((2 + get_rand() * (28 - 4))));
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
@@ -161,7 +158,6 @@ void save_all(const std::vector<char>& figs){
 
 int main() {
     const double learning_rate = .1;
-
     /////// TESTING
     // test_batch();
 

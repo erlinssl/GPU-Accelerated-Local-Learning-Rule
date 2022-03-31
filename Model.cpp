@@ -23,7 +23,7 @@ template <typename T>
 double Model<T>::f(int i, af::array const &x) {
     return std::exp(
             (-af::sum<double>(
-                    af::pow(x - mu(i, af::span, af::span), 2)
+                    af::pow((x - mu(i, af::span, af::span)), 2)
                     )
                 )/sigma);
 }
@@ -31,16 +31,15 @@ double Model<T>::f(int i, af::array const &x) {
 template <typename T>
 void Model<T>::update(af::array const &x) {
     diff = 0;
-
     af::seq sequencia(0, filters);
     af::array sqc = sequencia;
-    gfor(af::seq i1, filters)  {
+    gfor(af::seq sequence, filters)  {
         // todo could probably be optimized, dont know if this is still vectorized
-        auto countLoop = (int) sqc(i1).scalar<float>();
-        diff(countLoop, af::span, af::span) += (x - mu(countLoop, af::span, af::span)) * f(countLoop, x);
+        auto i1 = (int) sqc(sequence).scalar<float>();
+        diff(i1, af::span, af::span) += (x - mu(i1, af::span, af::span)) * f(i1, x);
         for (int i2 = 0; i2 < filters; ++i2) {
-            auto condition = countLoop != i2;
-            diff(countLoop, af::span, af::span) -= condition * ((mu(countLoop, af::span, af::span) - mu(i2, af::span, af::span)) * 2 * lambda * f(countLoop, mu(i2, af::span, af::span)));
+            auto condition = i1 != i2;
+            diff(i1, af::span, af::span) -= condition * ((mu(i2, af::span, af::span) - mu(i1, af::span, af::span)) * (2.0 * lambda * f(i1, mu(i2, af::span, af::span))));
         }
     }
     mu += ((diff * learning_rate) / sigma);
