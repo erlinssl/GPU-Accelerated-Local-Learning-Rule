@@ -41,20 +41,21 @@ void Model<T>::update(SquareArray<T> const &x) {
     compute::copy(w.cube.begin(), w.cube.end(), mugpu.begin(), queue);
     compute::copy(x.arr.begin(), x.arr.end(), xgpu.begin(), queue);
     compute::kernel kernel(program, "SMA");
-   // int i, int filter_size, double sigma, __global double *mu, __global double *xv, __global double *out
-    kernel.set_arg(0,0);
-    kernel.set_arg(1,filters);
-    kernel.set_arg(2,sigma);
-    kernel.set_arg(3,mugpu.get_buffer());
-    kernel.set_arg(4,xgpu.get_buffer());
-    kernel.set_arg(5,ans.get_buffer());
+    /*
+     kernel.set_arg(0,0);
+     kernel.set_arg(1,filters);
+     kernel.set_arg(2,sigma);
+     kernel.set_arg(3,mugpu.get_buffer());
+     kernel.set_arg(4,xgpu.get_buffer());
+     kernel.set_arg(5,ans.get_buffer());
 
-    using compute::uint_;
-    uint_ tpb = 128;
-    uint_ workSize = filters;
-    queue.enqueue_1d_range_kernel(kernel,0,workSize,tpb);
-    compute::copy(ans.begin(), ans.end(), a.begin(), queue);
-    std::cout << "gpu answer is: " << a[0] << std::endl;
+     using compute::uint_;
+     uint_ tpb = 128;
+     uint_ workSize = filters;
+     queue.enqueue_1d_range_kernel(kernel,0,workSize,tpb);
+     compute::copy(ans.begin(), ans.end(), a.begin(), queue);
+     */
+    //std::cout << "gpu answer is: " << a[0] << std::endl;
     std::cout << "cpu answer is: " << f(0, x) << std::endl;
 
     exit(5);
@@ -170,32 +171,22 @@ bool Model<T>::load(const char &subfigure) {
 template<typename T>
 compute::program Model<T>::make_sma_program(const compute::context &context) {
     const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE (
-            __kernel void SMA (int i, int filter_size, double sigma, __global double *mu, __global double *xv, __global double *out) {
+            double f(int i, int filter_size, double sigma, __global double *mun, __global double *xv) {
                 double sum = 0;
                 int nrows = 5;
                 int ncols = 5;
-                /*
-    double sum = 0;
-    for (size_t row = 0; row < nrows; row++) {
-        for (size_t value = 0; value < ncols; value++) {
-            sum += std::pow(x.arr[x.index(row, value)] - this->cube[index(outer, row, value)], 2);
-        }
-    }
-    return -sum;
-                 */
-
                 for (int j = 0; j < 5; ++j) {
                     for (int k = 0; k < ncols; ++k) {
-                        sum += (xv[(j * nrows) + k] - mu[(i * nrows * ncols) + (j * nrows) + k]) *
-                                (xv[(j * nrows) + k] - mu[(i * nrows * ncols) + (j * nrows) + k]);
+                        sum += (xv[(j * nrows) + k] - mun[(i * nrows * ncols) + (j * nrows) + k]) *
+                               (xv[(j * nrows) + k] - mun[(i * nrows * ncols) + (j * nrows) + k]);
                     }
                 }
                 sum = -sum;
                 sum /= sigma;
                 sum = exp(sum);
-                *out = sum;
+                return sum;
             }
-            /*
+            //todo fix math
             __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec) {
                 // Store each work-item's unique row and column
                 int x = get_global_id(0);
@@ -208,7 +199,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                     for (int j = 0; j < filter_size; ++j) {
                         diff[i] += x_vec[j] - mu[i * filter_size + j];
                     }
-                    f(i, filter_size, sigma, mu, x_vec);
+                    //f(i, filter_size, sigma, mu, x_vec);
                     //diff[i] *= f(i, filter_size, sigma, mu, nullptr);
                     //diff[i] += f(i, mu, x, size, sigma) * (x - mu[i]);
                     for (int j = 0; j < filter_size; j++) {
@@ -216,7 +207,6 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                     }
                 }
             }
-             */
     );
     // create sma program
     return compute::program::build_with_source(source,context);
