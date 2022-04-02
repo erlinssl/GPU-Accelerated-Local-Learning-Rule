@@ -166,17 +166,18 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 int i1 = get_global_id(0);
                 int i2 = get_global_id(1);
                 // Iterate the filter rows
-                    for (int j = 0; j < filter_size; ++j) {
-                        diff[filter_size * i1 + j] += (x_vec[j] - mu[i1 * filter_size + j]) * f(i1, filter_size, sigma, &mu[i1 * filter_size], x_vec);
+                for (int j = 0; j < filter_size; ++j) {
+                    diff[filter_size * i1 + j] += (x_vec[j] - mu[i1 * filter_size + j]) * f(i1, filter_size, sigma, &mu[i1 * filter_size], x_vec);
+                }
+                if (i1 != i2) {
+                    for (int k = 0; k < filter_size * filter_size; ++k) {
+                        diff[filter_size * i1 + k] -= 2.0 * lambda * (mu[i2 * filter_size + k] - mu[i1 * filter_size + k]) * f(i1, filter_size, sigma, &mu[i2 * filter_size], x_vec);
                     }
-                        if (i1 != i2) {
-                            for (int k = 0; k < filter_size * filter_size; ++k) {
-                                diff[filter_size * i1 + k] -= 2.0 * lambda * (mu[i2 * filter_size + k] - mu[i1 * filter_size + k]) * f(i1, filter_size, sigma, &mu[i2 * filter_size], x_vec);
-                            }
-                        }
+                }
                 for (int i = 0; i < filter_size * 5 * 5; ++i) {
                     mu[i] += learning_rate * diff[i] / sigma;
                 }
+                mu[0] = 1.0;
             }
     );
     // create sma program
