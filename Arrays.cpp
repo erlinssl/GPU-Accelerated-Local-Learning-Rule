@@ -238,6 +238,8 @@ CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> const &cube_) {
 template <typename T>
 double CubeArray<T>::calc(SquareArray<T> const &x, size_t outer) {
     double sum = 0;
+    std::cout << "nrows: " << nrows << std::endl;
+    std::cout << "ncols: " << ncols << std::endl;
     for (size_t row = 0; row < nrows; row++) {
         for (size_t value = 0; value < ncols; value++) {
             sum += std::pow(x.arr[x.index(row, value)] - this->cube[index(outer, row, value)], 2);

@@ -4,6 +4,13 @@
 #include <chrono>
 #include <utility>
 #include <random>
+#include <boost/program_options.hpp>
+#include <boost/compute/system.hpp>
+#include <boost/compute/utility/source.hpp>
+
+#include <boost/program_options.hpp>
+#include <boost/compute/algorithm/copy.hpp>
+#include <boost/compute/container/vector.hpp>
 
 #include "Arrays.h"
 #include "Model.h"
@@ -18,6 +25,8 @@ double figsize_scale = 0.2;
 const static int GRID_SIZE = 4;
 const static int RESOLUTION = 5;
 const static int BATCH_SIZE = 1000;
+namespace compute = boost::compute;
+namespace po = boost::program_options;
 
 
 CubeArray<double> get_data() {
