@@ -44,27 +44,6 @@ void Model<T>::update(SquareArray<T> const &x) {
 
 }
 
-/* Saved array
- * 1 2
- * 3 4
- *
- * 5 6
- * 7 8
- *
- * 3 2
- * 4 1
- *
- * represents (3x2x2) array
- *
- * [[[1 2],
- *   [3 4] ],
- *
- *  [[5 6],
- *   [7 8] ],
- *
- *  [[3 2],
- *   [4 1] ]]
-*/
 
 template <typename T>
 void Model<T>::save(const char &subfigure) {
@@ -139,6 +118,7 @@ bool Model<T>::load(const char &subfigure) {
     return true;
 }
 
+
 template<typename T>
 compute::program Model<T>::make_sma_program(const compute::context &context) {
     const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE (
@@ -160,24 +140,23 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
             __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec) {
                 double learning_rate = 0.1;
                 // Store each work-item's unique row and column
-                for (int i = 0; i < filter_size * 5 * 5; ++i) {
+                for (int i = 0; i < 5 * 5; ++i) {
                     diff[i] = 0;
                 }
                 int i1 = get_global_id(0);
-                int i2 = get_global_id(1);
-                // Iterate the filter rows
-                for (int j = 0; j < filter_size; ++j) {
-                    diff[filter_size * i1 + j] += (x_vec[j] - mu[i1 * filter_size + j]) * f(i1, filter_size, sigma, &mu[i1 * filter_size], x_vec);
+                for (int j = 0; j < 5*5; ++j) {
+                    diff[j] += (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, filter_size, sigma, &mu[i1 * 5 * 5], x_vec);
                 }
-                if (i1 != i2) {
-                    for (int k = 0; k < filter_size * filter_size; ++k) {
-                        diff[filter_size * i1 + k] -= 2.0 * lambda * (mu[i2 * filter_size + k] - mu[i1 * filter_size + k]) * f(i1, filter_size, sigma, &mu[i2 * filter_size], x_vec);
+                for(int i2 = 0; i2 < filter_size; ++i2) {
+                    if (i1 != i2) {
+                        for (int k = 0; k < 5 * 5; ++k) {
+                            diff[k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, filter_size, sigma, &mu[i2 * 5 * 5], x_vec);
+                        }
                     }
                 }
-                for (int i = 0; i < filter_size * 5 * 5; ++i) {
-                    mu[i] += learning_rate * diff[i] / sigma;
+                for (int i = 0; i < 5 * 5; ++i) {
+                    mu[i1 * 25 + i] += learning_rate * diff[i] / sigma;
                 }
-                mu[0] = 1.0;
             }
     );
     // create sma program

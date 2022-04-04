@@ -11,6 +11,12 @@
 #include <boost/program_options.hpp>
 #include <boost/compute/algorithm/copy.hpp>
 #include <boost/compute/container/vector.hpp>
+#include <boost/compute/system.hpp>
+#include <boost/compute/algorithm/copy.hpp>
+#include <boost/compute/algorithm/copy_n.hpp>
+#include <boost/compute/algorithm/find_if.hpp>
+#include <boost/compute/container/vector.hpp>
+#include <boost/compute/iterator/zip_iterator.hpp>
 
 #include "Arrays.h"
 #include "Model.h"
@@ -191,7 +197,7 @@ int main() {
 
     /////// EXPERIMENTS
     if (true){
-    experiment<double>('a', 1.0, 0.5, 10);
+    experiment<double>('a', 1.0, 0.5, 1000);
     /*
     experiment<double>('b', 1.0, 0.5, 10000);
     experiment<double>('c', 0.5, 0.5, 1000);
