@@ -162,16 +162,14 @@ int main() {
     // test_batch<float>();
 
     /////// EXPERIMENTS
-    // false for test experiment (fewer batches)
+    // true for benchmarking experiments
+    // false for test experiment (one experiment)
     if (false){
     experiment<double>('a', 1.0, 0.5, 1000);
-    save_all<double>({'a'});
-    /*
     experiment<double>('b', 1.0, 0.5, 10000);
     experiment<double>('c', 0.5, 0.5, 1000);
     experiment<double>('d', 1.0, 1.0/9.0, 1000);
     save_all<double>({'a' , 'b', 'c', 'd'});
-     */
     } else {
         experiment<float>('z', 1.0, 0.5, 100);
         save_all<float>({'z'});

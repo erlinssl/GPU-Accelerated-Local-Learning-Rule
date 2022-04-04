@@ -20,31 +20,43 @@ std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
 }
 
 template <typename T>
-double Model<T>::f(const af::seq & i, af::array const &x) {
-    return std::exp(
-            (-af::sum<double>(
-                    af::pow((x - mu(af::span, af::span, i)), 2)
-                    )
-                )/sigma);
+double Model<T>::f(af::array const &i, af::array const &x) {
+    af::array a = (x - i);
+
+    auto temp = af::exp(
+            -(af::sum<double>(
+                    af::pow2((x - i)(af::span, af::span, 0, 0))
+            )
+            )/sigma).scalar<float>();
+    if((int) std::abs(temp) != 0){
+        std::cout << temp << std::endl;
+    }
+    return temp;
 }
 
 template <typename T>
 void Model<T>::update(af::array const &x) {
-    diff = 0;
+    af::array diff = af::constant(0, resolution, resolution);
 
-    gfor(af::seq i1, filters)  {
-        // todo could probably be optimized, dont know if this is still vectorized
-        diff(af::span, af::span, i1) += (x - mu(af::span, af::span, i1)) * f(i1, x);
+    af::array nums = af::seq(filters);
+    try {
+        gfor(af::seq i1, static_cast<double>(filters))  {
+            // todo could probably be optimized, dont know if this is still vectorized
+            // af::array temp = mu(af::span, af::span, (int) nums(i1).scalar<float>()); // i1 is always 0
+            af::array temp = mu(af::span, af::span, i1); // weird shape 5x5x1x16
+            diff += ((x - temp) * f(temp, x));
 
-        for (int i2 = 0; i2 < filters; ++i2) {
-            af::array condition = (i1 != i2);
-            // TODO
-            if(condition(i2).as(f32).scalar<float>() != 0) {
-                diff(af::span, af::span, i1) -= ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) * (2.0 * lambda * f(i1, mu(af::span, af::span, i2))));
+            for (int i2 = 0; i2 < filters; ++i2) {
+                af::array condition = (i1 != i2);
+                if((bool) condition.as(f32).scalar<float>()) {
+                    diff -= ((mu(af::span, af::span, i2) - temp) * (2.0 * lambda * f(temp, mu(af::span, af::span, i2))));
+                }
             }
+            mu(af::span, af::span, i1) += ((diff * learning_rate) / sigma);
         }
+    } catch (af::exception & e) {
+        std::cout << e.what() << std::endl;
     }
-    mu += ((diff * learning_rate) / sigma);
 }
 
 /* Saved array
