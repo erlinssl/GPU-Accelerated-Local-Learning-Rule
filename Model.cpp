@@ -35,13 +35,14 @@ template <typename T>
 void Model<T>::update(SquareArray<T> const &x) {
     compute::copy(x.arr.begin(), x.arr.end(), xgpu.begin(), queue);
     //todo vet ikke om meg på sette mgpu som argument hver gang for å få de verdiene som blir oppdatert i metoden??
+    compute::fill(diff2.begin(), diff2.end(), 0, queue);
+
     kernel.set_arg(5,xgpu.get_buffer());
 
     using compute::uint_;
     uint_ tpb = 128;
     uint_ workSize = filters;
     queue.enqueue_1d_range_kernel(kernel,0,workSize,tpb);
-
 }
 
 
@@ -122,14 +123,13 @@ bool Model<T>::load(const char &subfigure) {
 template<typename T>
 compute::program Model<T>::make_sma_program(const compute::context &context) {
     const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE (
-            double f(int i, int filter_size, double sigma, __global double *mun, __global double *xv) {
+            double f(int i, double sigma, __global double *mun, __global double *xv) {
                 double sum = 0;
                 int nrows = 5;
                 int ncols = 5;
                 for (int j = 0; j < 5; ++j) {
                     for (int k = 0; k < ncols; ++k) {
-                        sum += (xv[(j * nrows) + k] - mun[(i * nrows * ncols) + (j * nrows) + k]) *
-                               (xv[(j * nrows) + k] - mun[(i * nrows * ncols) + (j * nrows) + k]);
+                        sum += pow((xv[(j * nrows) + k] - mun[(j * nrows) + k]), 2);
                     }
                 }
                 sum = -sum;
@@ -137,20 +137,17 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 sum = exp(sum);
                 return sum;
             }
-            __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec) {
+            __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __global double *diff, __global double *x_vec) {
                 double learning_rate = 0.1;
                 // Store each work-item's unique row and column
-                for (int i = 0; i < 5 * 5; ++i) {
-                    diff[i] = 0;
-                }
                 int i1 = get_global_id(0);
                 for (int j = 0; j < 5*5; ++j) {
-                    diff[j] += (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, filter_size, sigma, &mu[i1 * 5 * 5], x_vec);
+                    diff[j] += (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, &mu[i1 * 5 * 5], x_vec);
                 }
                 for(int i2 = 0; i2 < filter_size; ++i2) {
                     if (i1 != i2) {
                         for (int k = 0; k < 5 * 5; ++k) {
-                            diff[k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, filter_size, sigma, &mu[i2 * 5 * 5], x_vec);
+                            diff[k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, sigma, &mu[i2 * 5 * 5], x_vec);
                         }
                     }
                 }
