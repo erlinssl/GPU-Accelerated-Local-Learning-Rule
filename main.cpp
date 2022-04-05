@@ -198,7 +198,7 @@ int main() {
 
     /////// EXPERIMENTS
     if (true){
-    experiment<double>('a', 1.0, 0.5, 10);
+    experiment<double>('a', 1.0, 0.5, 1000);
     /*
     experiment<double>('b', 1.0, 0.5, 10000);
     experiment<double>('c', 0.5, 0.5, 1000);

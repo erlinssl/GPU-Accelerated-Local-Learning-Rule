@@ -139,7 +139,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 int ncols = 5;
                 for (int j = 0; j < 5; ++j) {
                     for (int k = 0; k < ncols; ++k) {
-                        sum += pow((xv[(j * nrows) + k] - mun[(j * nrows) + k]), 2);
+                        sum += pow((xv[(j * nrows) + k] - mun[i * 5 * 5 + (j * nrows) + k]), 2);
                     }
                 }
                 sum = -sum;
@@ -151,12 +151,12 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 // Store each work-item's unique row and column
                 int i1 = get_global_id(0);
                 for (int j = 0; j < 5*5; ++j) {
-                    diff[i1 * 25 + j] += (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, &mu[i1 * 5 * 5], x_vec);
+                    diff[i1 * 25 + j] += (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, mu, x_vec);
                 }
                 for(int i2 = 0; i2 < filter_size; ++i2) {
                     if (i1 != i2) {
                         for (int k = 0; k < 5 * 5; ++k) {
-                            diff[i1 * 25 + k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, sigma, &mu[i2 * 5 * 5], x_vec);
+                            diff[i1 * 25 + k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, sigma, mu, &mu[i2 * 5 * 5]);
                         }
                     }
                 }
