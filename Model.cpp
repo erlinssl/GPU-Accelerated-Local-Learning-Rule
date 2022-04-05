@@ -43,25 +43,35 @@ double Model<T>::f(af::array const &i, af::array const &x, af::seq & pos) {
 template <typename T>
 void Model<T>::update(af::array const &x) {
     // TODO Occasionally returns sigsegv in first batch
-    af::array diff = af::constant(0, resolution, resolution, filters);
-
     af::array nums = af::seq(filters);
     try {
-        gfor(af::seq i1, filters)  {
-            // todo could probably be optimized, dont know if this is still vectorized
-            // af::array temp = mu(af::span, af::span, (int) nums(i1).scalar<float>()); // i1 is always 0
+        af::array diff = af::constant(0, resolution, resolution, filters);
+        gfor(af::seq i1, filters) {
+            // ((x - mu(af::span, af::span, i1))
+            af::array mu_copy = -mu;
+            mu_copy(af::span, af::span, i1) += x;
 
-            diff(af::span, af::span, i1) += ((x - mu(af::span, af::span, i1)) * f(mu(af::span, af::span, i1), x, i1));
+            // f(mu(af::span, af::span, i1), x, i1))
+            af::array exp = af::exp(-af::sum(af::sum(af::pow(mu_copy, 2))) / sigma);
+            exp = moddims(exp, 1, 1, filters);
 
-            for (int i2 = 0; i2 < filters; ++i2) {
-                diff(af::span, af::span, i1) -= ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) * (2.0 * lambda * f(mu(af::span, af::span, i1), mu(af::span, af::span, i2), i1))) * (i1 == i2);
+            // diff(af::span, af::span, i1) += ((x - mu(af::span, af::span, i1)) * f(mu(af::span, af::span, i1), x, i1));
+            diff += mu_copy * exp;
+
+            for(int i2 = 0; i2 < filters; i2++) {
+                //diff(af::span, af::span, i1) -=
+                // ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) *
+                af::array mu2_copy = -mu;
+                mu2_copy(af::span, af::span, i1) += mu(af::span, af::span, i2); // TODO might not work
+                // (2.0 * lambda *
+                // f(mu(af::span, af::span, i1), mu(af::span, af::span, i2), i1) )
+                af::array exp2 = af::exp(-af::sum(af::sum(af::pow(mu2_copy, 2))) / sigma);
+                // ) *
+                // * (i1 == i2);
+                // std::cout << "temp dims " << temp1.dims() << " | " << temp2.dims() << " | " << temp3.dims() << std::endl;
+                diff -= mu2_copy * (2.0 * lambda * exp2);// * moddims((i1 != i2), 1, 1, filters);
             }
-                // TODO Try to access diff(span, span, 0, i1) from the [5, 5, 1, 16] structure ? \
-                    Might not be necessary ?
-            // std::cout << diff.dims() << std::endl;
-            // std::cout << diff(af::span, af::span, 0, i1).dims() << std::endl;
         }
-        // af_print(diff);
         mu += ((diff * learning_rate) / sigma);
     } catch (af::exception & e) {
         std::cout << "\033[1;31m" << e.what() << "\033[0m" << std::endl;
