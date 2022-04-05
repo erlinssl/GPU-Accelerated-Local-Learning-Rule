@@ -34,7 +34,7 @@ public:
         context = compute::context(device);
         program = make_sma_program(context);
         mugpu = compute::vector<double>(w.length(),context);
-        diff2 = compute::vector<double>(5 * 5,context);
+        diff2 = compute::vector<double>(5 * 5 * filters,context);
         queue = compute::command_queue(context, device);
         compute::copy(w.cube.begin(), w.cube.end(), mugpu.begin(), queue);
         xgpu = compute::vector<double>(25,context);
@@ -42,11 +42,14 @@ public:
         /*
         A(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec) {
         */
+
+        //compute::copy(w.cube.begin(), w.cube.end(), mugpu.begin(), queue);
         kernel.set_arg(0,mugpu.get_buffer());
         kernel.set_arg(1,filters);
         kernel.set_arg(2,lambda);
         kernel.set_arg(3,sigma);
         kernel.set_arg(4, diff2);
+        kernel.set_arg(5,xgpu.get_buffer());
     };
     void update(SquareArray<T> const &x);
 

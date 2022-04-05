@@ -7,6 +7,7 @@
 #include <utility>
 #include <fstream>
 #include <iterator>
+#include <boost/compute/algorithm/transform.hpp>
 
 #define DELIMITER ' '
 
@@ -30,19 +31,28 @@ template <typename T>
 double Model<T>::f(int i, SquareArray<T> const &x) {
     return std::exp(this->w.calc(x, i)/this->sigma);
 }
-static int coun = 0;
+static double test = 0;
 template <typename T>
 void Model<T>::update(SquareArray<T> const &x) {
     compute::copy(x.arr.begin(), x.arr.end(), xgpu.begin(), queue);
     //todo vet ikke om meg på sette mgpu som argument hver gang for å få de verdiene som blir oppdatert i metoden??
     compute::fill(diff2.begin(), diff2.end(), 0, queue);
 
-    kernel.set_arg(5,xgpu.get_buffer());
-
     using compute::uint_;
-    uint_ tpb = 128;
-    uint_ workSize = filters;
-    queue.enqueue_1d_range_kernel(kernel,0,workSize,tpb);
+    queue.enqueue_1d_range_kernel(kernel,0,16,0);
+    BOOST_COMPUTE_FUNCTION(double, diff_transform, (double x),
+                           {
+                               return 0.1 * x / 1.0;
+                           });
+
+    compute::transform(diff2.begin(), diff2.end(), diff2.begin(), diff_transform, queue);
+    compute::transform(
+            mugpu.begin(),
+            mugpu.end(),
+            diff2.begin(),
+            mugpu.begin(),
+            compute::plus<double>(), queue
+    );
 }
 
 
@@ -138,21 +148,17 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 return sum;
             }
             __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __global double *diff, __global double *x_vec) {
-                double learning_rate = 0.1;
                 // Store each work-item's unique row and column
                 int i1 = get_global_id(0);
                 for (int j = 0; j < 5*5; ++j) {
-                    diff[j] += (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, &mu[i1 * 5 * 5], x_vec);
+                    diff[i1 * 25 + j] += (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, &mu[i1 * 5 * 5], x_vec);
                 }
                 for(int i2 = 0; i2 < filter_size; ++i2) {
                     if (i1 != i2) {
                         for (int k = 0; k < 5 * 5; ++k) {
-                            diff[k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, sigma, &mu[i2 * 5 * 5], x_vec);
+                            diff[i1 * 25 + k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, sigma, &mu[i2 * 5 * 5], x_vec);
                         }
                     }
-                }
-                for (int i = 0; i < 5 * 5; ++i) {
-                    mu[i1 * 25 + i] += learning_rate * diff[i] / sigma;
                 }
             }
     );

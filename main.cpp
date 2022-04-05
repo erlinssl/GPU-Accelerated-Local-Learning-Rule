@@ -124,6 +124,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         << "ms" << std::endl;
     }
     compute::copy(model.mugpu.begin(), model.mugpu.end(), model.w.cube.begin(), model.queue);
+
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
@@ -197,7 +198,7 @@ int main() {
 
     /////// EXPERIMENTS
     if (true){
-    experiment<double>('a', 1.0, 0.5, 1000);
+    experiment<double>('a', 1.0, 0.5, 10);
     /*
     experiment<double>('b', 1.0, 0.5, 10000);
     experiment<double>('c', 0.5, 0.5, 1000);
