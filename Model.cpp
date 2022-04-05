@@ -20,42 +20,52 @@ std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
 }
 
 template <typename T>
-double Model<T>::f(af::array const &i, af::array const &x) {
-    af::array a = (x - i);
+double Model<T>::f(af::array const &i, af::array const &x, af::seq & pos) {
+    /*
+    af::array pow = af::pow((x-i), 2);
+    auto summation = af::moddims(pow, resolution, resolution, filters);
+    af_print(summation);
+    auto summed = af::sum(af::sum(summation));
+    af_print(summed);
+    std::cout << "sum " << summed(pos).scalar<float>() << std::endl;
+    sleep(5);
+     */
 
-    auto temp = af::exp(
+    /*auto temp = af::exp(
             -(af::sum<double>(
-                    af::pow2((x - i)(af::span, af::span, 0, 0))
+                    af::pow((x - i), 2)
             )
             )/sigma).scalar<float>();
-    if((int) std::abs(temp) != 0){
-        std::cout << temp << std::endl;
-    }
-    return temp;
+    return temp;*/
+    return af::exp(-af::sum(af::sum(af::moddims(af::pow(x-i, 2), resolution, resolution, filters)))/sigma).scalar<float>();
 }
 
 template <typename T>
 void Model<T>::update(af::array const &x) {
-    af::array diff = af::constant(0, resolution, resolution);
+    // TODO Occasionally returns sigsegv in first batch
+    af::array diff = af::constant(0, resolution, resolution, filters);
 
     af::array nums = af::seq(filters);
     try {
-        gfor(af::seq i1, static_cast<double>(filters))  {
+        gfor(af::seq i1, filters)  {
             // todo could probably be optimized, dont know if this is still vectorized
             // af::array temp = mu(af::span, af::span, (int) nums(i1).scalar<float>()); // i1 is always 0
-            af::array temp = mu(af::span, af::span, i1); // weird shape 5x5x1x16
-            diff += ((x - temp) * f(temp, x));
+
+            diff(af::span, af::span, i1) += ((x - mu(af::span, af::span, i1)) * f(mu(af::span, af::span, i1), x, i1));
 
             for (int i2 = 0; i2 < filters; ++i2) {
-                af::array condition = (i1 != i2);
-                if((bool) condition.as(f32).scalar<float>()) {
-                    diff -= ((mu(af::span, af::span, i2) - temp) * (2.0 * lambda * f(temp, mu(af::span, af::span, i2))));
-                }
+                diff(af::span, af::span, i1) -= ((mu(af::span, af::span, i2) - mu(af::span, af::span, i1)) * (2.0 * lambda * f(mu(af::span, af::span, i1), mu(af::span, af::span, i2), i1))) * (i1 == i2);
             }
-            mu(af::span, af::span, i1) += ((diff * learning_rate) / sigma);
+                // TODO Try to access diff(span, span, 0, i1) from the [5, 5, 1, 16] structure ? \
+                    Might not be necessary ?
+            // std::cout << diff.dims() << std::endl;
+            // std::cout << diff(af::span, af::span, 0, i1).dims() << std::endl;
         }
+        // af_print(diff);
+        mu += ((diff * learning_rate) / sigma);
     } catch (af::exception & e) {
-        std::cout << e.what() << std::endl;
+        std::cout << "\033[1;31m" << e.what() << "\033[0m" << std::endl;
+        exit(1);
     }
 }
 

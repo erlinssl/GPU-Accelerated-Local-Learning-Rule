@@ -33,7 +33,7 @@ public:
     bool load(const char subfigure);
 
 private:
-    double f(af::array const &i, af::array const &x);
+    double f(af::array const &i, af::array const &x, af::seq & pos);
 };
 
 
