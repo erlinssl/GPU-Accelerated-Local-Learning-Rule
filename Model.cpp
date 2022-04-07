@@ -150,7 +150,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                     mu[i1 * 25 + i] += diff[i1 * 25 + i] * 0.1 / 1.0;
                 }
             }
-            __kernel void INDICES(__global double *rands, int rand_counter, __local int *batch_indices, __global double *data, int batch_size, __global double *out) {
+            __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, int batch_size, __global double *out) {
                 for (int i = 0; i < batch_size; ++i) {
                     batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
                     batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 4));
