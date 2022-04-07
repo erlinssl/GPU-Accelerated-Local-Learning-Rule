@@ -157,6 +157,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                     batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 4));
                 }
 
+                //todo this counter is fucking up multithreading
                 int counter = 0;
                 for (int i = 0; i < batch_size; ++i) {
                     int outer_from = batch_indices[i * 3 + 1] - 2;
