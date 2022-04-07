@@ -48,7 +48,7 @@ public:
         kernel.set_arg(1,filters);
         kernel.set_arg(2,lambda);
         kernel.set_arg(3,sigma);
-        kernel.set_arg(4, diff2);
+        clSetKernelArg(kernel, 4, 5 * 5 * filters * sizeof(double), NULL);
         kernel.set_arg(5,xgpu.get_buffer());
     };
     void update(SquareArray<T> const &x);
