@@ -29,7 +29,9 @@ public:
     int filters;
     int resolution;
     compute::vector<double> mugpu;
+    compute::context context;
     compute::command_queue queue;
+    compute::program program;
     explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_) : sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), w(false, grid_size_ * grid_size_, image_res_, image_res_), diff(true, filters, resolution, resolution) {
         context = compute::context(device);
         program = make_sma_program(context);
@@ -50,6 +52,8 @@ public:
         kernel.set_arg(3,sigma);
         clSetKernelArg(kernel, 4, 5 * 5 * filters * sizeof(double), NULL);
         kernel.set_arg(5,xgpu.get_buffer());
+
+
     };
     void update(SquareArray<T> const &x);
 
@@ -60,8 +64,6 @@ private:
     compute::kernel kernel;
     compute::program make_sma_program(const compute::context& context);
     compute::device device = compute::system::default_device();
-    compute::context context;
-    compute::program program;
     compute::vector<double> xgpu;
     compute::vector<double> diff2;
     double f(int i, SquareArray<T> const &x);

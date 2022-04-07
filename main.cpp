@@ -81,6 +81,8 @@ CubeArray<double> get_data() {
     }
 }
 
+
+
 auto data = get_data();
 
 template <typename T>
@@ -111,6 +113,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
+    auto kernel2 = compute::kernel(model.program, "INDICES");
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();

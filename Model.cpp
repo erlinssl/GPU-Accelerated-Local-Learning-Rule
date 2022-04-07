@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iterator>
 #include <boost/compute/algorithm/transform.hpp>
+#include <boost/compute/utility/dim.hpp>
 
 #define DELIMITER ' '
 
@@ -35,11 +36,9 @@ static double test = 0;
 template <typename T>
 void Model<T>::update(SquareArray<T> const &x) {
     compute::copy(x.arr.begin(), x.arr.end(), xgpu.begin(), queue);
-    //todo vet ikke om meg på sette mgpu som argument hver gang for å få de verdiene som blir oppdatert i metoden??
-    //compute::fill(diff2.begin(), diff2.end(), 0, queue);
 
     using compute::uint_;
-    queue.enqueue_1d_range_kernel(kernel,0,16,0);
+    queue.enqueue_nd_range_kernel(kernel, compute::dim(0, 0), compute::dim(16, 1), compute::dim(1,1));
 }
 
 
@@ -134,12 +133,13 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 sum = exp(sum);
                 return sum;
             }
+
             __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec) {
                 int i1 = get_global_id(0);
                 for (int j = 0; j < 5*5; ++j) {
                     diff[i1 * 25 + j] = (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, mu, x_vec);
                 }
-                for(int i2 = 0; i2 < filter_size; ++i2) {
+                for(int i2 = 0; i2 < 16; ++i2) {
                     if (i1 != i2) {
                         for (int k = 0; k < 5 * 5; ++k) {
                             diff[i1 * 25 + k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, sigma, mu, &mu[i2 * 5 * 5]);
@@ -150,10 +150,22 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                     mu[i1 * 25 + i] += diff[i1 * 25 + i] * 0.1 / 1.0;
                 }
             }
+            __kernel void INDICES(__global double *rands, __local double *batch_indices, int batch_i_size, __global double *data, int batch_size, __global double *out) {
+                for (int i = 0; i < batch_size; ++i) {
+                    batch_indices[i * 3 + 0] = ((int) rands[i * 3 + 0] * 60000.0);
+                    batch_indices[i * 3 + 1] = ((int) rands[i * 3 + 1] * (28 - 4));
+                    batch_indices[i * 3 + 2] = ((int) rands[i * 3 + 2] * (28 - 4));
+                }
+
+                for (int i = 0; i < batch_i_size; ++i) {
+                }
+            }
+
     );
     // create sma program
     return compute::program::build_with_source(source,context);
 }
+
 
 template class Model<int>;
 template class Model<double>;
