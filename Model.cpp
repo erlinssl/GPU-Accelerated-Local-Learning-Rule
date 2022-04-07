@@ -35,7 +35,7 @@ double Model<T>::f(int i, SquareArray<T> const &x) {
 static double test = 0;
 template <typename T>
 void Model<T>::update(SquareArray<T> const &x, int j) {
-    compute::copy(x.arr.begin(), x.arr.end(), xgpu.begin(), queue);
+    //compute::copy(x.arr.begin(), x.arr.end(), xgpu.begin(), queue);
     kernel.set_arg(6,j);
 
     using compute::uint_;
@@ -138,7 +138,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
             __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec, int current_batch) {
                 int i1 = get_global_id(0);
                 for (int j = 0; j < 5*5; ++j) {
-                    diff[i1 * 25 + j] = (x_vec[j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, mu, x_vec);
+                    diff[i1 * 25 + j] = (x_vec[current_batch * 25 + j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, mu, &x_vec[current_batch * 25]);
                 }
                 for(int i2 = 0; i2 < 16; ++i2) {
                     if (i1 != i2) {

@@ -53,7 +53,7 @@ public:
         kernel.set_arg(2,lambda);
         kernel.set_arg(3,sigma);
         clSetKernelArg(kernel, 4, 5 * 5 * filters * sizeof(double), NULL);
-        kernel.set_arg(5,xgpu.get_buffer());
+        kernel.set_arg(5,batch_data.get_buffer());
 
 
     };

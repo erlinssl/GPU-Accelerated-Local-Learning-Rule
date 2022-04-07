@@ -141,7 +141,9 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
         CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
-        model.queue.enqueue_1d_range_kernel(kernel2, 0,1,0);
+        //todo should not need to copy, should use kernel instead
+        compute::copy(batch.cube.begin(), batch.cube.end(), model.batch_data.begin(), model.queue);
+        //model.queue.enqueue_1d_range_kernel(kernel2, 0,1,0);
         model.queue.finish();
         int counter = 0;
         for (size_t j = 0; j < BATCH_SIZE; j++){
@@ -152,7 +154,6 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
         << "ms" << std::endl;
     }
-    std::cout << "done pog" << std::endl;
     compute::copy(model.mugpu.begin(), model.mugpu.end(), model.w.cube.begin(), model.queue);
 
     auto stop = std::chrono::high_resolution_clock::now();
