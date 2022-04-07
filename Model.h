@@ -29,6 +29,7 @@ public:
     int filters;
     int resolution;
     compute::vector<double> mugpu;
+    compute::vector<double> batch_data;
     compute::context context;
     compute::command_queue queue;
     compute::program program;
@@ -36,6 +37,7 @@ public:
         context = compute::context(device);
         program = make_sma_program(context);
         mugpu = compute::vector<double>(w.length(),context);
+        batch_data = compute::vector<double>(25000, context);
         diff2 = compute::vector<double>(5 * 5 * filters,context);
         queue = compute::command_queue(context, device);
         compute::copy(w.cube.begin(), w.cube.end(), mugpu.begin(), queue);
@@ -55,7 +57,7 @@ public:
 
 
     };
-    void update(SquareArray<T> const &x);
+    void update(const SquareArray<T> &x, int j);
 
     void save(const char &subfigure);
     bool load(const char &subfigure);
@@ -68,6 +70,7 @@ private:
     compute::vector<double> diff2;
     double f(int i, SquareArray<T> const &x);
     CubeArray<T> diff;
+
 };
 
 
