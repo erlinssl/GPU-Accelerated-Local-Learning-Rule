@@ -136,7 +136,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         auto start = std::chrono::high_resolution_clock::now();
         kernel2.set_arg(1, (int)i);
 
-        model.queue.enqueue_1d_range_kernel(kernel2, 0,1,0);
+        model.queue.enqueue_1d_range_kernel(kernel2, 0, 1000,0);
         model.queue.finish();
 
         for (size_t j = 0; j < BATCH_SIZE; j++){

@@ -151,27 +151,22 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 }
             }
             __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, int batch_size, __global double *out) {
-                for (int i = 0; i < batch_size; ++i) {
+                int i = get_global_id(0);
                     batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
                     batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 4));
                     batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 4));
-                }
 
-                //todo this counter is fucking up multithreading
-                int counter = 0;
-                for (int i = 0; i < batch_size; ++i) {
                     int outer_from = batch_indices[i * 3 + 1] - 2;
                     int outer_to = batch_indices[i * 3 + 1] + 3;
                     int inner_from = batch_indices[i * 3 + 2] - 2;
                     int inner_to = batch_indices[i * 3 + 2] + 3;
                     for (int j = outer_from; j < outer_to; ++j) {
                         for (int k = inner_from; k < inner_to; ++k) {
-                             out[counter++] =
+                             out[i * (outer_to - outer_from) * (inner_to - inner_from) + (j - outer_from) * (inner_to - inner_from) + k - inner_from] =
                                      data[batch_indices[i * 3] * 28 * 28 + j * 28 + k ];
 
                         }
                     }
-                }
             }
 
     );
