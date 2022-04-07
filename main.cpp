@@ -112,42 +112,35 @@ template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
-    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
-    compute::vector<double> gpu_data(data.cube.size(), model.context);
-    compute::vector<double> rands(3000, model.context);
-    compute::copy(data.cube.begin(), data.cube.end(), gpu_data.begin(), model.queue);
 
-    //__kernel void INDICES(
-    // __global double *rands,
-    // __local int *batch_indices,
-    // int batch_i_size,
-    // __global double *data,
-    // int batch_size,
-    // __global double *out) {
-    std::srand(unsigned(std::time(nullptr)));
-    std::vector<int> v(3000);
-    std::generate(v.begin(), v.end(), std::rand);
-    compute::copy(v.begin(), v.end(), rands.begin(), model.queue);
+    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
+
+    compute::vector<double> gpu_data(data.cube.size(), model.context);
+    compute::vector<double> rands(nbatches * BATCH_SIZE * 3, model.context);
+
+    std::vector<double> rand_host(nbatches * BATCH_SIZE * 3);
+    std::generate(rand_host.begin(), rand_host.end(), get_rand);
+
+    compute::copy(data.cube.begin(), data.cube.end(), gpu_data.begin(), model.queue);
+    compute::copy(rand_host.begin(), rand_host.end(), rands.begin(), model.queue);
 
     auto kernel2 = compute::kernel(model.program, "INDICES");
 
     kernel2.set_arg(0, rands.get_buffer());
-    clSetKernelArg(kernel2, 1, 1000 * 3 * sizeof(int), NULL);
-    kernel2.set_arg(2, 1000);
+    clSetKernelArg(kernel2, 2, 1000 * 3 * sizeof(int), NULL);
     kernel2.set_arg(3, gpu_data.get_buffer());
     kernel2.set_arg(4, BATCH_SIZE);
     kernel2.set_arg(5, model.batch_data.get_buffer());
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
-        //todo should not need to copy, should use kernel instead
-        compute::copy(batch.cube.begin(), batch.cube.end(), model.batch_data.begin(), model.queue);
-        //model.queue.enqueue_1d_range_kernel(kernel2, 0,1,0);
+        kernel2.set_arg(1, (int)i);
+
+        model.queue.enqueue_1d_range_kernel(kernel2, 0,1,0);
         model.queue.finish();
-        int counter = 0;
+
         for (size_t j = 0; j < BATCH_SIZE; j++){
-            model.update(batch[j], j);
+            model.update(j);
         }
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << subfigure << "-" << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<

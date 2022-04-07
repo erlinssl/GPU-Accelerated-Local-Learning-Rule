@@ -34,8 +34,7 @@ double Model<T>::f(int i, SquareArray<T> const &x) {
 }
 static double test = 0;
 template <typename T>
-void Model<T>::update(SquareArray<T> const &x, int j) {
-    //compute::copy(x.arr.begin(), x.arr.end(), xgpu.begin(), queue);
+void Model<T>::update(int j) {
     kernel.set_arg(6,j);
 
     using compute::uint_;
@@ -151,25 +150,24 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                     mu[i1 * 25 + i] += diff[i1 * 25 + i] * 0.1 / 1.0;
                 }
             }
-            __kernel void INDICES(__global double *rands, __local int *batch_indices, int batch_i_size, __global double *data, int batch_size, __global double *out) {
+            __kernel void INDICES(__global double *rands, int rand_counter, __local int *batch_indices, __global double *data, int batch_size, __global double *out) {
                 for (int i = 0; i < batch_size; ++i) {
-                    batch_indices[i * 3 + 0] = ((int) rands[i * 3 + 0] * 60000.0);
-                    batch_indices[i * 3 + 1] = ((int) rands[i * 3 + 1] * (28 - 4));
-                    batch_indices[i * 3 + 2] = ((int) rands[i * 3 + 2] * (28 - 4));
+                    batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
+                    batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 4));
+                    batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 4));
                 }
 
                 int counter = 0;
-                for (int i = 0; i < batch_i_size; ++i) {
+                for (int i = 0; i < batch_size; ++i) {
                     int outer_from = batch_indices[i * 3 + 1] - 2;
                     int outer_to = batch_indices[i * 3 + 1] + 3;
                     int inner_from = batch_indices[i * 3 + 2] - 2;
                     int inner_to = batch_indices[i * 3 + 2] + 3;
                     for (int j = outer_from; j < outer_to; ++j) {
                         for (int k = inner_from; k < inner_to; ++k) {
-                            //printf("index: %d", (j - outer_from) * (inner_from - inner_to) + k - inner_from);
                              out[counter++] =
-                                     data[batch_indices[i * 3] * (outer_from - outer_to) * (inner_from * inner_to)
-                                        + j * (inner_from - inner_to) + k - outer_from];
+                                     data[batch_indices[i * 3] * 28 * 28 + j * 28 + k ];
+
                         }
                     }
                 }

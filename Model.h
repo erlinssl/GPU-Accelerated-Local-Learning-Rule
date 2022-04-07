@@ -57,7 +57,7 @@ public:
 
 
     };
-    void update(const SquareArray<T> &x, int j);
+    void update(int j);
 
     void save(const char &subfigure);
     bool load(const char &subfigure);
