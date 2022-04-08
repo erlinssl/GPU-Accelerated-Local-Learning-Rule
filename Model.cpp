@@ -11,7 +11,6 @@
 #define DELIMITER ' '
 
 
-double learning_rate = 0.1;
 
 template <typename T>
 std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, SquareArray<T> y) {
