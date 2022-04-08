@@ -15,7 +15,6 @@
 
 namespace compute = boost::compute;
 namespace po = boost::program_options;
-double learning_rate = 0.1;
 
 template <typename T>
 std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, SquareArray<T> y) {
@@ -145,7 +144,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                     }
                 }
                 for (int i = 0; i < resolution * resolution; ++i) {
-                    mu[i1 * resolution * resolution + i] += diff[i1 * resolution * resolution + i] * 0.1 / 1.0;
+                    mu[i1 * resolution * resolution + i] += diff[i1 * resolution * resolution + i] * learning_rate / sigma;
                 }
             }
             __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, __global double *out) {

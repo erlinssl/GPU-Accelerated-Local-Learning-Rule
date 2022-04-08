@@ -23,3 +23,4 @@ include_directories(${BoostCompute_INCLUDE_DIRS})
 target_link_libraries(filter_finder OpenCL::OpenCL)
 target_link_libraries(filter_finder ${PYTHON_LIBRARIES})
 target_link_libraries(filter_finder ${Python3_NumPy_INCLUDE_DIRS})
+
