@@ -35,7 +35,7 @@ double Model<T>::f(int i, SquareArray<T> const &x) {
 static double test = 0;
 template <typename T>
 void Model<T>::update(int j) {
-    kernel.set_arg(6,j);
+    kernel.set_arg(5,j);
 
     using compute::uint_;
     queue.enqueue_nd_range_kernel(kernel, compute::dim(0, 0), compute::dim(16, 1), compute::dim(1,1));
@@ -121,11 +121,9 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
     const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE (
             double f(int i, double sigma, __global double *mun, __global double *xv) {
                 double sum = 0;
-                int nrows = 5;
-                int ncols = 5;
-                for (int j = 0; j < 5; ++j) {
-                    for (int k = 0; k < ncols; ++k) {
-                        sum += pow((xv[(j * nrows) + k] - mun[i * 5 * 5 + (j * nrows) + k]), 2);
+                for (int j = 0; j < resolution; ++j) {
+                    for (int k = 0; k < resolution; ++k) {
+                        sum += pow((xv[(j * resolution) + k] - mun[i * resolution * resolution + (j * resolution) + k]), 2);
                     }
                 }
                 sum = -sum;
@@ -134,20 +132,20 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 return sum;
             }
 
-            __kernel void SMA(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec, int current_batch) {
+            __kernel void SMA(__global double *mu, double lambda, double sigma, __local double *diff, __global double *x_vec, int current_batch) {
                 int i1 = get_global_id(0);
-                for (int j = 0; j < 5*5; ++j) {
-                    diff[i1 * 25 + j] = (x_vec[current_batch * 25 + j] - mu[i1 * 5 * 5 + j]) * f(i1, sigma, mu, &x_vec[current_batch * 25]);
+                for (int j = 0; j < resolution * resolution; ++j) {
+                    diff[i1 * resolution * resolution + j] = (x_vec[current_batch * resolution * resolution + j] - mu[i1 * resolution * resolution + j]) * f(i1, sigma, mu, &x_vec[current_batch * resolution * resolution]);
                 }
-                for(int i2 = 0; i2 < 16; ++i2) {
+                for(int i2 = 0; i2 < filters; ++i2) {
                     if (i1 != i2) {
-                        for (int k = 0; k < 5 * 5; ++k) {
-                            diff[i1 * 25 + k] -= 2.0 * lambda * (mu[i2 * 5 * 5 + k] - mu[i1 * 5 * 5 + k]) * f(i1, sigma, mu, &mu[i2 * 5 * 5]);
+                        for (int k = 0; k < resolution * resolution; ++k) {
+                            diff[i1 * resolution * resolution + k] -= 2.0 * lambda * (mu[i2 * resolution * resolution + k] - mu[i1 * resolution * resolution + k]) * f(i1, sigma, mu, &mu[i2 * resolution * resolution]);
                         }
                     }
                 }
-                for (int i = 0; i < 5 * 5; ++i) {
-                    mu[i1 * 25 + i] += diff[i1 * 25 + i] * 0.1 / 1.0;
+                for (int i = 0; i < resolution * resolution; ++i) {
+                    mu[i1 * resolution * resolution + i] += diff[i1 * resolution * resolution + i] * 0.1 / 1.0;
                 }
             }
             __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, int batch_size, __global double *out) {
@@ -171,7 +169,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
 
     );
     // create sma program
-    return compute::program::build_with_source(source,context);
+    return compute::program::build_with_source(source,context, kernel_options);
 }
 
 
