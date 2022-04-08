@@ -9,17 +9,22 @@ mkdir stats
 
 grep -qxF 'stats/' .gitignore || echo 'stats/' >> .gitignore 
 
-declare -a branches=("main" "threads-v1" "compute")
+declare -a branches=("compute")
 
+
+file_name="./stats/"$(date +'%Y-%m-%d %T')".txt"
+
+touch "$file_name"
 for i in "${branches[@]}"
 do
-	
-	echo hei > times"$i".txt
+	echo "$i" >> "$file_name"
+	git checkout "$i"
+
+	cd build
+
+	cmake ..
+
+	make
+
+	printf "$s" ./filter_finder 2>> ../"$file_name"
 done
-cd build
-
-cmake ..
-
-make
-
-./filter_finder 2> ../times.txt
