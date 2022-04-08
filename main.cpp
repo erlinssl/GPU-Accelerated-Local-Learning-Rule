@@ -113,7 +113,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
 
-    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
+    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION, BATCH_SIZE);
 
     compute::vector<double> gpu_data(data.cube.size(), model.context);
     compute::vector<double> rands(nbatches * BATCH_SIZE * 3, model.context);
@@ -129,8 +129,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     kernel2.set_arg(0, rands.get_buffer());
     clSetKernelArg(kernel2, 2, 1000 * 3 * sizeof(int), NULL);
     kernel2.set_arg(3, gpu_data.get_buffer());
-    kernel2.set_arg(4, BATCH_SIZE);
-    kernel2.set_arg(5, model.batch_data.get_buffer());
+    kernel2.set_arg(4, model.batch_data.get_buffer());
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
@@ -186,7 +185,7 @@ void figure(const Model<T>& model){
 
 void test_batch(){
     std::cout << "Testing batch" << std::endl;
-    Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
+    Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION, BATCH_SIZE);
     model.w = get_batch_revised<double>(16);
     std::cout << "Plotting batch" << std::endl;
     plt::Plot plot("test_plot");
@@ -198,7 +197,7 @@ template <typename T>
 void save_all(const std::vector<char>& figs){
     plt::Plot plot("sub_fig");
 
-    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION, BATCH_SIZE);
 
     for (char fig : figs){
         std::cout << "Graphing fig " << fig << std::endl;

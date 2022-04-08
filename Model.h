@@ -33,7 +33,19 @@ public:
     compute::context context;
     compute::command_queue queue;
     compute::program program;
-    explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_) : sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), w(false, grid_size_ * grid_size_, image_res_, image_res_), diff(true, filters, resolution, resolution) {
+    explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_, int batch_size) : sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), w(false, grid_size_ * grid_size_, image_res_, image_res_), diff(true, filters, resolution, resolution) {
+        kernel_options = std::string("-Dfilters=");
+        kernel_options.append(std::to_string(filters));
+        kernel_options.append(" -Dresolution=");
+        kernel_options.append(std::to_string(resolution));
+        kernel_options.append(" -Dlambda=");
+        kernel_options.append(std::to_string(lambda));
+        kernel_options.append(" -Dsigma=");
+        kernel_options.append(std::to_string(sigma));
+        kernel_options.append(" -Dbatch_size=");
+        kernel_options.append(std::to_string(batch_size));
+
+
         context = compute::context(device);
         program = make_sma_program(context);
         mugpu = compute::vector<double>(w.length(),context);
@@ -49,11 +61,8 @@ public:
 
         //compute::copy(w.cube.begin(), w.cube.end(), mugpu.begin(), queue);
         kernel.set_arg(0,mugpu.get_buffer());
-        kernel.set_arg(1,filters);
-        kernel.set_arg(2,lambda);
-        kernel.set_arg(3,sigma);
-        clSetKernelArg(kernel, 4, 5 * 5 * filters * sizeof(double), NULL);
-        kernel.set_arg(5,batch_data.get_buffer());
+        clSetKernelArg(kernel, 1, 5 * 5 * filters * sizeof(double), NULL);
+        kernel.set_arg(2,batch_data.get_buffer());
 
 
     };
@@ -63,6 +72,7 @@ public:
     bool load(const char &subfigure);
 
 private:
+    std::string kernel_options;
     compute::kernel kernel;
     compute::program make_sma_program(const compute::context& context);
     compute::device device = compute::system::default_device();
