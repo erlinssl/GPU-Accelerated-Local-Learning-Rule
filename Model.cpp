@@ -11,8 +11,6 @@
 #define DELIMITER ' '
 
 
-double learning_rate = 0.1;
-
 template <typename T>
 std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, SquareArray<T> y) {
     for (int i = 0; i < x.size(); ++i) {
@@ -40,8 +38,8 @@ void Model<T>::update(SquareArray<T> const &x) {
                 diff.minus_index(i1, (w[i2] - w[i1]) * (2.0 * lambda * f(i1, w[i2])));
             }
         }
-        w += ((diff * learning_rate) / sigma);
     }
+    w += ((diff * learning_rate) / sigma);
 }
 
 /* Saved array
@@ -124,7 +122,7 @@ bool Model<T>::load(const char &subfigure) {
         rtrim(line);
         // TODO The following line may or may not need to be active, depending on system locale \
             If filter plots are empty, try (un)commenting it.
-        std::replace(line.begin(), line.end(), '.', ',');
+        //std::replace(line.begin(), line.end(), '.', ',');
         size_t last = 0, next;
         while ((next = line.find(DELIMITER, last)) != std::string::npos) {
             inner.emplace_back(std::stod(line.substr(last, next-last)));

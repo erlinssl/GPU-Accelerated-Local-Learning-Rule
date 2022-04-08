@@ -15,9 +15,10 @@ double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
 
-const static int GRID_SIZE = 4;
-const static int RESOLUTION = 5;
-const static int BATCH_SIZE = 1000;
+static double learning_rate = 0.1;
+static int GRID_SIZE = 4;
+static int RESOLUTION = 5;
+static int BATCH_SIZE = 1000;
 
 
 CubeArray<double> get_data() {
@@ -173,25 +174,23 @@ void save_all(const std::vector<char>& figs){
     }
 }
 
-int main() {
-    const double learning_rate = .1;
+int main(int argc, char* argv[]) {
+    double sigma = 1.0;
+    double lambda = 0.5;
+    int nbatches = 1000;
 
-    /////// TESTING
-    // test_batch();
-
-    /////// EXPERIMENTS
-    if (true){
-    experiment<double>('a', 1.0, 0.5, 1000);
-    experiment<double>('b', 1.0, 0.5, 10000);
-    experiment<double>('c', 0.5, 0.5, 1000);
-    experiment<double>('d', 1.0, 1.0/9.0, 1000);
-    print_stats();
-    save_all<double>({'a' , 'b', 'c', 'd'});
-    } else {
-        // for testing
-        experiment<double>('z', 1.0, 0.5, 100);
-        save_all<double>({'z'});
+    if (argc > 7) {
+        sigma = std::stod(argv[1]);
+        lambda = std::stod(argv[2]);
+        nbatches = std::stoi(argv[3]);
+        GRID_SIZE = std::stoi(argv[4]);
+        BATCH_SIZE = std::stoi(argv[5]);
+        RESOLUTION = std::stoi(argv[6]);
+        learning_rate = std::stod(argv[7]);
     }
+
+    experiment<double>('a', sigma, lambda, nbatches);
+    save_all<double>({'a'});
 
     Py_Finalize();
     return 0;
