@@ -154,7 +154,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
     ex_times.push_back((stop - start).count());
-    std::clog << (stop - start).count() << "," << model.sigma << "," << model.lambda <<  "," << model.filters << "," << model.resolution <<  "," << model.batch_size << "," << nbatches <<  std::endl;
+    std::clog << (stop - start).count() << "," << model.sigma << "," << model.lambda <<  "," << model.filters << "," << model.resolution <<  "," << model.batch_size << "," << nbatches;
     model.save(subfigure);
 }
 
