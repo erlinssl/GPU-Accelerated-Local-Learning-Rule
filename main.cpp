@@ -13,10 +13,10 @@ namespace plt = matplotlibcpp;
 double figsize_scale = 0.2;
 // TODO Figure out how to set rcParams in matplotlib-cpp
 
-
-const static int GRID_SIZE = 4;
-const static int RESOLUTION = 5;
-const static int BATCH_SIZE = 1000;
+static double LEARNING_RATE = .1;
+static int GRID_SIZE = 4;
+static int RESOLUTION = 5;
+static int BATCH_SIZE = 1000;
 
 
 af::array get_data() {
@@ -76,7 +76,7 @@ template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
-    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION);
+    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION, LEARNING_RATE);
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
@@ -156,22 +156,28 @@ void save_all(const std::vector<char>& figs){
     }
 }
 
-int main() {
-    const double learning_rate = .1;
-    /////// TESTING
-    // test_batch<float>();
-
+int main(int argc, char* argv[]) {
     /////// EXPERIMENTS
-    // true for benchmarking experiments
-    // false for test experiment (one experiment)
-    if (false){
-    experiment<double>('a', 1.0, 0.5, 1000);
-    experiment<double>('b', 1.0, 0.5, 10000);
-    experiment<double>('c', 0.5, 0.5, 1000);
-    experiment<double>('d', 1.0, 1.0/9.0, 1000);
-    save_all<double>({'a' , 'b', 'c', 'd'});
+    // true for original four experiments
+    // false for script experiment
+    if (argc < 7){
+        std::cout << "oops" << std::endl;
+        experiment<double>('a', 1.0, 0.5, 1000);
+        experiment<double>('b', 1.0, 0.5, 10000);
+        experiment<double>('c', 0.5, 0.5, 1000);
+        experiment<double>('d', 1.0, 1.0/9.0, 1000);
+        save_all<double>({'a' , 'b', 'c', 'd'});
     } else {
-        experiment<float>('z', 1.0, 0.5, 100);
+        std::cout << "pog" << std::endl;
+        double sigma = std::stod(argv[1]);
+        double lambda = std::stod(argv[2]);
+        int nbatches = std::stoi(argv[3]);
+        GRID_SIZE = std::stoi(argv[4]);
+        BATCH_SIZE = std::stoi(argv[5]);
+        RESOLUTION = std::stoi(argv[6]);
+        LEARNING_RATE = std::stod(argv[7]);
+
+        experiment<float>('z', sigma, lambda, nbatches);
         save_all<float>({'z'});
     }
 
