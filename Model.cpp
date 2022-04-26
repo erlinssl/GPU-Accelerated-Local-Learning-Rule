@@ -66,7 +66,7 @@ void Model<T>::update(SquareArray<T> const &x) {
         diffs[0] += diffs[j];
     }
 
-    w += (((diffs[0]/num_threads) * learning_rate) / sigma);
+    w += (((diffs[0]) * learning_rate) / sigma);
 }
 
 /* Saved array
