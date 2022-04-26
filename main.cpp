@@ -2,16 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <utility>
 #include <random>
 #include "Arrays.h"
 #include "Model.h"
 #include "dependencies/matplotlibcpp.h"
 
 namespace plt = matplotlibcpp;
-
-double figsize_scale = 0.2;
-// TODO Figure out how to set rcParams in matplotlib-cpp
 
 static double LEARNING_RATE = .1;
 static int GRID_SIZE = 4;
@@ -71,10 +67,8 @@ af::array get_batch(size_t batch_size){
     return A;
 }
 
-
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
-    // TODO Set random seed for consistent experiments
     auto start = std::chrono::high_resolution_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION, LEARNING_RATE);
 
@@ -107,7 +101,6 @@ void figure(const Model<T>& model){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
 
-            // TODO model.mu(...) seems to return the same 5x5 patch every time(?)
             af::array af_z = model.mu( af::span, af::span, index);
 
             for(int i = 0; i < af_z.elements(); i++) {
@@ -160,15 +153,18 @@ int main(int argc, char* argv[]) {
     /////// EXPERIMENTS
     // true for original four experiments
     // false for script experiment
+    // TODO af seeds not necessarily consistent with other iterations
+    af::setSeed(1234);
     if (argc < 7){
-        std::cout << "oops" << std::endl;
         experiment<double>('a', 1.0, 0.5, 1000);
+        af::setSeed(1234);
         experiment<double>('b', 1.0, 0.5, 10000);
+        af::setSeed(1234);
         experiment<double>('c', 0.5, 0.5, 1000);
+        af::setSeed(1234);
         experiment<double>('d', 1.0, 1.0/9.0, 1000);
         save_all<double>({'a' , 'b', 'c', 'd'});
     } else {
-        std::cout << "pog" << std::endl;
         double sigma = std::stod(argv[1]);
         double lambda = std::stod(argv[2]);
         int nbatches = std::stoi(argv[3]);

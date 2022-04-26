@@ -4,14 +4,8 @@
 
 #include "Model.h"
 
-#include <utility>
 #include <fstream>
 #include <iterator>
-
-#define DELIMITER ' '
-
-
-double learning_rate = 0.1;
 
 template <typename T>
 std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
@@ -53,28 +47,6 @@ void Model<T>::update(af::array const &x) {
         exit(1);
     }
 }
-
-/* Saved array
- * 1 2
- * 3 4
- *
- * 5 6
- * 7 8
- *
- * 3 2
- * 4 1
- *
- * represents (3x2x2) array
- *
- * [[[1 2],
- *   [3 4] ],
- *
- *  [[5 6],
- *   [7 8] ],
- *
- *  [[3 2],
- *   [4 1] ]]
-*/
 
 template <typename T>
 void Model<T>::save(const char subfigure) {
