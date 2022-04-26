@@ -34,11 +34,15 @@ void Model<T>::update(SquareArray<T> const &x) {
     std::vector<CubeArray<T>> diffs;
     diffs.reserve(filters);
 
-    for(size_t j = 0; j < filters/num_threads; j++){
-        threads.push_back(std::thread([this, j, &diffs, x]{
+    int start = 0;
+    int thread_diff = filters / num_threads;
+    thread_diff += filters % num_threads;
+    for (int i = 0; i < num_threads; ++i) {
+        int end = start + thread_diff;
+        //std::cout << "start: " << start << " - end: " << end << std::endl;
+        threads.push_back(std::thread([this, start, end, &diffs, x]{
             CubeArray<T> diff(true, filters, resolution, resolution);
-
-            for (size_t i1 = j * filters / num_threads; i1 < (j + 1) * filters / num_threads; ++i1) {
+            for (size_t i1 = start; i1 < end; ++i1) {
                 diff.plus_index(i1, (x - w[i1]) * (f(i1, x)));
 
                 for (size_t i2 = 0; i2 < filters; ++i2) {
@@ -49,6 +53,9 @@ void Model<T>::update(SquareArray<T> const &x) {
             }
             diffs.emplace_back(std::move(diff));
         }));
+
+        start = end;
+        thread_diff = filters / num_threads;
     }
 
     for (size_t j = 0; j < num_threads; ++j) {
