@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <utility>
 #include <random>
 
 #include "Arrays.h"
@@ -10,9 +9,6 @@
 #include "dependencies/matplotlibcpp.h"
 
 namespace plt = matplotlibcpp;
-
-double figsize_scale = 0.2;
-// TODO Figure out how to set rcParams in matplotlib-cpp
 
 
 double learning_rate = 0.1;
@@ -72,7 +68,6 @@ template <typename T>
 CubeArray<T> get_batch_revised(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     for(size_t i = 0; i < batch_size; ++i) {
-        std::vector<size_t> temp;
         batch_indices[i][0] = ((int)((get_rand() * 60000.)));
         // todo hardcoded shapes
         batch_indices[i][1] = ((int)((2 + get_rand() * (28 - 4))));
@@ -88,8 +83,6 @@ CubeArray<T> get_batch_revised(size_t batch_size){
 
     return CubeArray<T>(batch);
 }
-
-static std::vector<long> ex_times;
 
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
