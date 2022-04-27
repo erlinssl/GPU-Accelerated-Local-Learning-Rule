@@ -209,14 +209,13 @@ CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
     nlays = outer;
     nrows = middle;
     ncols = inner;
-    cube.reserve(outer*middle*inner);
-    for (size_t i = 0; i < outer*middle*inner; ++i){
-        if(zero){
-            cube.emplace_back(0);
-        } else {
-            cube.emplace_back(get_rand());
-        }
+    cube = std::vector<T>();
+    // todo sigsegv at 1913??????
+    cube.reserve(1914);
+    for (size_t i = 0; i < nlays * nrows * ncols; ++i){
+        cube.emplace_back(get_rand());
     }
+    std::cout << cube.size() << std::endl;
 }
 
 template <typename T>
@@ -284,6 +283,10 @@ CubeArray<T> CubeArray<T>::operator*(T y) {
 
 template <typename T>
 CubeArray<T> CubeArray<T>::operator+=(CubeArray<T> const &y) {
+    if (y.cube.size() != cube.size()) {
+        std::cerr << "arrays added together need to be same size" << std::endl;
+        exit(5);
+    }
     for (size_t i = 0; i < length(); i++){
         cube[i] += y.cube[i];
     }
