@@ -12,6 +12,8 @@ namespace plt = matplotlibcpp;
 static double LEARNING_RATE = .1;
 static int GRID_SIZE = 4;
 static int RESOLUTION = 5;
+static int RES_LOWER = 2;
+static int RES_UPPER = 3;
 static int BATCH_SIZE = 1000;
 
 
@@ -43,26 +45,19 @@ af::array get_data() {
 af::array data = get_data();
 template <typename T>
 af::array get_batch(size_t batch_size){
-    //todo convert to using batch_indices_2
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
-    af::array batch_indices_2 = af::randu(batch_size, 3, f64);
-    batch_indices_2.col(0) *= 60000;
-    batch_indices_2.cols(1, 2) *= (28 - 4);
-
-    batch_indices_2.cols(1, 2) += 2;
 
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         batch_indices[i][0] = ((unsigned long)((get_rand() * 60000.)));
-        // todo hardcoded shapes
-        batch_indices[i][1] = ((unsigned long)((2 + get_rand() * (28 - 4))));
-        batch_indices[i][2] = ((unsigned long)((2 + get_rand() * (28 - 4))));
+        batch_indices[i][1] = ((unsigned long)((RES_LOWER + get_rand() * (28 - 2*RES_LOWER))));
+        batch_indices[i][2] = ((unsigned long)((RES_LOWER + get_rand() * (28 - 2*RES_LOWER))));
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
-    af::array A = af::constant(0, 5, 5, batch_indices.size());
+    af::array A = af::constant(0, RESOLUTION, RESOLUTION, batch_indices.size());
     for (int i = 0; i < batch_indices.size(); ++i) {
-        A(af::span, af::span, i) = data(af::seq(batch_indices[i][1] - 2, batch_indices[i][1] + 2), af::seq(batch_indices[i][2] - 2, batch_indices[i][2] + 2), batch_indices[i][0]);
+        A(af::span, af::span, i) = data(af::seq(batch_indices[i][1] - RES_LOWER, batch_indices[i][1] + (RES_UPPER-1)), af::seq(batch_indices[i][2] - RES_LOWER, batch_indices[i][2] + (RES_UPPER-1)), batch_indices[i][0]);
     }
     return A;
 }
@@ -104,7 +99,7 @@ void figure(const Model<T>& model){
             af::array af_z = model.mu( af::span, af::span, index);
 
             for(int i = 0; i < af_z.elements(); i++) {
-                z[i] = (float) af_z(i).scalar<T>();
+                z[i] = (float) af_z(i).scalar<float>();
             }
 
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
@@ -117,10 +112,14 @@ void figure(const Model<T>& model){
 }
 
 template <typename T>
-void test_batch(){
+void test_batch(int _res_){
     std::cout << "Testing batch" << std::endl;
-    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
-    model.mu = get_batch<T>(16);
+    RESOLUTION = _res_;
+    RES_LOWER = std::floor(_res_/2);
+    RES_UPPER = RESOLUTION - RES_LOWER;
+
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION, LEARNING_RATE);
+    model.mu = get_batch<T>(GRID_SIZE*GRID_SIZE);
     std::cout << "Plotting batch" << std::endl;
     plt::Plot plot("test_plot");
     figure(model);
@@ -140,21 +139,15 @@ void save_all(const std::vector<char>& figs){
             figure(model);
             plt::show();
         }
-        /*
-         std::string path = "../saved/figure2"
-         path.emplace_back(fig);
-         path.append(".pgf");
-         plt::save(path);
-        */
     }
 }
 
 int main(int argc, char* argv[]) {
     /////// EXPERIMENTS
-    // true for original four experiments
-    // false for script experiment
-    // TODO af seeds not necessarily consistent with other iterations
+    // TODO af seeds not necessarily consistent with other versions of program, \
+        consider use random() and inserting into arrays, might not be necessary
     af::setSeed(1234);
+
     if (argc < 7){
         experiment<double>('a', 1.0, 0.5, 1000);
         af::setSeed(1234);
@@ -172,6 +165,9 @@ int main(int argc, char* argv[]) {
         BATCH_SIZE = std::stoi(argv[5]);
         RESOLUTION = std::stoi(argv[6]);
         LEARNING_RATE = std::stod(argv[7]);
+
+        RES_LOWER = std::floor(RESOLUTION/2);
+        RES_UPPER = RESOLUTION - RES_LOWER;
 
         experiment<float>('z', sigma, lambda, nbatches);
         save_all<float>({'z'});

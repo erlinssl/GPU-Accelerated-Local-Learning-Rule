@@ -20,4 +20,4 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 
 target_link_libraries(filter_finder ${PYTHON_LIBRARIES})
 target_link_libraries(filter_finder ${Python3_NumPy_INCLUDE_DIRS})
-target_link_libraries(filter_finder ArrayFire::af)
+target_link_libraries(filter_finder ArrayFire::afcpu)
