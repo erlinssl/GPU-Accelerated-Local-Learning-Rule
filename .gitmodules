@@ -1,0 +1,6 @@
+[submodule "cifar-10"]
+	path = cifar-10
+	url = https://github.com/wichtounet/cifar-10
+[submodule "arrayfire"]
+	path = arrayfire
+	url = https://github.com/arrayfire/arrayfire
