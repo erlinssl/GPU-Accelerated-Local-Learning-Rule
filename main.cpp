@@ -1,11 +1,14 @@
-#include <filesystem>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                #include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <random>
+
 #include "Arrays.h"
 #include "Model.h"
+
 #include "dependencies/matplotlibcpp.h"
+#include "cifar-10/include/cifar/cifar10_reader.hpp"
 
 namespace plt = matplotlibcpp;
 
@@ -14,27 +17,24 @@ static int GRID_SIZE = 4;
 static int RESOLUTION = 5;
 static int RES_LOWER = 2;
 static int RES_UPPER = 3;
+static int COLORS = 3;
 static int BATCH_SIZE = 1000;
 
 
-af::array get_data() {
+auto cifar_data = cifar::read_dataset<std::vector, std::vector, uint8_t, uint8_t>();
+
+af::array convert_data() {
     std::cout << "getting data" << std::endl;
     if (std::filesystem::exists("trainingdata")) {
         std::cout << "found training data" << std::endl;
-
-        std::ifstream f("trainingdata", std::ios::binary | std::ios::in);
-        // ignore until image data
-        f.ignore(16);
-
-        std::vector<double> multi_pic_array;
-        multi_pic_array.reserve(60000 * 28 * 28);
-        char b;
-        for (int i = 0; i < 60000 * 28 *  28; ++i) {
-            f.get(b);
-            multi_pic_array.emplace_back(((double) ((unsigned char) b)) / 255.0);
+        auto training = cifar_data.training_images;
+        af::array out = af::array(50000, 3072);
+        for (int i = 0; i < training.size(); i++) {
+            out(i, af::span) = &training[i];
         }
-        return {28, 28, 60000, &multi_pic_array[0]};
-        // return af::reorder(x, 2, 0, 1);
+        out = moddims(out, 32, 32, 3, 50000);
+        std::cout << "processed data" << std::endl;
+        return out;
     }
     else {
         std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
@@ -42,22 +42,23 @@ af::array get_data() {
     }
 }
 
-af::array data = get_data();
+af::array data = convert_data();
+
 template <typename T>
 af::array get_batch(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
 
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
-        batch_indices[i][0] = ((unsigned long)((get_rand() * 60000.)));
-        batch_indices[i][1] = ((unsigned long)((RES_LOWER + get_rand() * (28 - 2*RES_LOWER))));
-        batch_indices[i][2] = ((unsigned long)((RES_LOWER + get_rand() * (28 - 2*RES_LOWER))));
+        batch_indices[i][0] = ((unsigned long)((get_rand() * 50000.)));
+        batch_indices[i][1] = ((unsigned long)((RES_LOWER + get_rand() * (32 - 2*RES_LOWER))));
+        batch_indices[i][2] = ((unsigned long)((RES_LOWER + get_rand() * (32 - 2*RES_LOWER))));
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
-    af::array A = af::constant(0, RESOLUTION, RESOLUTION, batch_indices.size());
+    af::array A = af::constant(0, RESOLUTION, RESOLUTION, COLORS, batch_indices.size());
     for (int i = 0; i < batch_indices.size(); ++i) {
-        A(af::span, af::span, i) = data(af::seq(batch_indices[i][1] - RES_LOWER, batch_indices[i][1] + (RES_UPPER-1)), af::seq(batch_indices[i][2] - RES_LOWER, batch_indices[i][2] + (RES_UPPER-1)), batch_indices[i][0]);
+        A(af::span, af::span, af::span, i) = data(af::seq(batch_indices[i][1] - RES_LOWER, batch_indices[i][1] + (RES_UPPER-1)), af::seq(batch_indices[i][2] - RES_LOWER, batch_indices[i][2] + (RES_UPPER-1)), af::span, batch_indices[i][0]);
     }
     return A;
 }
@@ -65,13 +66,13 @@ af::array get_batch(size_t batch_size){
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     auto start = std::chrono::high_resolution_clock::now();
-    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION, LEARNING_RATE);
+    Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION, COLORS, LEARNING_RATE);
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
         af::array batch = get_batch<double>(BATCH_SIZE);
         for (int j = 0; j < BATCH_SIZE; j++){
-            model.update(batch(af::span, af::span, j));
+            model.update(batch(af::span, af::span, af::span, j));
         }
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
@@ -90,7 +91,7 @@ void figure(const Model<T>& model){
     const int nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
-    const int colors = 1;
+    const int colors = 3;
 
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
@@ -118,7 +119,7 @@ void test_batch(int _res_){
     RES_LOWER = std::floor(_res_/2);
     RES_UPPER = RESOLUTION - RES_LOWER;
 
-    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION, LEARNING_RATE);
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION, COLORS, LEARNING_RATE);
     model.mu = get_batch<T>(GRID_SIZE*GRID_SIZE);
     std::cout << "Plotting batch" << std::endl;
     plt::Plot plot("test_plot");
@@ -130,10 +131,9 @@ template <typename T>
 void save_all(const std::vector<char>& figs){
     plt::Plot plot("sub_fig");
 
-    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION, COLORS);
 
     for (char fig : figs){
-        std::cout << "Graphing fig " << fig << std::endl;
         if(model.load(fig)){
             std::cout << "Loaded figure " << fig << std::endl;
             figure(model);
@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
     af::setSeed(1234);
 
     if (argc < 7){
-        experiment<double>('a', 1.0, 0.5, 1000);
+        experiment<double>('a', 1.0, 0.5, 100);
         af::setSeed(1234);
         experiment<double>('b', 1.0, 0.5, 10000);
         af::setSeed(1234);
@@ -165,6 +165,7 @@ int main(int argc, char* argv[]) {
         BATCH_SIZE = std::stoi(argv[5]);
         RESOLUTION = std::stoi(argv[6]);
         LEARNING_RATE = std::stod(argv[7]);
+        COLORS = std::stoi(argv[8]);
 
         RES_LOWER = std::floor(RESOLUTION/2);
         RES_UPPER = RESOLUTION - RES_LOWER;

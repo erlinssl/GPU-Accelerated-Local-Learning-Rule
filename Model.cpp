@@ -22,17 +22,18 @@ template <typename T>
 void Model<T>::update(af::array const &x) {
     af::array nums = af::seq(filters);
     try {
-        af::array diff = af::constant(0, resolution, resolution, filters);
+        af::array diff = af::constant(0, resolution, resolution, colors, filters);
         gfor(af::seq i1, filters) {
             af::array mu_copy = -mu;
-            mu_copy(af::span, af::span, i1) += x;
 
-            af::array exp = moddims(af::exp(-af::sum(af::sum(af::pow(mu_copy, 2))) / sigma), 1, 1, filters);
+            mu_copy(af::span, af::span, af::span, i1) += x;
+
+            af::array exp = moddims(af::exp(-af::sum(af::sum(af::sum(af::pow(mu_copy, 2)))) / sigma), 1, 1, 1, filters);
             diff += mu_copy * exp;
 
             for(int i2 = 0; i2 < filters; i2++) {
                 af::array mu2_copy = -mu;
-                mu2_copy(af::span, af::span, i1) += mu(af::span, af::span, i2);
+                mu2_copy(af::span, af::span, af::span, i1) += mu(af::span, af::span, af::span, i2);
                 diff -= (mu2_copy * (2.0 * lambda * af::exp(-af::sum(af::sum(af::pow(mu2_copy, 2))) / sigma)));
 
                 // TODO Conditional non-functional
@@ -50,7 +51,7 @@ void Model<T>::update(af::array const &x) {
 
 template <typename T>
 void Model<T>::save(const char subfigure) {
-    std::string path = "../saved/figure2";
+    std::string path = "../saved/arrayfire-cifar10/afcifar10";
     path.push_back(subfigure);
     path.append(".fig");
 
@@ -61,7 +62,7 @@ void Model<T>::save(const char subfigure) {
 
 template <typename T>
 bool Model<T>::load(const char subfigure) {
-    std::string path = "../saved/figure2";
+    std::string path = "../saved/arrayfire-cifar10/afcifar10";
     path.push_back(subfigure);
     path.append(".fig");
     if(!std::filesystem::exists(path)){
@@ -77,6 +78,8 @@ bool Model<T>::load(const char subfigure) {
         std::cout << "Invalid key" << std::endl;
         return false;
     }
+    std::cout << "loaded:" << std::endl;
+    af_print(mu);
     return true;
 }
 
