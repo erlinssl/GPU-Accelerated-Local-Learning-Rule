@@ -23,19 +23,24 @@ namespace po = boost::program_options;
 template <typename T>
 class Model {
 public:
-    CubeArray<T> w;
     double sigma;
     double lambda;
     int filters;
     int resolution;
     int batch_size;
+    std::vector<T> results = std::vector<T>();
     std::string kernel_options;
     compute::vector<double> mugpu;
     compute::vector<double> batch_data;
     compute::context context;
     compute::command_queue queue;
     compute::program program;
-    explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_, int batch_size_, double learning_rate = 0.1) : w(false, grid_size_ * grid_size_, image_res_, image_res_), sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), batch_size(batch_size_) {
+    explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_, int batch_size_, double learning_rate = 0.1) :  sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), batch_size(batch_size_) {
+        results.resize(grid_size_ * grid_size_ * resolution * resolution);
+        for(auto &a : results) {
+            a = get_rand();
+        }
+
         kernel_options = std::string("-Dfilters=");
         kernel_options.append(std::to_string(filters));
         kernel_options.append(" -Dresolution=");
@@ -53,16 +58,12 @@ public:
 
         context = compute::context(device);
         program = make_sma_program(context);
-        mugpu = compute::vector<double>(w.cube.size(),context);
+        mugpu = compute::vector<double>(results.size(),context);
         batch_data = compute::vector<double>(batch_size_ * image_res_ * image_res_, context);
         queue = compute::command_queue(context, device);
-        compute::copy(w.cube.begin(), w.cube.end(), mugpu.begin(), queue);
+        compute::copy(results.begin(), results.end(), mugpu.begin(), queue);
         kernel = compute::kernel(program, "SMA");
-        /*
-        A(__global double *mu, int filter_size, double lambda, double sigma, __local double *diff, __global double *x_vec) {
-        */
 
-        //compute::copy(w.cube.begin(), w.cube.end(), mugpu.begin(), queue);
         kernel.set_arg(0,mugpu.get_buffer());
         clSetKernelArg(kernel, 1, image_res_ * image_res_ * filters * sizeof(double), NULL);
         kernel.set_arg(2,batch_data.get_buffer());

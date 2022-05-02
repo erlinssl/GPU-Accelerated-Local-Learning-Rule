@@ -27,10 +27,6 @@ std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, Squa
 }
 
 
-template <typename T>
-double Model<T>::f(int i, SquareArray<T> const &x) {
-    return std::exp(this->w.calc(x, i)/this->sigma);
-}
 
 template <typename T>
 void Model<T>::update(int j) {
@@ -52,10 +48,8 @@ void Model<T>::save(const char &subfigure) {
 
     for(size_t layer = 0; layer < filters; layer++) {
         for (size_t row = 0; row < resolution; row++) {
-            auto temp2 = w[layer];
-            auto temp = temp2[row];
             std::ostream_iterator<double> output_iterator(output_file, " ");
-            std::copy(temp.begin(), temp.end(), output_iterator);
+            std::copy(results.begin() + layer * resolution * resolution + row * resolution , results.begin() + layer * resolution * resolution + row * resolution + resolution, output_iterator);
             output_file << "\n";
         }
         output_file << "\n";
@@ -91,7 +85,7 @@ bool Model<T>::load(const char &subfigure) {
     std::ifstream file(path);
 
     std::string line;
-    this->w.cube.clear();
+    this->results.clear();
 
     std::vector<T> inner = {};
 
@@ -110,7 +104,7 @@ bool Model<T>::load(const char &subfigure) {
         }
     }
 
-    this->w.cube.swap(inner);
+    this->results.swap(inner);
     return true;
 }
 

@@ -138,17 +138,18 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         kernel2.set_arg(1, (int)i);
 
         model.queue.enqueue_1d_range_kernel(kernel2, 0, BATCH_SIZE,0);
-        model.queue.finish();
 
         for (size_t j = 0; j < BATCH_SIZE; j++){
             model.update(j);
         }
+        model.queue.finish();
         auto stop = std::chrono::high_resolution_clock::now();
         std::cout << subfigure << "-" << "CO3: Completed batch " << i+1 << " @ " << BATCH_SIZE << " after " <<
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
         << "ms" << std::endl;
     }
-    compute::copy(model.mugpu.begin(), model.mugpu.end(), model.w.cube.begin(), model.queue);
+
+    compute::copy(model.mugpu.begin(), model.mugpu.end(), model.results.begin(), model.queue);
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
@@ -174,7 +175,9 @@ void figure(const Model<T>& model){
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
-            model.w[index].flat(z);
+            for (int i = 0; i < z.size(); ++i) {
+                z[i] = model.results[index * model.resolution * model.resolution + i];
+            }
 
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
             plt::imshow(zptr, model.resolution, model.resolution, colors);
@@ -185,15 +188,6 @@ void figure(const Model<T>& model){
     }
 }
 
-void test_batch(){
-    std::cout << "Testing batch" << std::endl;
-    Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION, BATCH_SIZE);
-    model.w = get_batch_revised<double>(16);
-    std::cout << "Plotting batch" << std::endl;
-    plt::Plot plot("test_plot");
-    figure(model);
-    plt::show();
-}
 
 template <typename T>
 void save_all(const std::vector<char>& figs){
