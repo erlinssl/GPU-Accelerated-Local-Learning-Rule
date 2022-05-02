@@ -129,7 +129,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     auto kernel2 = compute::kernel(model.program, "INDICES");
 
     kernel2.set_arg(0, rands.get_buffer());
-    clSetKernelArg(kernel2, 2, 1000 * 3 * sizeof(int), NULL);
+    clSetKernelArg(kernel2, 2, BATCH_SIZE * 3 * sizeof(int), NULL);
     kernel2.set_arg(3, gpu_data.get_buffer());
     kernel2.set_arg(4, model.batch_data.get_buffer());
 
@@ -137,7 +137,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         auto start = std::chrono::high_resolution_clock::now();
         kernel2.set_arg(1, (int)i);
 
-        model.queue.enqueue_1d_range_kernel(kernel2, 0, 1000,0);
+        model.queue.enqueue_1d_range_kernel(kernel2, 0, BATCH_SIZE,0);
         model.queue.finish();
 
         for (size_t j = 0; j < BATCH_SIZE; j++){
@@ -149,7 +149,6 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         << "ms" << std::endl;
     }
     compute::copy(model.mugpu.begin(), model.mugpu.end(), model.w.cube.begin(), model.queue);
-
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;

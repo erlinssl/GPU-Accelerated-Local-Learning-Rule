@@ -216,7 +216,6 @@ CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
     for (size_t i = 0; i < nlays * nrows * ncols; ++i){
         cube.emplace_back(get_rand());
     }
-    std::cout << cube.size() << std::endl;
 }
 
 template <typename T>

@@ -31,13 +31,13 @@ template <typename T>
 double Model<T>::f(int i, SquareArray<T> const &x) {
     return std::exp(this->w.calc(x, i)/this->sigma);
 }
-static double test = 0;
+
 template <typename T>
 void Model<T>::update(int j) {
     kernel.set_arg(3,j);
 
     using compute::uint_;
-    queue.enqueue_nd_range_kernel(kernel, compute::dim(0, 0), compute::dim(16, 1), compute::dim(1,1));
+    queue.enqueue_1d_range_kernel(kernel, 0, filters,0);
 }
 
 
@@ -161,7 +161,6 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                         for (int k = inner_from; k < inner_to; ++k) {
                              out[i * (outer_to - outer_from) * (inner_to - inner_from) + (j - outer_from) * (inner_to - inner_from) + k - inner_from] =
                                      data[batch_indices[i * 3] * 28 * 28 + j * 28 + k ];
-
                         }
                     }
             }
