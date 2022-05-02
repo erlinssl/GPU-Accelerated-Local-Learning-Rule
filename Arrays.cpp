@@ -212,6 +212,7 @@ CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
     cube = std::vector<T>();
     // todo sigsegv at 1913??????
     cube.reserve(1914);
+    cube.reserve(nlays * nrows * ncols);
     for (size_t i = 0; i < nlays * nrows * ncols; ++i){
         cube.emplace_back(get_rand());
     }
