@@ -1,10 +1,3 @@
-//
-// Created by ingebrigt on 27.01.2022.
-//
-
-// TODO Refactor usages of 2D arrays
-
-
 #include "Arrays.h"
 
 #include <utility>
@@ -17,7 +10,7 @@
 template <typename T>
 SquareArray<T>::SquareArray(std::vector<T> x) {
     arr = x;
-    // TODO Find a less primitive solution
+    // TODO Consider a less primitive solution
     nrows = std::sqrt(x.size());
     ncols = std::sqrt(x.size());
 }

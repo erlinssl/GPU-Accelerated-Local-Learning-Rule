@@ -1,6 +1,5 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                #include <filesystem>
+#include <filesystem>
 #include <iostream>
-#include <fstream>
 #include <chrono>
 #include <random>
 
@@ -21,20 +20,35 @@ static int COLORS = 3;
 static int BATCH_SIZE = 1000;
 
 
-auto cifar_data = cifar::read_dataset<std::vector, std::vector, uint8_t, uint8_t>();
-
-af::array convert_data() {
+af::array get_data() {
     std::cout << "getting data" << std::endl;
     if (std::filesystem::exists("trainingdata")) {
         std::cout << "found training data" << std::endl;
-        auto training = cifar_data.training_images;
-        af::array out = af::array(50000, 3072);
-        for (int i = 0; i < training.size(); i++) {
-            out(i, af::span) = &training[i];
+        /*
+         *         std::vector<double> multi_pic_array;
+         *         multi_pic_array.reserve(60000 * 28 * 28);
+         *         char b;
+         *         for (int i = 0; i < 60000 * 28 *  28; ++i) {
+         *              f.get(b);
+         *              multi_pic_array.emplace_back(((double) ((unsigned char) b)) / 255.0);
+         *         }
+         *         return {28, 28, 60000, &multi_pic_array[0]};
+         */
+        std::vector<double> temp;
+        temp.reserve(153600000);
+        //TODO Read order ?
+        for(const auto &image : cifar::read_dataset<std::vector, std::vector, uint8_t, uint8_t>().training_images) {
+            /*for(int p = 0; p < 32*32; p++) {
+                for(int c = 0; c < 3; c++){
+                    temp.emplace_back(image[c*1024+p]);
+                }
+            }*/
+            for(auto pixel : image) {
+                temp.emplace_back(pixel);
+            }
         }
-        out = moddims(out, 32, 32, 3, 50000);
-        std::cout << "processed data" << std::endl;
-        return out;
+        std::cout << "processed data: " << temp.size() << " items" << std::endl;
+        return {32, 32, 3, 50000, &temp[0]};
     }
     else {
         std::cerr << "could not find training data, downloading not yet implemented" << std::endl;
@@ -42,14 +56,13 @@ af::array convert_data() {
     }
 }
 
-af::array data = convert_data();
+af::array data = get_data();
 
 template <typename T>
 af::array get_batch(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
 
     for(int i = 0; i < batch_size; ++i) {
-        std::vector<size_t> temp;
         batch_indices[i][0] = ((unsigned long)((get_rand() * 50000.)));
         batch_indices[i][1] = ((unsigned long)((RES_LOWER + get_rand() * (32 - 2*RES_LOWER))));
         batch_indices[i][2] = ((unsigned long)((RES_LOWER + get_rand() * (32 - 2*RES_LOWER))));
@@ -60,6 +73,7 @@ af::array get_batch(size_t batch_size){
     for (int i = 0; i < batch_indices.size(); ++i) {
         A(af::span, af::span, af::span, i) = data(af::seq(batch_indices[i][1] - RES_LOWER, batch_indices[i][1] + (RES_UPPER-1)), af::seq(batch_indices[i][2] - RES_LOWER, batch_indices[i][2] + (RES_UPPER-1)), af::span, batch_indices[i][0]);
     }
+    std::cout << A.dims() << std::endl;
     return A;
 }
 
@@ -87,29 +101,87 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
 template <typename T>
 void figure(const Model<T>& model){
-    std::vector<float> z(model.resolution * model.resolution, 0.0);
+    std::vector<float> z(model.resolution * model.resolution * model.colors, 0.0);
     const int nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
-    const int colors = 3;
+    // af_print(model.mu);
 
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
 
-            af::array af_z = model.mu( af::span, af::span, index);
+            af::array af_z = model.mu(af::span, af::span, af::span, index);
+            af_z = af_z - af::min(af::min(af::min(af_z))).scalar<T>();
+            af_z = af_z/af::max(af::max(af::max(af_z))).scalar<T>();
 
-            for(int i = 0; i < af_z.elements(); i++) {
+            /*for(int i = 0; i < af_z.elements(); i++) {
                 z[i] = (float) af_z(i).scalar<float>();
-            }
+            }*/
+
+            for(int i = 0; i < model.resolution; i++) {
+                for(int j = 0; j < model.resolution; j++) {
+                    for (int c = 0; c < model.colors; c++) {            // z layout
+                        z.push_back((af_z(i, j, c).scalar<float>()));   // R_1, G_1, B_1, R_2, G_2, B_2, R_3, ...
+                    }                                                   // imshow order
+                }                                                       // P_1  P_3
+            }                                                           // P_2  P_4
 
             plt::subplot2grid(nrows, ncols, row, col, 1, 1);
-            plt::imshow(zptr, model.resolution, model.resolution, colors);
+            plt::imshow(zptr, model.resolution, model.resolution, 3);
             plt::xticks(ticks);
             plt::yticks(ticks);
             plt::plot();
         }
     }
+}
+
+template <typename T>
+void test_image(int _res_) {
+    // TODO Test different row/column majors and RGB orders for imshow
+    std::cout << "Testing image" << std::endl;
+    RESOLUTION = _res_;
+    RES_LOWER = std::floor(_res_/2);
+    RES_UPPER = RESOLUTION - RES_LOWER;
+    Model<T> model(1.0, 0.5, 1, RESOLUTION, COLORS, LEARNING_RATE);
+
+    af::array image = get_batch<T>(1);
+    std::vector<float> z;
+    z.reserve(model.resolution * model.resolution * model.colors);
+
+    image = image - af::min(af::min(af::min(image))).scalar<T>();
+    image = image/af::max(af::max(af::max(image))).scalar<T>();
+
+    std::cout << "image dims: " << image.dims() << std::endl;
+    // TODO colors?
+    for(int c = 0; c < 3; c++){
+        for(int i = 0; i < RESOLUTION; i++) {
+            for (int j = 0; j < RESOLUTION; j++) {
+                auto temp = (float) image(i, j, c).scalar<float>();
+                z.emplace_back(temp);
+            }
+        }
+    }
+    /*
+    for(int i = 0; i < image.elements(); i++) {
+        z[i] = (float) image(i).scalar<float>();
+    }
+    */
+
+    for(auto item : z){
+        if(item > 255) {
+            std::cout << item << std::endl;
+        }
+        if(item < 0) {
+            std::cout << item << std::endl;
+        }
+    }
+    std::cout << std::endl;
+    std::cout << z.size() << std::endl;
+
+    const float* zptr = &(z[0]);
+    plt::imshow(zptr, RESOLUTION, RESOLUTION, 3);
+    plt::show();
 }
 
 template <typename T>
@@ -170,8 +242,9 @@ int main(int argc, char* argv[]) {
         RES_LOWER = std::floor(RESOLUTION/2);
         RES_UPPER = RESOLUTION - RES_LOWER;
 
-        experiment<float>('z', sigma, lambda, nbatches);
-        save_all<float>({'z'});
+        test_image<float>(RESOLUTION);
+        // experiment<float>('z', sigma, lambda, nbatches);
+        // save_all<float>({'z'});
     }
 
     Py_Finalize();

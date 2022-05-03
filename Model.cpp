@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 21.01.2022.
-//
-
 #include "Model.h"
 
 #include <fstream>
@@ -78,8 +74,6 @@ bool Model<T>::load(const char subfigure) {
         std::cout << "Invalid key" << std::endl;
         return false;
     }
-    std::cout << "loaded:" << std::endl;
-    af_print(mu);
     return true;
 }
 
