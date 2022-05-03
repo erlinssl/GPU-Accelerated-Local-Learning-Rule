@@ -34,17 +34,24 @@ af::array get_data() {
          *         }
          *         return {28, 28, 60000, &multi_pic_array[0]};
          */
-        std::vector<double> temp;
+        std::vector<float> temp;
         temp.reserve(153600000);
         //TODO Read order ?
-        for(const auto &image : cifar::read_dataset<std::vector, std::vector, uint8_t, uint8_t>().training_images) {
-            /*for(int p = 0; p < 32*32; p++) {
-                for(int c = 0; c < 3; c++){
-                    temp.emplace_back(image[c*1024+p]);
+        auto images = cifar::read_dataset<std::vector, std::vector, uint8_t, uint8_t>().training_images;
+        /*for(int p = 0; p < 32*32; p++) {
+            for(int c = 0; c < 3; c++){
+                temp.emplace_back(image[c*1024+p]);
+            }
+        }*/
+        for(int im = 0; im < images.size(); im++) {
+            std::vector<uint8_t> image = images[im];
+            for(int c = 0; c < 3; c++){
+                for(int i = 0; i < 32; i++){
+                    for(int j = 0; j < 32; j++){
+                        float pixel = image[c*32*32 + i*32 + j];
+                        temp.emplace_back(pixel);
+                    }
                 }
-            }*/
-            for(auto pixel : image) {
-                temp.emplace_back(pixel);
             }
         }
         std::cout << "processed data: " << temp.size() << " items" << std::endl;
@@ -70,10 +77,10 @@ af::array get_batch(size_t batch_size){
 
     std::vector<std::vector<std::vector<T>>> batch;
     af::array A = af::constant(0, RESOLUTION, RESOLUTION, COLORS, batch_indices.size());
+
     for (int i = 0; i < batch_indices.size(); ++i) {
         A(af::span, af::span, af::span, i) = data(af::seq(batch_indices[i][1] - RES_LOWER, batch_indices[i][1] + (RES_UPPER-1)), af::seq(batch_indices[i][2] - RES_LOWER, batch_indices[i][2] + (RES_UPPER-1)), af::span, batch_indices[i][0]);
     }
-    std::cout << A.dims() << std::endl;
     return A;
 }
 
@@ -101,23 +108,20 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
 template <typename T>
 void figure(const Model<T>& model){
-    std::vector<float> z(model.resolution * model.resolution * model.colors, 0.0);
     const int nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
-    const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
     // af_print(model.mu);
 
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
+            std::vector<float> z;
+            z.reserve(model.resolution * model.resolution * model.colors);
+            const float* zptr = &(z[0]);
             size_t index = row * nrows + col;
 
             af::array af_z = model.mu(af::span, af::span, af::span, index);
             af_z = af_z - af::min(af::min(af::min(af_z))).scalar<T>();
             af_z = af_z/af::max(af::max(af::max(af_z))).scalar<T>();
-
-            /*for(int i = 0; i < af_z.elements(); i++) {
-                z[i] = (float) af_z(i).scalar<float>();
-            }*/
 
             for(int i = 0; i < model.resolution; i++) {
                 for(int j = 0; j < model.resolution; j++) {
@@ -143,41 +147,24 @@ void test_image(int _res_) {
     RESOLUTION = _res_;
     RES_LOWER = std::floor(_res_/2);
     RES_UPPER = RESOLUTION - RES_LOWER;
-    Model<T> model(1.0, 0.5, 1, RESOLUTION, COLORS, LEARNING_RATE);
 
     af::array image = get_batch<T>(1);
     std::vector<float> z;
-    z.reserve(model.resolution * model.resolution * model.colors);
+    z.reserve(RESOLUTION * RESOLUTION * COLORS);
 
     image = image - af::min(af::min(af::min(image))).scalar<T>();
     image = image/af::max(af::max(af::max(image))).scalar<T>();
 
     std::cout << "image dims: " << image.dims() << std::endl;
-    // TODO colors?
-    for(int c = 0; c < 3; c++){
-        for(int i = 0; i < RESOLUTION; i++) {
-            for (int j = 0; j < RESOLUTION; j++) {
-                auto temp = (float) image(i, j, c).scalar<float>();
-                z.emplace_back(temp);
+    std::cout << image.dims() << std::endl;
+    for(int i = 0; i < RESOLUTION; i++) {
+        for (int j = 0; j < RESOLUTION; j++) {
+            for(int c = 0; c < 3; c++){
+            auto temp = (float) image(i, j, c).scalar<float>();
+            z.emplace_back(temp);
             }
         }
     }
-    /*
-    for(int i = 0; i < image.elements(); i++) {
-        z[i] = (float) image(i).scalar<float>();
-    }
-    */
-
-    for(auto item : z){
-        if(item > 255) {
-            std::cout << item << std::endl;
-        }
-        if(item < 0) {
-            std::cout << item << std::endl;
-        }
-    }
-    std::cout << std::endl;
-    std::cout << z.size() << std::endl;
 
     const float* zptr = &(z[0]);
     plt::imshow(zptr, RESOLUTION, RESOLUTION, 3);
@@ -242,9 +229,8 @@ int main(int argc, char* argv[]) {
         RES_LOWER = std::floor(RESOLUTION/2);
         RES_UPPER = RESOLUTION - RES_LOWER;
 
-        test_image<float>(RESOLUTION);
-        // experiment<float>('z', sigma, lambda, nbatches);
-        // save_all<float>({'z'});
+        experiment<float>('z', sigma, lambda, nbatches);
+        save_all<float>({'z'});
     }
 
     Py_Finalize();
