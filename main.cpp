@@ -48,7 +48,7 @@ af::array get_data() {
             for(int c = 0; c < 3; c++){
                 for(int i = 0; i < 32; i++){
                     for(int j = 0; j < 32; j++){
-                        float pixel = image[c*32*32 + i*32 + j];
+                        float pixel = image[c*32*32 + j*32 + i];
                         temp.emplace_back(pixel);
                     }
                 }
@@ -84,6 +84,90 @@ af::array get_batch(size_t batch_size){
     return A;
 }
 
+/*
+ * Used to get and display one random image/patch from the dataset.
+ * Useful for finding out if images are being properly imported.
+ * @param _res_ resolution of image patches, 0-32 for cifar
+ */
+template <typename T>
+void test_image(int _res_) {
+    // TODO Test different row/column majors and RGB orders for imshow
+    std::cout << "Testing image" << std::endl;
+    RESOLUTION = _res_;
+    RES_LOWER = std::floor(_res_/2);
+    RES_UPPER = RESOLUTION - RES_LOWER;
+
+    af::array image = get_batch<T>(1);
+    std::vector<float> z;
+    z.reserve(RESOLUTION * RESOLUTION * COLORS);
+
+    image = image - af::min(af::min(af::min(image))).scalar<T>();
+    image = image/af::max(af::max(af::max(image))).scalar<T>();
+
+    std::cout << "image dims: " << image.dims() << std::endl;
+    std::cout << image.dims() << std::endl;
+    for(int i = 0; i < RESOLUTION; i++) {
+        for (int j = 0; j < RESOLUTION; j++) {
+            for(int c = 0; c < 3; c++){
+                auto temp = (float) image(i, j, c).scalar<float>();
+                z.emplace_back(temp);
+            }
+        }
+    }
+
+    const float* zptr = &(z[0]);
+    plt::imshow(zptr, RESOLUTION, RESOLUTION, 3);
+    plt::show();
+}
+
+
+/*
+ * Gets a number of images equal to the amount of filters being used and displays them.
+ * @param _res_ resolution of image patches
+ */
+template <typename T>
+void test_batch(int _res_){
+    std::cout << "Testing batch" << std::endl;
+    RESOLUTION = _res_;
+    RES_LOWER = std::floor(_res_/2);
+    RES_UPPER = RESOLUTION - RES_LOWER;
+
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION, COLORS, LEARNING_RATE);
+    model.mu = get_batch<T>(GRID_SIZE*GRID_SIZE);
+    std::cout << "Plotting batch" << std::endl;
+    plt::Plot plot("test_plot");
+    figure(model);
+    plt::show();
+}
+
+/*
+ * Similar to test_image but takes a specific af::array containing an image
+ * instead of getting a random one from the dataset.
+ * Useful for checking images at certain points in the process.
+ * @param image af::array containing the image to be displayed
+ * @param _res resolution of the image patch
+ * @param _colors number of colors in image
+ */
+template <typename T>   // TODO Enhancement: Get _res and _colors from image.dims() instead
+void show_image(const af::array& image, int _res = 5, int _colors = 3) {
+    std::vector<float> z;
+    z.reserve(image.elements());
+    const float* zptr = &(z[0]);
+    af::array temp = image - af::min(af::min(af::min(image))).scalar<float>();
+    temp = temp / af::max(af::max(af::max(temp))).scalar<float>();
+
+    for(int i = 0; i < _res; i++) {
+        for (int j = 0; j < _res; ++j) {
+            for(int c = 0; c < _colors; c++) {
+                z.push_back(temp(i, j, c).scalar<float>());
+            }
+        }
+    }
+    plt::imshow(zptr, _res, _res, _colors);
+    plt::plot();
+    plt::show();
+}
+
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     auto start = std::chrono::high_resolution_clock::now();
@@ -110,7 +194,6 @@ template <typename T>
 void figure(const Model<T>& model){
     const int nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
     std::vector<int> ticks = {};
-    // af_print(model.mu);
 
     for(int row = 0; row < nrows; row++){
         for(int col = 0; col < ncols; col++){
@@ -138,52 +221,6 @@ void figure(const Model<T>& model){
             plt::plot();
         }
     }
-}
-
-template <typename T>
-void test_image(int _res_) {
-    // TODO Test different row/column majors and RGB orders for imshow
-    std::cout << "Testing image" << std::endl;
-    RESOLUTION = _res_;
-    RES_LOWER = std::floor(_res_/2);
-    RES_UPPER = RESOLUTION - RES_LOWER;
-
-    af::array image = get_batch<T>(1);
-    std::vector<float> z;
-    z.reserve(RESOLUTION * RESOLUTION * COLORS);
-
-    image = image - af::min(af::min(af::min(image))).scalar<T>();
-    image = image/af::max(af::max(af::max(image))).scalar<T>();
-
-    std::cout << "image dims: " << image.dims() << std::endl;
-    std::cout << image.dims() << std::endl;
-    for(int i = 0; i < RESOLUTION; i++) {
-        for (int j = 0; j < RESOLUTION; j++) {
-            for(int c = 0; c < 3; c++){
-            auto temp = (float) image(i, j, c).scalar<float>();
-            z.emplace_back(temp);
-            }
-        }
-    }
-
-    const float* zptr = &(z[0]);
-    plt::imshow(zptr, RESOLUTION, RESOLUTION, 3);
-    plt::show();
-}
-
-template <typename T>
-void test_batch(int _res_){
-    std::cout << "Testing batch" << std::endl;
-    RESOLUTION = _res_;
-    RES_LOWER = std::floor(_res_/2);
-    RES_UPPER = RESOLUTION - RES_LOWER;
-
-    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION, COLORS, LEARNING_RATE);
-    model.mu = get_batch<T>(GRID_SIZE*GRID_SIZE);
-    std::cout << "Plotting batch" << std::endl;
-    plt::Plot plot("test_plot");
-    figure(model);
-    plt::show();
 }
 
 template <typename T>
