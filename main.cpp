@@ -3,7 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
-#include "Arrays.h"
+
 #include "Model.h"
 #include "dependencies/matplotlibcpp.h"
 
@@ -145,7 +145,7 @@ void save_all(const std::vector<char>& figs){
 int main(int argc, char* argv[]) {
     /////// EXPERIMENTS
     // TODO af seeds not necessarily consistent with other versions of program, \
-        consider use random() and inserting into arrays, might not be necessary
+        consider use random() and inserting into arrays, or mention difference
     af::setSeed(1234);
 
     if (argc < 7){
