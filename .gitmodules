@@ -1,6 +1,6 @@
-[submodule "cifar-10"]
-	path = cifar-10
-	url = git@github.com:wichtounet/cifar-10.git
 [submodule "arrayfire"]
 	path = arrayfire
 	url = https://github.com/arrayfire/arrayfire
+[submodule "cifar-10"]
+	path = cifar-10
+	url = git@github.com:wichtounet/cifar-10.git
