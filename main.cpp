@@ -95,7 +95,8 @@ CubeArray<T> get_batch_revised(size_t batch_size){
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::steady_clock::now();
+
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION, learning_rate);
 
     short num_threads = 10;
@@ -128,10 +129,13 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
         std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()
         << "ms" << std::endl;
     }
-    auto stop = std::chrono::high_resolution_clock::now();
+
+    auto stop = std::chrono::steady_clock::now();
+    std::clog <<
+              std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "," << model.sigma << ","
+              << model.lambda <<  "," << model.filters << "," << model.resolution <<  "," << BATCH_SIZE << "," << nbatches;
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
-    std::clog << (stop - start).count() << "," << model.sigma << "," << model.lambda <<  "," << model.filters << "," << model.resolution <<  "," << BATCH_SIZE << "," << nbatches;
     model.save(subfigure);
 }
 
