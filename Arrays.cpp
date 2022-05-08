@@ -1,10 +1,3 @@
-//
-// Created by ingebrigt on 27.01.2022.
-//
-
-// TODO Refactor usages of 2D arrays
-
-
 #include "Arrays.h"
 
 #include <utility>
@@ -33,13 +26,6 @@ SquareArray<T>::SquareArray(size_t nrows_, size_t ncols_) {
         arr.emplace_back(get_rand());
     }
 }
-
-/*
-template <typename T>
-std::vector<T> SquareArray<T>::operator[](size_t i) {
-    return std::vector<T>(arr.begin() + nrows * i, arr.begin() + nrows * i + ncols);
-}
- */
 
 // TODO Might need to directly reference the actual vector?
 template <typename T>

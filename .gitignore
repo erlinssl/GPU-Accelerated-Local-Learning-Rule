@@ -6,3 +6,5 @@ saved/
 ignore/
 data/MNIST/
 CMakeFiles/
+arrayfire/
+cifar-10/

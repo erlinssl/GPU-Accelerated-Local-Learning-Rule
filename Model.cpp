@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 21.01.2022.
-//
-
 #include "Model.h"
 
 #include <utility>
@@ -39,7 +35,6 @@ void Model<T>::update(SquareArray<T> const &x) {
     thread_diff += filters % num_threads;
     for (int i = 0; i < num_threads; ++i) {
         int end = start + thread_diff;
-        //std::cout << "start: " << start << " - end: " << end << std::endl;
         threads.push_back(std::thread([this, start, end, &diffs, x]{
             CubeArray<T> diff(true, filters, resolution, resolution);
             for (size_t i1 = start; i1 < end; ++i1) {
@@ -110,17 +105,6 @@ void Model<T>::save(const char &subfigure) {
         }
         output_file << "\n";
     }
-
-    /*
-    for (int x = 0; x < filters; ++x) {
-        for (int y = 0; y < resolution; ++y) {
-            std::ostream_iterator<double> output_iterator(output_file, " ");
-            std::copy(w.cube.begin(), w.cube.begin() + resolution, output_iterator);
-            output_file << "\n";
-        }
-        output_file << "\n";
-    }
-    */
 }
 
 static inline void rtrim(std::string &s) {
@@ -149,7 +133,7 @@ bool Model<T>::load(const char &subfigure) {
         rtrim(line);
         // TODO The following line may or may not need to be active, depending on system locale \
             If filter plots are empty, try (un)commenting it.
-        //std::replace(line.begin(), line.end(), '.', ',');
+        std::replace(line.begin(), line.end(), '.', ',');
         size_t last = 0, next;
         while ((next = line.find(DELIMITER, last)) != std::string::npos) {
             inner.emplace_back(std::stod(line.substr(last, next-last)));

@@ -111,6 +111,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "," << model.sigma << ","
               << model.lambda <<  "," << model.filters << "," << model.resolution <<  "," << BATCH_SIZE << "," << nbatches;
     model.save(subfigure);
+    figure(model);
 }
 
 
