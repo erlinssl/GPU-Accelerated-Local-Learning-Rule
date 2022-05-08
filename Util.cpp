@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 19.02.2022.
-//
-
 #include <random>
 
 static std::random_device rd;

@@ -5,10 +5,10 @@
 #include <memory>
 #include <string>
 #include <filesystem>
-#include <iostream>
+#include <array>
+#include <cmath>
 
 #include <arrayfire.h>
-#include "Util.cpp"
 
 
 template <typename T>

@@ -1,7 +1,8 @@
 #include "Model.h"
 
-#include <fstream>
+#include <iostream>
 #include <iterator>
+#include <vector>
 
 template <typename T>
 std::vector<std::vector<T>> operator-=(af::array &x, af::array &y) {
