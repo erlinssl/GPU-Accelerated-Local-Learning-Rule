@@ -33,7 +33,7 @@ void Model<T>::update(int j) {
     kernel.set_arg(3,j);
 
     using compute::uint_;
-    queue.enqueue_1d_range_kernel(kernel, 0, filters,0);
+    queue.enqueue_nd_range_kernel(kernel, compute::dim(0, 0, 0), compute::dim(filters, resolution, resolution), compute::dim(1,resolution, resolution));
 }
 
 
@@ -127,19 +127,15 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
 
             __kernel void SMA(__global double *mu, __local double *diff, __global double *x_vec, int current_batch) {
                 int i1 = get_global_id(0);
-                for (int j = 0; j < resolution * resolution; ++j) {
-                    diff[i1 * resolution * resolution + j] = (x_vec[current_batch * resolution * resolution + j] - mu[i1 * resolution * resolution + j]) * f(i1,  mu, &x_vec[current_batch * resolution * resolution]);
-                }
-                for(int i2 = 0; i2 < filters; ++i2) {
-                    if (i1 != i2) {
-                        for (int k = 0; k < resolution * resolution; ++k) {
-                            diff[i1 * resolution * resolution + k] -= 2.0 * lambda * (mu[i2 * resolution * resolution + k] - mu[i1 * resolution * resolution + k]) * f(i1, mu, &mu[i2 * resolution * resolution]);
-                        }
+                int i2 = get_local_id(1);
+                int i3 = get_local_id(2);
+                diff[i1 * resolution * resolution + i2 * resolution + i3] = (x_vec[current_batch * resolution * resolution + i2 * resolution + i3] - mu[i1 * resolution * resolution + i2 * resolution + i3]) * f(i1,  mu, &x_vec[current_batch * resolution * resolution]);
+                for(int f2 = 0; f2 < filters; ++f2) {
+                    if (i1 != f2) {
+                        diff[i1 * resolution * resolution + i2 * resolution + i3] -= 2.0 * lambda * (mu[f2 * resolution * resolution + i2 * resolution + i3] - mu[i1 * resolution * resolution + i2 * resolution + i3]) * f(i1, mu, &mu[f2 * resolution * resolution]);
                     }
                 }
-                for (int i = 0; i < resolution * resolution; ++i) {
-                    mu[i1 * resolution * resolution + i] += diff[i1 * resolution * resolution + i] * learning_rate / sigma;
-                }
+                mu[i1 * resolution * resolution + i2 * resolution + i3] += diff[i1 * resolution * resolution + i2 * resolution + i3] * learning_rate / sigma;
             }
             __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, __global double *out) {
                 int i = get_global_id(0);
