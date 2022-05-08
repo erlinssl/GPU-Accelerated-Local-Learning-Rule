@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 21.01.2022.
-//
-
 #ifndef FILTER_FINDER_MODEL_H
 #define FILTER_FINDER_MODEL_H
 
@@ -9,10 +5,10 @@
 #include <memory>
 #include <string>
 #include <filesystem>
+#include <array>
+#include <cmath>
 
 #include <arrayfire.h>
-
-#include "Arrays.h"
 
 
 template <typename T>

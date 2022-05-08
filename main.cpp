@@ -1,10 +1,10 @@
 #include <filesystem>
-#include <iostream>
 #include <fstream>
 #include <chrono>
 #include <random>
-#include "Arrays.h"
+
 #include "Model.h"
+#include "Util.cpp"
 #include "dependencies/matplotlibcpp.h"
 
 namespace plt = matplotlibcpp;
