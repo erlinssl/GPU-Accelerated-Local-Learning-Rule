@@ -14,6 +14,8 @@ namespace plt = matplotlibcpp;
 double learning_rate = 0.1;
 static int GRID_SIZE = 4;
 static int RESOLUTION = 5;
+static int LOWER_RES = 2;
+static int UPPER_RES = 3;
 static int BATCH_SIZE = 1000;
 
 CubeArray<double> get_data() {
@@ -65,20 +67,20 @@ CubeArray<double> get_data() {
 auto data = get_data();
 
 template <typename T>
-CubeArray<T> get_batch_revised(size_t batch_size){
+CubeArray<T> get_batch(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     for(size_t i = 0; i < batch_size; ++i) {
         batch_indices[i][0] = ((int)((get_rand() * 60000.)));
         // todo hardcoded shapes
-        batch_indices[i][1] = ((int)((2 + get_rand() * (28 - 4))));
-        batch_indices[i][2] = ((int)((2 + get_rand() * (28 - 4))));
+        batch_indices[i][1] = ((int)((LOWER_RES + get_rand() * (28 - 2*LOWER_RES))));
+        batch_indices[i][2] = ((int)((LOWER_RES + get_rand() * (28 - 2*LOWER_RES))));
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
 
     for (size_t i = 0; i < batch_indices.size(); ++i) {
         auto dt = data[batch_indices[i][0]];
-        batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
+        batch.emplace_back( dt.get_slices(batch_indices[i][1] - LOWER_RES, batch_indices[i][1] + UPPER_RES, batch_indices[i][2] - LOWER_RES, batch_indices[i][2] + UPPER_RES));
     }
 
     return CubeArray<T>(batch);
@@ -89,10 +91,11 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     // TODO Set random seed for consistent experiments
     auto start = std::chrono::steady_clock::now();
     Model<T> model(sigma, lambda_, GRID_SIZE, RESOLUTION, learning_rate);
+    figure(model);
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
+        CubeArray<T> batch = get_batch<double>(BATCH_SIZE);
         for (size_t j = 0; j < BATCH_SIZE; j++){
             model.update(batch[j]);
         }
@@ -134,6 +137,16 @@ void figure(const Model<T>& model){
 }
 
 template <typename T>
+void test_batch() {
+    CubeArray<T> batch = get_batch<double>(GRID_SIZE*GRID_SIZE);
+    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
+    model.w = batch;
+
+    figure(model);
+    plt::show();
+}
+
+template <typename T>
 void save_all(const std::vector<char>& figs){
     plt::Plot plot("sub_fig");
 
@@ -166,10 +179,13 @@ int main(int argc, char* argv[]) {
         BATCH_SIZE = std::stoi(argv[5]);
         RESOLUTION = std::stoi(argv[6]);
         learning_rate = std::stod(argv[7]);
+
+        LOWER_RES = std::floor(RESOLUTION/2);
+        UPPER_RES = RESOLUTION - LOWER_RES;
     }
 
-    experiment<double>('a', sigma, lambda, nbatches);
-    //save_all<double>({'a'});
+    experiment<double>('z', sigma, lambda, nbatches);
+    save_all<double>({'z'});
 
     Py_Finalize();
     return 0;
