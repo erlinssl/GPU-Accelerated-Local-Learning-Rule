@@ -36,7 +36,7 @@ public:
     compute::command_queue queue;
     compute::program program;
     explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_, int batch_size_, double learning_rate = 0.1) :  sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), batch_size(batch_size_) {
-        results.resize(grid_size_ * grid_size_ * resolution * resolution);
+        results.resize(filters * resolution * resolution);
         for(auto &a : results) {
             a = get_rand();
         }
@@ -53,6 +53,12 @@ public:
         kernel_options.append(std::to_string(batch_size));
         kernel_options.append(" -Dlearning_rate=");
         kernel_options.append(std::to_string(learning_rate));
+        kernel_options.append(" -Dlower_res=");
+        int lower_res = resolution / 2;
+        kernel_options.append(std::to_string(lower_res));
+        kernel_options.append(" -Dupper_res=");
+        kernel_options.append(std::to_string(resolution - lower_res));
+
 
 
 

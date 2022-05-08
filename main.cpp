@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
     }
 
     experiment<double>('a', sigma, lambda, nbatches);
-    //save_all<double>({'a'});
+    save_all<double>({'a'});
 
     Py_Finalize();
     return 0;

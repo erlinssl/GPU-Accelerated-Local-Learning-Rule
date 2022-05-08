@@ -144,13 +144,13 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
             __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, __global double *out) {
                 int i = get_global_id(0);
                     batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
-                    batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 4));
-                    batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 4));
+                    batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 2 * (resolution / 2)));
+                    batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 2 * (resolution / 2)));
 
-                    int outer_from = batch_indices[i * 3 + 1] - 2;
-                    int outer_to = batch_indices[i * 3 + 1] + 3;
-                    int inner_from = batch_indices[i * 3 + 2] - 2;
-                    int inner_to = batch_indices[i * 3 + 2] + 3;
+                    int outer_from = batch_indices[i * 3 + 1] - lower_res;
+                    int outer_to = batch_indices[i * 3 + 1] + upper_res;
+                    int inner_from = batch_indices[i * 3 + 2] - lower_res;
+                    int inner_to = batch_indices[i * 3 + 2] + upper_res;
                     for (int j = outer_from; j < outer_to; ++j) {
                         for (int k = inner_from; k < inner_to; ++k) {
                              out[i * (outer_to - outer_from) * (inner_to - inner_from) + (j - outer_from) * (inner_to - inner_from) + k - inner_from] =
