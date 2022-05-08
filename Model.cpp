@@ -30,7 +30,7 @@ std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, Squa
 
 template <typename T>
 void Model<T>::update(int j) {
-    kernel.set_arg(3,j);
+    kernel.set_arg(2,j);
 
     using compute::uint_;
     queue.enqueue_nd_range_kernel(kernel, compute::dim(0, 0, 0), compute::dim(filters, resolution, resolution), compute::dim(1,resolution, resolution));
@@ -125,34 +125,34 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 return sum;
             }
 
-            __kernel void SMA(__global double *mu, __local double *diff, __global double *x_vec, int current_batch) {
+            __kernel void SMA(__global double *mu, __global double *x_vec, int current_batch) {
                 int i1 = get_global_id(0);
                 int i2 = get_local_id(1);
                 int i3 = get_local_id(2);
-                diff[i1 * resolution * resolution + i2 * resolution + i3] = (x_vec[current_batch * resolution * resolution + i2 * resolution + i3] - mu[i1 * resolution * resolution + i2 * resolution + i3]) * f(i1,  mu, &x_vec[current_batch * resolution * resolution]);
+                double diff = (x_vec[current_batch * resolution * resolution + i2 * resolution + i3] - mu[i1 * resolution * resolution + i2 * resolution + i3]) * f(i1,  mu, &x_vec[current_batch * resolution * resolution]);
                 for(int f2 = 0; f2 < filters; ++f2) {
                     if (i1 != f2) {
-                        diff[i1 * resolution * resolution + i2 * resolution + i3] -= 2.0 * lambda * (mu[f2 * resolution * resolution + i2 * resolution + i3] - mu[i1 * resolution * resolution + i2 * resolution + i3]) * f(i1, mu, &mu[f2 * resolution * resolution]);
+                        diff -= 2.0 * lambda * (mu[f2 * resolution * resolution + i2 * resolution + i3] - mu[i1 * resolution * resolution + i2 * resolution + i3]) * f(i1, mu, &mu[f2 * resolution * resolution]);
                     }
                 }
-                mu[i1 * resolution * resolution + i2 * resolution + i3] += diff[i1 * resolution * resolution + i2 * resolution + i3] * learning_rate / sigma;
+                mu[i1 * resolution * resolution + i2 * resolution + i3] += diff * learning_rate / sigma;
             }
             __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, __global double *out) {
                 int i = get_global_id(0);
-                    batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
-                    batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 2 * (resolution / 2)));
-                    batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 2 * (resolution / 2)));
+                batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
+                batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 2 * (resolution / 2)));
+                batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 2 * (resolution / 2)));
 
-                    int outer_from = batch_indices[i * 3 + 1] - lower_res;
-                    int outer_to = batch_indices[i * 3 + 1] + upper_res;
-                    int inner_from = batch_indices[i * 3 + 2] - lower_res;
-                    int inner_to = batch_indices[i * 3 + 2] + upper_res;
-                    for (int j = outer_from; j < outer_to; ++j) {
-                        for (int k = inner_from; k < inner_to; ++k) {
-                             out[i * (outer_to - outer_from) * (inner_to - inner_from) + (j - outer_from) * (inner_to - inner_from) + k - inner_from] =
-                                     data[batch_indices[i * 3] * 28 * 28 + j * 28 + k ];
-                        }
+                int outer_from = batch_indices[i * 3 + 1] - lower_res;
+                int outer_to = batch_indices[i * 3 + 1] + upper_res;
+                int inner_from = batch_indices[i * 3 + 2] - lower_res;
+                int inner_to = batch_indices[i * 3 + 2] + upper_res;
+                for (int j = outer_from; j < outer_to; ++j) {
+                    for (int k = inner_from; k < inner_to; ++k) {
+                         out[i * (outer_to - outer_from) * (inner_to - inner_from) + (j - outer_from) * (inner_to - inner_from) + k - inner_from] =
+                                 data[batch_indices[i * 3] * 28 * 28 + j * 28 + k ];
                     }
+                }
             }
 
     );

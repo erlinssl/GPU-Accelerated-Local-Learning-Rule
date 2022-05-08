@@ -71,8 +71,7 @@ public:
         kernel = compute::kernel(program, "SMA");
 
         kernel.set_arg(0,mugpu.get_buffer());
-        clSetKernelArg(kernel, 1, image_res_ * image_res_ * filters * sizeof(double), NULL);
-        kernel.set_arg(2,batch_data.get_buffer());
+        kernel.set_arg(1,batch_data.get_buffer());
     };
 
     void update(int j);
