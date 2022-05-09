@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 27.01.2022.
-//
-
 #ifndef FILTER_FINDER_ARRAYS_H
 #define FILTER_FINDER_ARRAYS_H
 

@@ -7,3 +7,5 @@ ignore/
 data/MNIST/
 CMakeFiles/
 stats/
+arrayfire/
+cifar-10/

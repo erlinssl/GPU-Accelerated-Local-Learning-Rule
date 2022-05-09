@@ -18,9 +18,14 @@ double figsize_scale = 0.2;
 static double learning_rate = 0.1;
 static int GRID_SIZE = 4;
 static int RESOLUTION = 5;
+static int LOWER_RES = 3;
+static int UPPER_RES = 2;
 static int BATCH_SIZE = 1000;
 
-
+/*
+ * Reads the MNIST dataset from binary file located at "./data/train-images-idx3-ubyte"
+ * @return an array filled with the pixel data of handwritten numbers
+ */
 CubeArray<double> get_data() {
     std::cout << "getting data" << std::endl;
 
@@ -69,22 +74,27 @@ CubeArray<double> get_data() {
 
 auto data = get_data();
 
+/*
+ * Used to get some number of patches that each represent a random part of one of the 60000 images from the dataset
+ * @param batch_size the number of patches to get
+ * @return a (batch_size, RESOLUTION, RESOLUTION) array of samples/patches
+ */
 template <typename T>
-CubeArray<T> get_batch_revised(size_t batch_size){
+CubeArray<T> get_batch(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
     for(int i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         batch_indices[i][0] = ((int)((get_rand() * 60000.)));
         // todo hardcoded shapes
-        batch_indices[i][1] = ((int)((2 + get_rand() * (28 - 4))));
-        batch_indices[i][2] = ((int)((2 + get_rand() * (28 - 4))));
+        batch_indices[i][1] = ((int)((LOWER_RES + get_rand() * (28 - 2*LOWER_RES))));
+        batch_indices[i][2] = ((int)((LOWER_RES + get_rand() * (28 - 2*LOWER_RES))));
     }
 
     std::vector<std::vector<std::vector<T>>> batch;
 
     for (int i = 0; i < batch_indices.size(); ++i) {
         auto dt = data[batch_indices[i][0]];
-        batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
+        batch.emplace_back( dt.get_slices(batch_indices[i][1] - LOWER_RES, batch_indices[i][1] + UPPER_RES, batch_indices[i][2] - LOWER_RES, batch_indices[i][2] + UPPER_RES));
     }
 
     return CubeArray<T>(batch);
@@ -92,6 +102,11 @@ CubeArray<T> get_batch_revised(size_t batch_size){
 
 static std::vector<long> ex_times;
 
+/*
+ * The main method used for finding filters
+ * @param subfigure char to be used for saving/loading
+ * @param nbatches number of batches to run through
+ */
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     // TODO Set random seed for consistent experiments
@@ -100,7 +115,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 
     for (size_t i = 0; i < nbatches; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        CubeArray<T> batch = get_batch_revised<double>(BATCH_SIZE);
+        CubeArray<T> batch = get_batch<double>(BATCH_SIZE);
         for (size_t j = 0; j < BATCH_SIZE; j++){
             model.update(batch[j]);
         }
@@ -119,12 +134,9 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     model.save(subfigure);
 }
 
-void print_stats(){
-    for (auto time : ex_times) {
-        std::cout << time << std::endl;
-    }
-}
-
+/*
+ * Method used to plot a model's mu
+ */
 template <typename T>
 void figure(const Model<T>& model){
     std::vector<float> z(model.resolution * model.resolution, 0.0);
@@ -147,16 +159,25 @@ void figure(const Model<T>& model){
     }
 }
 
+/*
+ * Gets a number of images equal to the amount of filters being used and displays them.
+ * Useful for finding out if dataset was properly read
+ */
 void test_batch(){
     std::cout << "Testing batch" << std::endl;
     Model<double> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
-    model.w = get_batch_revised<double>(16);
+    model.w = get_batch<double>(16);
     std::cout << "Plotting batch" << std::endl;
     plt::Plot plot("test_plot");
     figure(model);
     plt::show();
 }
 
+/*
+ * Loads a model with previously found filters and then calls figure to show them graphically.
+ * Originally used to save .pgf files, thus the name save_all
+ * @param figs f.ex. {'a', 'b', 'c'}, depending on which subfigs to be loaded
+ */
 template <typename T>
 void save_all(const std::vector<char>& figs){
     plt::Plot plot("sub_fig");
@@ -168,12 +189,6 @@ void save_all(const std::vector<char>& figs){
         model.load(fig);
         figure(model);
         plt::show();
-        /*
-         std::string path = "../saved/figure2"
-         path.emplace_back(fig);
-         path.append(".pgf");
-         plt::save(path);
-        */
     }
 }
 
@@ -190,10 +205,13 @@ int main(int argc, char* argv[]) {
         BATCH_SIZE = std::stoi(argv[5]);
         RESOLUTION = std::stoi(argv[6]);
         learning_rate = std::stod(argv[7]);
+
+        LOWER_RES = std::floor(RESOLUTION/2);
+        UPPER_RES = RESOLUTION - LOWER_RES;
     }
 
     experiment<double>('a', sigma, lambda, nbatches);
-    //save_all<double>({'a'});
+    save_all<double>({'a'});
 
     Py_Finalize();
     return 0;
