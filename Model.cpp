@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 21.01.2022.
-//
-
 #include "Model.h"
 
 #include <utility>
@@ -9,7 +5,6 @@
 #include <iterator>
 
 #define DELIMITER ' '
-
 
 
 template <typename T>
@@ -43,7 +38,9 @@ void Model<T>::update(SquareArray<T> const &x) {
     w += ((diff * learning_rate) / sigma);
 }
 
-/* Saved array
+/*
+ * Saves an array to file with following format
+ *
  * 1 2
  * 3 4
  *
@@ -64,7 +61,6 @@ void Model<T>::update(SquareArray<T> const &x) {
  *  [[3 2],
  *   [4 1] ]]
 */
-
 template <typename T>
 void Model<T>::save(const char &subfigure) {
     std::string path = "../saved/figure2";
@@ -84,25 +80,23 @@ void Model<T>::save(const char &subfigure) {
         }
         output_file << "\n";
     }
-
-    /*
-    for (int x = 0; x < filters; ++x) {
-        for (int y = 0; y < resolution; ++y) {
-            std::ostream_iterator<double> output_iterator(output_file, " ");
-            std::copy(w.cube.begin(), w.cube.begin() + resolution, output_iterator);
-            output_file << "\n";
-        }
-        output_file << "\n";
-    }
-    */
 }
 
+/*
+ * Trims the right side of given string to ensure there isn't any excess whitespace
+ * @param s string to trim
+ */
 static inline void rtrim(std::string &s) {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
         return !std::isspace(ch);
     }).base(), s.end());
 }
 
+/*
+ * Reads a file and loads numbers into a model's mu
+ * @param subfigure char representing the subfigure to load
+ * @return true if mu was properly loaded
+ */
 template <typename T>
 bool Model<T>::load(const char &subfigure) {
     std::string path = "../saved/figure2";
