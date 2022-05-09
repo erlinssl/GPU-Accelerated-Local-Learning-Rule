@@ -31,11 +31,6 @@ void Model<T>::update(af::array const &x) {
                 af::array mu2_copy = -mu;
                 mu2_copy(af::span, af::span, i1) += mu(af::span, af::span, i2);
                 diff -= (mu2_copy * (2.0 * lambda * af::exp(-af::sum(af::sum(af::pow(mu2_copy, 2))) / sigma)));
-
-                // TODO Conditional non-functional
-                    // af::array condition = (i1 != i2); // Shape [1, 1, 1, 8]
-                    // condition.as(f32) * (...)
-                    // moddims((i1 != i2), 1, 1, filters);
             }
         }
         mu += ((diff * learning_rate) / sigma);

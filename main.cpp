@@ -17,7 +17,10 @@ static int RES_LOWER = 2;
 static int RES_UPPER = 3;
 static int BATCH_SIZE = 1000;
 
-
+/*
+ * Reads the MNIST dataset from binary file located at "./data/train-images-idx3-ubyte"
+ * @return an array filled with the pixel data of handwritten numbers
+ */
 af::array get_data() {
     std::cout << "getting data" << std::endl;
     if (std::filesystem::exists("trainingdata")) {
@@ -44,6 +47,11 @@ af::array get_data() {
 }
 
 af::array data = get_data();
+/*
+ * Used to get some number of patches that each represent a random part of one of the 60000 images from the dataset
+ * @param batch_size the number of patches to create
+ * @return a (RESOLUTION, RESOLUTION, batch_size) array of samples/patches
+ */
 template <typename T>
 af::array get_batch(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
@@ -63,6 +71,11 @@ af::array get_batch(size_t batch_size){
     return A;
 }
 
+/*
+ * The main method used for finding filters
+ * @param subfigure char to be used for saving/loading
+ * @param nbatches number of batches to run through
+ */
 template <typename T>
 void experiment(const char subfigure, double sigma, double lambda_, size_t nbatches){
     auto start = std::chrono::high_resolution_clock::now();
@@ -82,9 +95,13 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Experiment " << subfigure <<" ended after " <<
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
+    std::clog << (stop - start).count() << "," << model.sigma << "," << model.lambda <<  "," << model.filters << "," << model.resolution <<  "," << BATCH_SIZE << "," << nbatches;
     model.save(subfigure);
 }
 
+/*
+ * Method used to plot a model's mu
+ */
 template <typename T>
 void figure(const Model<T>& model){
     std::vector<float> z(model.resolution * model.resolution, 0.0);
@@ -112,6 +129,10 @@ void figure(const Model<T>& model){
     }
 }
 
+/*
+ * Gets a number of images equal to the amount of filters being used and displays them.
+ * Useful for finding out if dataset was properly read
+ */
 template <typename T>
 void test_batch(int _res_){
     std::cout << "Testing batch" << std::endl;
@@ -127,6 +148,11 @@ void test_batch(int _res_){
     plt::show();
 }
 
+/*
+ * Loads a model with previously found filters and then calls figure to show them graphically.
+ * Originally used to save .pgf files, thus the name save_all
+ * @param figs f.ex. {'a', 'b', 'c'}, depending on which subfigs to be loaded
+ */
 template <typename T>
 void save_all(const std::vector<char>& figs){
     plt::Plot plot("sub_fig");
@@ -171,7 +197,7 @@ int main(int argc, char* argv[]) {
         RES_UPPER = RESOLUTION - RES_LOWER;
 
         experiment<float>('z', sigma, lambda, nbatches);
-        save_all<float>({'z'});
+        // save_all<float>({'z'});
     }
 
     Py_Finalize();
