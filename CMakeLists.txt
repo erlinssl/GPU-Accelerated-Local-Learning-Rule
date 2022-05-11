@@ -2,12 +2,10 @@ cmake_minimum_required(VERSION 3.18)
 project(filter_finder)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3")
 set(SOURCE_FILES main.cpp)
 
 find_package (Python3 COMPONENTS Development NumPy)
-
-add_definitions(-w) # TODO Remove
 
 add_executable(filter_finder main.cpp Model.cpp Arrays.cpp)
 

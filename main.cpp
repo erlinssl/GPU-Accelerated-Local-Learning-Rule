@@ -20,7 +20,7 @@ static int GRID_SIZE = 4;
 static int RESOLUTION = 5;
 static int LOWER_RES = 3;
 static int UPPER_RES = 2;
-static int BATCH_SIZE = 1000;
+static size_t BATCH_SIZE = 1000;
 
 /*
  * Reads the MNIST dataset from binary file located at "./data/train-images-idx3-ubyte"
@@ -82,7 +82,7 @@ auto data = get_data();
 template <typename T>
 CubeArray<T> get_batch(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
-    for(int i = 0; i < batch_size; ++i) {
+    for(size_t i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         batch_indices[i][0] = ((int)((get_rand() * 60000.)));
         // todo hardcoded shapes
@@ -92,7 +92,7 @@ CubeArray<T> get_batch(size_t batch_size){
 
     std::vector<std::vector<std::vector<T>>> batch;
 
-    for (int i = 0; i < batch_indices.size(); ++i) {
+    for (size_t i = 0; i < batch_indices.size(); ++i) {
         auto dt = data[batch_indices[i][0]];
         batch.emplace_back( dt.get_slices(batch_indices[i][1] - LOWER_RES, batch_indices[i][1] + UPPER_RES, batch_indices[i][2] - LOWER_RES, batch_indices[i][2] + UPPER_RES));
     }

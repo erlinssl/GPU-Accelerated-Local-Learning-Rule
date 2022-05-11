@@ -17,13 +17,14 @@ public:
     size_t nrows;
     size_t ncols;
 
-    SquareArray(size_t nrows_, size_t ncols_);
     explicit SquareArray(std::vector<T> x);
-    SquareArray(size_t outer, size_t inner, size_t empty_array_indicator) : arr(), nrows(outer), ncols(inner) {};
+    SquareArray(size_t outer, size_t inner) : arr(), nrows(outer), ncols(inner) {};
 
     void flat(std::vector<float> &out);
     std::vector<std::vector<T>> get_slices(size_t outer_from, size_t outer_to, size_t inner_from, size_t inner_to);
+    template<T>
     friend SquareArray<T> operator+(T x, SquareArray<T> y);
+    template<T>
     friend SquareArray<T> operator*(T x, SquareArray<T> y);
     std::vector<T> operator[](size_t i) const;
     std::vector<T> & operator[](size_t i);
@@ -65,6 +66,7 @@ public:
 
     CubeArray<T> operator+=(CubeArray<T> const &y);
 
+    template<T>
     friend CubeArray<T> operator*(T y, CubeArray<T> x);
 
     size_t size();
