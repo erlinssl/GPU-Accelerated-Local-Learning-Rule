@@ -53,7 +53,7 @@ make
 You can also set the parameters at through command line arguments, here is the standard example used in Eidheim's article:
 
 ```
-./filter_finder 1 0.5 1000 4 1000 4 0.1
+./filter_finder 1 0.5 1000 4 1000 5 0.1
 ```
 
 The parameters are as follows, all 7 need to be set, otherwise all of them revert back to their standard value:
