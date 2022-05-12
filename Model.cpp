@@ -117,7 +117,7 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 mu[i1 * resolution * resolution + i2 * resolution + i3] += diff * learning_rate / sigma;
             }
 
-            __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, __global double *out) {
+            __kernel void INDICES(__global double *rands, int rand_counter, __local int *batch_indices, __global double *data, __global double *out) {
                 int i = get_global_id(0);
                 batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
                 batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 2 * lower_res));
