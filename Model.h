@@ -11,13 +11,13 @@
 template <typename T>
 class Model {
 public:
-    CubeArray<T> w;
     double sigma;
     double lambda;
-    double learning_rate;
 
     size_t filters;
     size_t resolution;
+    CubeArray<T> w;
+    double learning_rate;
 
     explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_, double learning_rate_ = 0.1) : sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), w(false, grid_size_ * grid_size_, image_res_, image_res_),  learning_rate(learning_rate_){};
     void update(SquareArray<T> const &x);

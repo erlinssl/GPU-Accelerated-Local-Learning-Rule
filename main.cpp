@@ -12,11 +12,11 @@ namespace plt = matplotlibcpp;
 
 
 double learning_rate = 0.1;
-static int GRID_SIZE = 4;
-static int RESOLUTION = 5;
-static int LOWER_RES = 2;
-static int UPPER_RES = 3;
-static int BATCH_SIZE = 1000;
+static size_t GRID_SIZE = 4;
+static size_t RESOLUTION = 5;
+static size_t LOWER_RES = 2;
+static size_t UPPER_RES = 3;
+static size_t BATCH_SIZE = 1000;
 
 CubeArray<double> get_data() {
     std::cout << "getting data" << std::endl;
@@ -135,16 +135,6 @@ void figure(const Model<T>& model){
             plt::plot();
         }
     }
-}
-
-template <typename T>
-void test_batch() {
-    CubeArray<T> batch = get_batch<double>(GRID_SIZE*GRID_SIZE);
-    Model<T> model(1.0, 0.5, GRID_SIZE, RESOLUTION);
-    model.w = batch;
-
-    figure(model);
-    plt::show();
 }
 
 template <typename T>

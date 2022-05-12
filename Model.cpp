@@ -30,11 +30,11 @@ void Model<T>::update(SquareArray<T> const &x) {
     std::vector<CubeArray<T>> diffs;
     diffs.reserve(num_threads);
 
-    int start = 0;
-    int thread_diff = filters / num_threads;
+    size_t start = 0;
+    size_t thread_diff = filters / num_threads;
     thread_diff += filters % num_threads;
-    for (int i = 0; i < num_threads; ++i) {
-        int end = start + thread_diff;
+    for (size_t i = 0; i < num_threads; ++i) {
+        size_t end = start + thread_diff;
         threads.push_back(std::thread([this, start, end, &diffs, x]{
             CubeArray<T> diff(true, filters, resolution, resolution);
             for (size_t i1 = start; i1 < end; ++i1) {
