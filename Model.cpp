@@ -9,8 +9,8 @@
 
 template <typename T>
 std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, SquareArray<T> y) {
-    for (int i = 0; i < x.size(); ++i) {
-        for (int j = 0; j < x[i].size(); ++j) {
+    for (size_t i = 0; i < x.size(); ++i) {
+        for (size_t j = 0; j < x[i].size(); ++j) {
             x[i][j] -= y[i][j];
         }
     }
@@ -26,10 +26,10 @@ double Model<T>::f(int i, SquareArray<T> const &x) {
 template <typename T>
 void Model<T>::update(SquareArray<T> const &x) {
     std::fill(diff.cube.begin(), diff.cube.end(), 0);
-    for (int i1 = 0; i1 < filters; ++i1) {
+    for (size_t i1 = 0; i1 < filters; ++i1) {
         diff.plus_index(i1, (x - w[i1]) * (f(i1, x)));
 
-        for (int i2 = 0; i2 < filters; ++i2) {
+        for (size_t i2 = 0; i2 < filters; ++i2) {
             if (i1 != i2) {
                 diff.minus_index(i1, (w[i2] - w[i1]) * (2.0 * lambda * f(i1, w[i2])));
             }
