@@ -1,22 +1,12 @@
 #include <filesystem>
 #include <iostream>
-#include <fstream>
 #include <chrono>
-#include <utility>
 #include <random>
-#include <boost/program_options.hpp>
 #include <boost/compute/system.hpp>
-#include <boost/compute/utility/source.hpp>
 
-#include <boost/program_options.hpp>
 #include <boost/compute/algorithm/copy.hpp>
 #include <boost/compute/container/vector.hpp>
-#include <boost/compute/system.hpp>
-#include <boost/compute/algorithm/copy.hpp>
-#include <boost/compute/algorithm/copy_n.hpp>
 #include <boost/compute/algorithm/find_if.hpp>
-#include <boost/compute/container/vector.hpp>
-#include <boost/compute/iterator/zip_iterator.hpp>
 
 #include "Arrays.h"
 #include "Model.h"
@@ -24,13 +14,10 @@
 
 namespace plt = matplotlibcpp;
 
-double figsize_scale = 0.2;
 double learning_rate = 0.1;
 int GRID_SIZE = 4;
 int BATCH_SIZE = 1000;
 int RESOLUTION = 5;
-// TODO Figure out how to set rcParams in matplotlib-cpp
-
 
 namespace compute = boost::compute;
 namespace po = boost::program_options;
@@ -82,30 +69,7 @@ CubeArray<double> get_data() {
     }
 }
 
-
-
 auto data = get_data();
-
-template <typename T>
-CubeArray<T> get_batch_revised(size_t batch_size){
-    std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
-    for(int i = 0; i < batch_size; ++i) {
-        std::vector<size_t> temp;
-        batch_indices[i][0] = ((int)((get_rand() * 60000.)));
-        // todo hardcoded shapes
-        batch_indices[i][1] = ((int)((2 + get_rand() * (28 - 4))));
-        batch_indices[i][2] = ((int)((2 + get_rand() * (28 - 4))));
-    }
-
-    std::vector<std::vector<std::vector<T>>> batch;
-
-    for (int i = 0; i < batch_indices.size(); ++i) {
-        auto dt = data[batch_indices[i][0]];
-        batch.emplace_back( dt.get_slices(batch_indices[i][1] - 2, batch_indices[i][1] + 3, batch_indices[i][2] - 2, batch_indices[i][2] + 3));
-    }
-
-    return CubeArray<T>(batch);
-}
 
 static std::vector<long> ex_times;
 
@@ -129,7 +93,7 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
     auto kernel2 = compute::kernel(model.program, "INDICES");
 
     kernel2.set_arg(0, rands.get_buffer());
-    clSetKernelArg(kernel2, 2, BATCH_SIZE * 3 * sizeof(int), NULL);
+    clSetKernelArg(kernel2, 2, BATCH_SIZE * 3 * sizeof(int), nullptr);
     kernel2.set_arg(3, gpu_data.get_buffer());
     kernel2.set_arg(4, model.batch_data.get_buffer());
 
@@ -159,12 +123,6 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
               std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << "ms" << std::endl;
     ex_times.push_back((stop - start).count());
     model.save(subfigure);
-}
-
-void print_stats(){
-    for (auto time : ex_times) {
-        std::cout << time << std::endl;
-    }
 }
 
 template <typename T>
@@ -203,12 +161,6 @@ void save_all(const std::vector<char>& figs){
         model.load(fig);
         figure(model);
         plt::show();
-        /*
-         std::string path = "../saved/figure2"
-         path.emplace_back(fig);
-         path.append(".pgf");
-         plt::save(path);
-        */
     }
 }
 
@@ -227,8 +179,8 @@ int main(int argc, char* argv[]) {
         learning_rate = std::stod(argv[7]);
     }
 
-    experiment<double>('a', sigma, lambda, nbatches);
-    //save_all<double>({'a'});
+    experiment<double>('z', sigma, lambda, nbatches);
+    //save_all<double>({'z'});
 
     Py_Finalize();
     return 0;

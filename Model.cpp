@@ -1,13 +1,7 @@
-//
-// Created by ingebrigt on 21.01.2022.
-//
-
 #include "Model.h"
 
-#include <utility>
 #include <fstream>
 #include <iterator>
-#include <boost/compute/algorithm/transform.hpp>
 #include <boost/compute/utility/dim.hpp>
 
 #define DELIMITER ' '
@@ -26,8 +20,6 @@ std::vector<std::vector<T>> operator-=(std::vector<std::vector<double>> &x, Squa
     return x;
 }
 
-
-
 template <typename T>
 void Model<T>::update(int j) {
     kernel.set_arg(2,j);
@@ -35,7 +27,6 @@ void Model<T>::update(int j) {
     using compute::uint_;
     queue.enqueue_nd_range_kernel(kernel, compute::dim(0, 0, 0), compute::dim(filters, resolution, resolution), compute::dim(1,resolution, resolution));
 }
-
 
 template <typename T>
 void Model<T>::save(const char &subfigure) {
@@ -54,17 +45,6 @@ void Model<T>::save(const char &subfigure) {
         }
         output_file << "\n";
     }
-
-    /*
-    for (int x = 0; x < filters; ++x) {
-        for (int y = 0; y < resolution; ++y) {
-            std::ostream_iterator<double> output_iterator(output_file, " ");
-            std::copy(w.cube.begin(), w.cube.begin() + resolution, output_iterator);
-            output_file << "\n";
-        }
-        output_file << "\n";
-    }
-    */
 }
 
 static inline void rtrim(std::string &s) {
@@ -108,7 +88,6 @@ bool Model<T>::load(const char &subfigure) {
     return true;
 }
 
-
 template<typename T>
 compute::program Model<T>::make_sma_program(const compute::context &context) {
     const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE (
@@ -137,11 +116,12 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
                 }
                 mu[i1 * resolution * resolution + i2 * resolution + i3] += diff * learning_rate / sigma;
             }
+
             __kernel void INDICES(__constant double *rands, int rand_counter, __local int *batch_indices, __constant double *data, __global double *out) {
                 int i = get_global_id(0);
                 batch_indices[i * 3 + 0] = (rands[rand_counter * batch_size * 3 + i * 3 + 0] * 60000.0);
-                batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 2 * (resolution / 2)));
-                batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 2 * (resolution / 2)));
+                batch_indices[i * 3 + 1] = (rands[rand_counter * batch_size * 3 + i * 3 + 1] * (28 - 2 * lower_res));
+                batch_indices[i * 3 + 2] = (rands[rand_counter * batch_size * 3 + i * 3 + 2] * (28 - 2 * lower_res));
 
                 int outer_from = batch_indices[i * 3 + 1] - lower_res;
                 int outer_to = batch_indices[i * 3 + 1] + upper_res;
@@ -159,7 +139,6 @@ compute::program Model<T>::make_sma_program(const compute::context &context) {
     // create sma program
     return compute::program::build_with_source(source,context, kernel_options);
 }
-
 
 
 template class Model<int>;

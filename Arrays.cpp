@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 27.01.2022.
-//
-
 // TODO Refactor usages of 2D arrays
 
 

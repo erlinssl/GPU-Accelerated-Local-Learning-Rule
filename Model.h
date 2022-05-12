@@ -1,7 +1,3 @@
-//
-// Created by ingebrigt on 21.01.2022.
-//
-
 #ifndef FILTER_FINDER_MODEL_H
 #define FILTER_FINDER_MODEL_H
 
@@ -58,9 +54,6 @@ public:
         kernel_options.append(std::to_string(lower_res));
         kernel_options.append(" -Dupper_res=");
         kernel_options.append(std::to_string(resolution - lower_res));
-
-
-
 
         context = compute::context(device);
         program = make_sma_program(context);
