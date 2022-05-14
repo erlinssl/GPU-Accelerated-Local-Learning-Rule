@@ -16,7 +16,7 @@ We have implemented several different versions of the original Python algorithm,
 | threads-v2        | Multi-threaded implementation parallelizing the calculation of filter values, sacrifices no accuracy |
 | arrayfire-revised | Implementation using the open source library ArrayFire, let's you choose whether to run on the CPU or on the GPU with CUDA or OpenCL; arrayfire-cpu/cuda/opencl branch out of this branch, and were mainly used to encforce the usage of each specific technology|
 | compute           | Implementation using Boost Compute, a thin wrapper over OpenCL; the  fastest GPU-accelerated version |
-| arrayfire-cifar   | An attempt at using the CIFAR-10 dataset instead of
+| arrayfire-cifar   | An attempt at using the CIFAR-10 dataset instead of MNIST; the team was not able to find filters using this iteration, but has left the branch here for further work purposes |
 
 The actual scientific results of the research is contained within the thesis itself, and will be linked here as soon as it is made public by NTNU.
 
