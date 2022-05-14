@@ -14,14 +14,15 @@ We have implemented several different versions of the original Python algorithm,
 | main              | Single threaded implementation of the algorithm in plain C++ |
 | threads-v1        | Multi-threaded implementation parallelizing part of the samples being run, offering the greatest CPU speed but sacrificing accuracy |
 | threads-v2        | Multi-threaded implementation parallelizing the calculation of filter values, sacrifices no accuracy |
-| arrayfire-revised | Implementation using the open source library ArrayFire, let's you choose whether to run on the CPU or on the GPU with CUDA or OpenCL |
+| arrayfire-revised | Implementation using the open source library ArrayFire, let's you choose whether to run on the CPU or on the GPU with CUDA or OpenCL; arrayfire-cpu/cuda/opencl branch out of this branch, and were mainly used to encforce the usage of each specific technology|
 | compute           | Implementation using Boost Compute, a thin wrapper over OpenCL; the  fastest GPU-accelerated version |
+| arrayfire-cifar   | An attempt at using the CIFAR-10 dataset instead of
 
 The actual scientific results of the research is contained within the thesis itself, and will be linked here as soon as it is made public by NTNU.
 
 ## Dependencies
 
-The dependencies of the program depends on the version used. All versions are dependent on [matplotlib-cpp](https://github.com/lava/matplotlib-cpp) in order to display the final calculation. ArrayFire is dependent on [ArrayFire](https://github.com/arrayfire/arrayfire) and compute is dependent on [Boost Compute](https://github.com/boostorg/compute). Each dependency can be found as a git submodule in each relevant branch.
+The dependencies of the program depends on the version used. All versions are dependent on [matplotlib-cpp](https://github.com/lava/matplotlib-cpp) in order to display the final calculation. The ArrayFire branches are dependent on [ArrayFire](https://github.com/arrayfire/arrayfire) and compute is dependent on [Boost Compute](https://github.com/boostorg/compute). The arrayfire-cifar branch also makes use of [a CIFAR-10 dataset reader](https://github.com/wichtounet/cifar-10). Each dependency can be found as a git submodule in each relevant branch. 
 
 
 
@@ -32,6 +33,7 @@ If you want to run the program on your own system you will need:
 1. C++20. The program can likely be easily rewritten to at least C++17 if not C++11 or lower, but out of the box it relies on C++20 functionality.  
 
 2. A copy of the [MNIST dataset](http://yann.lecun.com/exdb/mnist/) is needed; it it should be placed in a directory named data at the top level of this repository, see CMakeLists.txt for help
+    i. If you wish to experiment with the arrayfire-cifar branch, you will naturally need the [CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html) instead; the extracted 'cifar-10-batches-bin' folder should be placed within the 'cifar-10' submodule directory
 3. You will have to make sure you have Python 3 installed
 4. Install Numpy and matplotlib
 5. If you want to run ArrayFire you will need to [install ArrayFire](https://arrayfire.org/docs/installing.htm)
