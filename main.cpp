@@ -2,17 +2,13 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <utility>
 #include <random>
 
 #include "Arrays.h"
 #include "Model.h"
-#include "dependencies/matplotlibcpp.h"
+#include "dependencies/matplotlib-cpp/matplotlibcpp.h"
 
 namespace plt = matplotlibcpp;
-
-double figsize_scale = 0.2;
-// TODO Figure out how to set rcParams in matplotlib-cpp
 
 
 static double learning_rate = 0.1;
