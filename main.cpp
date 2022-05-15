@@ -12,10 +12,6 @@
 
 namespace plt = matplotlibcpp;
 
-double figsize_scale = 0.2;
-// TODO Figure out how to set rcParams in matplotlib-cpp
-
-
 double learning_rate = 0.1;
 static size_t GRID_SIZE = 4;
 static size_t RESOLUTION = 5;
@@ -205,12 +201,6 @@ void save_all(const std::vector<char>& figs){
         model.load(fig);
         figure(model);
         plt::show();
-        /*
-         std::string path = "../saved/figure2"
-         path.emplace_back(fig);
-         path.append(".pgf");
-         plt::save(path);
-        */
     }
 }
 
