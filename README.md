@@ -9,14 +9,14 @@ This is a repository developed for the bachelor thesis of [ikhovind](https:://gi
 
 We have implemented several different versions of the original Python algorithm, which are all spread across the different branches in this project. These are the main ones:
 
-| branch            | description                                                  |
-| ----------------- | :----------------------------------------------------------- |
-| main              | Single threaded implementation of the algorithm in plain C++ |
-| threads-v1        | Multi-threaded implementation parallelizing part of the samples being run, offering the greatest CPU speed but sacrificing accuracy |
-| threads-v2        | Multi-threaded implementation parallelizing the calculation of filter values, sacrifices no accuracy |
-| arrayfire-revised | Implementation using the open source library ArrayFire, let's you choose whether to run on the CPU or on the GPU with CUDA or OpenCL; arrayfire-cpu/cuda/opencl branch out of this branch, and were mainly used to encforce the usage of each specific technology|
-| compute           | Implementation using Boost Compute, a thin wrapper over OpenCL; the  fastest GPU-accelerated version |
-| arrayfire-cifar   | An attempt at using the CIFAR-10 dataset instead of MNIST; the team was not able to find filters using this iteration, but has left the branch here for further work purposes |
+| branch                                                       | description                                                  |
+| ------------------------------------------------------------ | :----------------------------------------------------------- |
+| [main](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/main) | Single threaded implementation of the algorithm in plain C++ |
+| [threads-v1](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/threads-v1) | Multi-threaded implementation parallelizing part of the samples being run, offering the greatest CPU speed but sacrificing accuracy |
+| [threads-v2](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/threads-v2) | Multi-threaded implementation parallelizing the calculation of filter values, sacrifices no accuracy |
+| [arrayfire-revised](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/arrayfire-revised) | Implementation using the open source library ArrayFire, let's you choose whether to run on the CPU or on the GPU with CUDA or OpenCL; arrayfire-cpu/cuda/opencl branch out of this branch, and were mainly used to enforce the usage of each specific technology |
+| [compute](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/compute) | Implementation using Boost Compute, a thin wrapper over OpenCL; the  fastest GPU-accelerated version |
+| [arrayfire-cifar](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/arrayfire-cifar) | An attempt at using the CIFAR-10 dataset instead of MNIST; the team was not able to find filters using this iteration, but has left the branch here for further work purposes |
 
 The actual scientific results of the research is contained within the thesis itself, and will be linked here as soon as it is made public by NTNU.
 
@@ -41,11 +41,12 @@ If you want to run the program on your own system you will need:
 
 A CMake file is provided, which should handle linking the given dependencies, given that you have them installed on your system. 
 
+When using ArrayFire, the desired backend is set in CMakeLists.txt as specified in the [official documentation](https://arrayfire.org/docs/using_on_linux.htm).
 
 
-In order to run the actual script, you can also use cmake, here is an example on a Linux system, starting from the top level of this repository:
+In order to run the actual script, you can build the program with CMake, here is an example on a Linux system, starting from the top level of this repository:
 
-```
+```bash
 mkdir build
 cd build
 cmake ..
@@ -53,9 +54,9 @@ make
 ./filter_finder
 ```
 
-Some of the branches have set default experiments that will run using this command, but others will require you to set the parameters through command line arguments, here is the standard example used in Eidheim's article:
+This command will run the default experiments for the given branch. A specific experiment can be run by setting the parameters as command line arguments:
 
-```
+```bash
 ./filter_finder 1 0.5 1000 4 1000 5 0.1
 ```
 
