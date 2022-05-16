@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
     }
 
     experiment<double>('z', sigma, lambda, nbatches);
-    // save_all<double>({'z'});
+    save_all<double>({'z'});
 
     Py_Finalize();
     return 0;
