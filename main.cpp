@@ -15,9 +15,9 @@
 namespace plt = matplotlibcpp;
 
 double learning_rate = 0.1;
-int GRID_SIZE = 4;
-int BATCH_SIZE = 1000;
-int RESOLUTION = 5;
+size_t GRID_SIZE = 4;
+size_t BATCH_SIZE = 1000;
+size_t RESOLUTION = 5;
 
 namespace compute = boost::compute;
 namespace po = boost::program_options;
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
     }
 
     experiment<double>('z', sigma, lambda, nbatches);
-    //save_all<double>({'z'});
+    save_all<double>({'z'});
 
     Py_Finalize();
     return 0;

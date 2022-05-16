@@ -12,7 +12,3 @@ static double get_rand() {
     return dist(mt);
 }
 
-static size_t index(size_t nrows, size_t x, size_t y) {
-    return (x * nrows) + y;
-}
-

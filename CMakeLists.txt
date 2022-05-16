@@ -8,8 +8,6 @@ set(SOURCE_FILES main.cpp)
 find_package (Python3 COMPONENTS Development NumPy)
 find_package (OpenCL REQUIRED)
 
-add_definitions(-w) # TODO Remove
-
 add_executable(filter_finder main.cpp Model.cpp Arrays.cpp)
 
 configure_file(data/train-images-idx3-ubyte trainingdata COPYONLY)

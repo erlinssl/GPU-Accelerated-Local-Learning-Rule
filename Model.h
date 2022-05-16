@@ -21,9 +21,9 @@ class Model {
 public:
     double sigma;
     double lambda;
-    int filters;
-    int resolution;
-    int batch_size;
+    size_t filters;
+    size_t resolution;
+    size_t batch_size;
     std::vector<T> results = std::vector<T>();
     std::string kernel_options;
     compute::vector<double> mugpu;
@@ -31,7 +31,7 @@ public:
     compute::context context;
     compute::command_queue queue;
     compute::program program;
-    explicit Model(double sigma_, double lambda_, int grid_size_, int image_res_, int batch_size_, double learning_rate = 0.1) :  sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), batch_size(batch_size_) {
+    explicit Model(double sigma_, double lambda_, size_t grid_size_, size_t image_res_, size_t batch_size_, double learning_rate = 0.1) :  sigma(sigma_), lambda(lambda_), filters(grid_size_ * grid_size_), resolution(image_res_), batch_size(batch_size_) {
         results.resize(filters * resolution * resolution);
         for(auto &a : results) {
             a = get_rand();

@@ -19,16 +19,6 @@ SquareArray<T>::SquareArray(std::vector<T> x) {
 }
 
 
-template <typename T>
-SquareArray<T>::SquareArray(size_t nrows_, size_t ncols_) {
-    nrows = nrows_;
-    ncols = ncols_;
-    arr = std::vector<T>();
-    arr.reserve(nrows_ * ncols_);
-    for (int i = 0; i < nrows_*ncols_; ++i){
-        arr.emplace_back(get_rand());
-    }
-}
 
 /*
 template <typename T>
@@ -69,8 +59,8 @@ SquareArray<T> operator*(T x, SquareArray<T> y) {
 // TODO Change parameter type from 2D to 1D vector, change references to method
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> const &y) {
-    for (int i = 0; i < ncols; ++i) {
-        for (int j = 0; j < nrows; ++j) {
+    for (size_t i = 0; i < ncols; ++i) {
+        for (size_t j = 0; j < nrows; ++j) {
             (*this).arr[index(i, j)] = (*this).arr[index(i, j)] - y[i][j];
         }
     }
@@ -79,7 +69,7 @@ SquareArray<T> SquareArray<T>::operator-(std::vector<std::vector<T>> const &y) {
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) {
-    SquareArray<T> temp (ncols, nrows, 1);
+    SquareArray<T> temp (ncols, nrows);
     temp.arr.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
         temp.arr.emplace_back(arr[i] - y.arr[i]);
@@ -89,7 +79,7 @@ SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) {
 
 template <typename T>
 SquareArray<T> SquareArray<T>::operator-(SquareArray<T> const &y) const {
-    SquareArray<T> temp (ncols, nrows, 1);
+    SquareArray<T> temp (ncols, nrows);
     temp.arr.reserve(arr.size());
     for (size_t i = 0; i < arr.size(); ++i) {
         temp.arr.emplace_back(arr[i] - y.arr[i]);
@@ -200,19 +190,6 @@ void SquareArray<T>::print() const {
 
 
 
-template <typename T>
-CubeArray<T>::CubeArray(bool zero, size_t outer, size_t middle, size_t inner) {
-    nlays = outer;
-    nrows = middle;
-    ncols = inner;
-    cube = std::vector<T>();
-    // todo sigsegv at 1913??????
-    cube.reserve(1914);
-    cube.reserve(nlays * nrows * ncols);
-    for (size_t i = 0; i < nlays * nrows * ncols; ++i){
-        cube.emplace_back(get_rand());
-    }
-}
 
 template <typename T>
 CubeArray<T>::CubeArray(std::vector<std::vector<std::vector<T>>> const &cube_) {
@@ -243,7 +220,7 @@ double CubeArray<T>::calc(SquareArray<T> const &x, size_t outer) {
 
 template <typename T>
 SquareArray<T> CubeArray<T>::operator[](size_t i) const {
-    SquareArray<T> temp(nrows, ncols, 1);
+    SquareArray<T> temp(nrows, ncols);
     temp.arr.reserve(nrows*ncols);
     for(size_t j = 0; j < nrows * ncols; ++j){
         temp.arr.emplace_back(cube[i*nrows*ncols + j]);
@@ -325,14 +302,14 @@ void CubeArray<T>::print() const {
 
 template <typename T>
 void CubeArray<T>::minus_index(size_t index_, SquareArray<T> const &y) {
-    for (int i = 0; i < y.ncols * y.nrows; ++i) {
+    for (size_t i = 0; i < y.ncols * y.nrows; ++i) {
         cube[index_ * nrows * ncols + i] -= y.arr[i];
     }
 }
 
 template <typename T>
 void CubeArray<T>::plus_index(size_t index_, SquareArray<T> const &y) {
-    for (int i = 0; i < y.ncols * y.nrows; ++i) {
+    for (size_t i = 0; i < y.ncols * y.nrows; ++i) {
         cube[index_ * nrows * ncols + i] += y.arr[i];
     }
 }
