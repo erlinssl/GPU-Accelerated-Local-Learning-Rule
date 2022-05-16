@@ -1,4 +1,4 @@
-# Filter finder
+# GPU-Accelerated-Local-Learning-Rule
 
 ## Origin
 
