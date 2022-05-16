@@ -33,9 +33,9 @@ If you want to run the program on your own system you will need:
 1. C++20. The program can likely be easily rewritten to at least C++17 if not C++11 or lower, but out of the box it relies on C++20 functionality.  
 
 2. A copy of the [MNIST dataset](http://yann.lecun.com/exdb/mnist/) is needed; it it should be placed in a directory named data at the top level of this repository, see CMakeLists.txt for help
-    i. If you wish to experiment with the arrayfire-cifar branch, you will naturally need the [CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html) instead; the extracted 'cifar-10-batches-bin' folder should be placed within the 'cifar-10' submodule directory
+    1. If you wish to experiment with the arrayfire-cifar branch, you will naturally need the [CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html) instead; the extracted 'cifar-10-batches-bin' folder should be placed within the 'cifar-10' submodule directory
 3. You will have to make sure you have Python 3 installed
-4. Install Numpy and matplotlib
+4. Install NumPy and Matplotlib
 5. If you want to run ArrayFire you will need to [install ArrayFire](https://arrayfire.org/docs/installing.htm)
 6. If you want to run compute you will need to [install Boost Compute](http://boostorg.github.io/compute/boost_compute/getting_started.html)
 
