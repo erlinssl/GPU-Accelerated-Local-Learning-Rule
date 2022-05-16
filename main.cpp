@@ -56,7 +56,7 @@ template <typename T>
 af::array get_batch(size_t batch_size){
     std::vector<std::vector<size_t>> batch_indices(batch_size, std::vector<size_t>(3));
 
-    for(int i = 0; i < batch_size; ++i) {
+    for(size_t i = 0; i < batch_size; ++i) {
         std::vector<size_t> temp;
         batch_indices[i][0] = ((unsigned long)((get_rand() * 60000.)));
         batch_indices[i][1] = ((unsigned long)((RES_LOWER + get_rand() * (28 - 2*RES_LOWER))));
@@ -65,7 +65,7 @@ af::array get_batch(size_t batch_size){
 
     std::vector<std::vector<std::vector<T>>> batch;
     af::array A = af::constant(0, RESOLUTION, RESOLUTION, batch_indices.size());
-    for (int i = 0; i < batch_indices.size(); ++i) {
+    for (size_t i = 0; i < batch_indices.size(); ++i) {
         A(af::span, af::span, i) = data(af::seq(batch_indices[i][1] - RES_LOWER, batch_indices[i][1] + (RES_UPPER-1)), af::seq(batch_indices[i][2] - RES_LOWER, batch_indices[i][2] + (RES_UPPER-1)), batch_indices[i][0]);
     }
     return A;
@@ -105,18 +105,18 @@ void experiment(const char subfigure, double sigma, double lambda_, size_t nbatc
 template <typename T>
 void figure(const Model<T>& model){
     std::vector<float> z(model.resolution * model.resolution, 0.0);
-    const int nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
+    const size_t nrows = (int) std::sqrt(model.filters), ncols = (int) std::sqrt(model.filters);
     const float* zptr = &(z[0]);
     std::vector<int> ticks = {};
-    const int colors = 1;
+    const size_t colors = 1;
 
-    for(int row = 0; row < nrows; row++){
-        for(int col = 0; col < ncols; col++){
+    for(size_t row = 0; row < nrows; row++){
+        for(size_t col = 0; col < ncols; col++){
             size_t index = row * nrows + col;
 
             af::array af_z = model.mu( af::span, af::span, index);
 
-            for(int i = 0; i < af_z.elements(); i++) {
+            for(size_t i = 0; i < af_z.elements(); i++) {
                 z[i] = (float) af_z(i).scalar<float>();
             }
 

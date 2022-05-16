@@ -27,7 +27,7 @@ void Model<T>::update(af::array const &x) {
             af::array exp = moddims(af::exp(-af::sum(af::sum(af::pow(mu_copy, 2))) / sigma), 1, 1, filters);
             diff += mu_copy * exp;
 
-            for(int i2 = 0; i2 < filters; i2++) {
+            for(size_t i2 = 0; i2 < filters; i2++) {
                 af::array mu2_copy = -mu;
                 mu2_copy(af::span, af::span, i1) += mu(af::span, af::span, i2);
                 diff -= (mu2_copy * (2.0 * lambda * af::exp(-af::sum(af::sum(af::pow(mu2_copy, 2))) / sigma)));
