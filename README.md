@@ -1,4 +1,4 @@
-# GPU-Accelerated-Local-Learning-Rule
+# Parallelization of Local Learning Rules 
 
 ## Origin
 
