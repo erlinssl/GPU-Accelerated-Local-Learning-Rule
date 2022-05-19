@@ -4,9 +4,9 @@
 
 This is a repository developed for the bachelor thesis of [ikhovind](https:://github.com/ikhovind) and [erlinssl](https://github.com/erlinssl). It is an extension of a [machine learning article](https://arxiv.org/abs/2205.00920) written by our supervisor Ole Christian Eidheim. In connection to said article, Eidheim developed an algorithm in Python, and the thesis concerns translating this algorithm into C++, optimizing it and finally GPU-parallelize it. The group then gathered data about the general calculations, and attempted to draw conclusion about the potentials of GPU-acceleration based on the results.
 
-| Filters produced by main: | Filters produced by threads-v1:                 | Filters produced by compute:                      |
-| ------------------------- | ----------------------------------------------- | ------------------------------------------------- |
-| ![image](./img/main.png)  | ![Filters produced by threads-v1](./img/v1.png) | ![Filters produced by compute](./img/compute.png) |
+| Filters produced by main:                    | Filters produced by threads-v1:                 | Filters produced by compute:                      |
+| -------------------------------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| ![Filters produced by main](./img/main.png)  | ![Filters produced by threads-v1](./img/v1.png) | ![Filters produced by compute](./img/compute.png) |
 
 ## Results
 
