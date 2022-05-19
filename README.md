@@ -32,7 +32,7 @@ If you want to run the program on your own system you will need:
 
 1. C++20. The program can likely be easily rewritten to at least C++17 if not C++11 or lower, but out of the box it relies on C++20 functionality.  
 
-2. A copy of the [MNIST dataset](http://yann.lecun.com/exdb/mnist/) is needed; it it should be placed in a directory named data at the top level of this repository, see CMakeLists.txt for help
+2. A copy of the [MNIST dataset](http://yann.lecun.com/exdb/mnist/) is needed; it should be named: `train-images-idx3-ubyte` and placed in a directory named data at the top level of this repository. See the `configure_file()` command in CMakeLists.txt for help
     1. If you wish to experiment with the arrayfire-cifar branch, you will naturally need the [CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html) instead; the extracted 'cifar-10-batches-bin' folder should be placed within the 'cifar-10' submodule directory
 3. You will have to make sure you have Python 3 installed
 4. Install NumPy and Matplotlib
@@ -60,7 +60,7 @@ This command will run the default experiments for the given branch. A specific e
 ./filter_finder 1 0.5 1000 4 1000 5 0.1
 ```
 
-The parameters are as follows, all 7 need to be set, otherwise all of them revert back to their standard value:
+The parameters are as follows, all 7 need to be set, otherwise all of them revert back to their standard values:
 
 ```
 ./filter_finder sigma lambda num_batches grid_size batch_size resolution learning_rate
