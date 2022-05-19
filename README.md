@@ -4,6 +4,9 @@
 
 This is a repository developed for the bachelor thesis of [ikhovind](https:://github.com/ikhovind) and [erlinssl](https://github.com/erlinssl). It is an extension of a [machine learning article](https://arxiv.org/abs/2205.00920) written by our supervisor Ole Christian Eidheim. In connection to said article, Eidheim developed an algorithm in Python, and the thesis concerns translating this algorithm into C++, optimizing it and finally GPU-parallelize it. The group then gathered data about the general calculations, and attempted to draw conclusion about the potentials of GPU-acceleration based on the results.
 
+| Filters produced by main: | Filters produced by threads-v1:                 | Filters produced by compute:                      |
+| ------------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| ![image](./img/main.png)  | ![Filters produced by threads-v1](./img/v1.png) | ![Filters produced by compute](./img/compute.png) |
 
 ## Results
 
@@ -12,7 +15,7 @@ We have implemented several different versions of the original Python algorithm,
 | branch                                                       | description                                                  |
 | ------------------------------------------------------------ | :----------------------------------------------------------- |
 | [main](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/main) | Single threaded implementation of the algorithm in plain C++ |
-| [threads-v1](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/threads-v1) | Multi-threaded implementation parallelizing part of the samples being run, offering the greatest CPU speed but sacrificing accuracy |
+| [threads-v1](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/threads-v1) | Multi-threaded implementation parallelizing part of the samples being run, offering the greatest CPU speed but sacrificing accuracy, therefore finding fewer filters than other implementations |
 | [threads-v2](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/threads-v2) | Multi-threaded implementation parallelizing the calculation of filter values, sacrifices no accuracy |
 | [arrayfire-revised](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/arrayfire-revised) | Implementation using the open source library ArrayFire, let's you choose whether to run on the CPU or on the GPU with CUDA or OpenCL; arrayfire-cpu/cuda/opencl branch out of this branch, and were mainly used to enforce the usage of each specific technology |
 | [compute](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/compute) | Implementation using Boost Compute, a thin wrapper over OpenCL; the  fastest GPU-accelerated version |
