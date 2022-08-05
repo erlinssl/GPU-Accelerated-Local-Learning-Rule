@@ -21,7 +21,7 @@ We have implemented several different versions of the original Python algorithm,
 | [compute](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/compute) | Implementation using Boost Compute, a thin wrapper over OpenCL; the  fastest GPU-accelerated version |
 | [arrayfire-cifar](https://github.com/ikhovind/GPU-Accelerated-Local-Learning-Rule/tree/arrayfire-cifar) | An attempt at using the CIFAR-10 dataset instead of MNIST; the team was not able to find filters using this iteration, but has left the branch here for further work purposes |
 
-The actual scientific results of the research is contained within the thesis itself, and will be linked here as soon as it is made public by NTNU.
+The actual scientific results of the research is contained within the thesis itself, [which is published on NTNU Open](https://hdl.handle.net/11250/3009254).
 
 ## Dependencies
 
